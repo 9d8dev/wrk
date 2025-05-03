@@ -1,1 +1,0 @@
-ALTER TABLE "profile" DROP COLUMN "website";

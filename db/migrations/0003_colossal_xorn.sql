@@ -1,1 +1,0 @@
-ALTER TABLE "project" DROP COLUMN "cover_image_alt";
