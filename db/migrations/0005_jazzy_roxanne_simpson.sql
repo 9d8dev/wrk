@@ -1,0 +1,1 @@
+ALTER TABLE "media" ALTER COLUMN "project_id" DROP NOT NULL;

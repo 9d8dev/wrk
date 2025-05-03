@@ -1,0 +1,2 @@
+ALTER TABLE "profile" ADD COLUMN "profile_image_id" text;--> statement-breakpoint
+ALTER TABLE "profile" ADD CONSTRAINT "profile_profile_image_id_media_id_fk" FOREIGN KEY ("profile_image_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
