@@ -274,17 +274,17 @@ export function ProfileForm({
                     onValueChange={setProfileImageFile}
                     dropzoneOptions={{
                       maxFiles: 1,
-                      maxSize: 4 * 1024 * 1024, // 4MB
+                      maxSize: 1 * 1024 * 1024, // 1MB
                       accept: {
                         "image/*": [".jpg", ".jpeg", ".png", ".webp"],
                       },
                     }}
                   >
-                    <FileInput className="h-64 border-dashed flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+                    <FileInput className="h-64 border-dashed flex flex-col items-center justify-center gap-1 text-sm text-muted-foreground">
                       <ImageIcon size={24} className="mb-4" />
                       <p>Drag & drop or click to upload profile image</p>
-                      <p className="text-[10px]">
-                        (Max file size: 4MB, Formats: JPG, PNG, WebP)
+                      <p className="text-xs">
+                        (Max file size: 1MB, Formats: JPG, PNG, WebP)
                       </p>
                     </FileInput>
 
