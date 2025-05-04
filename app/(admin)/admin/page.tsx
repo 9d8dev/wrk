@@ -16,10 +16,8 @@ export default async function AdminPage() {
     redirect("/sign-in");
   }
 
-  // Get projects directly from the database
   const projects = await getAllProjects(session.user.id);
 
-  // Get featured images for each project
   const projectsWithImages = await Promise.all(
     projects.map(async (project) => {
       const featuredImage = await getFeaturedImageByProjectId(project.id);
