@@ -300,9 +300,7 @@ export function ProfileForm({
                   </FileUploader>
                 </div>
               </FormControl>
-              <FormDescription>
-                Upload a profile picture to personalize your account.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
