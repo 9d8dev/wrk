@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile } from "@/lib/actions/profile";
 import { Profile, SocialLink } from "@/types";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, ImageIcon } from "lucide-react";
 import {
   FileUploader,
   FileInput,
@@ -144,7 +144,6 @@ export function ProfileForm({
     }
   }
 
-  // Render a read-only view when not in edit mode
   if (!isEditing) {
     return (
       <div className="space-y-6">
@@ -156,7 +155,6 @@ export function ProfileForm({
           />
         </div>
 
-        {/* Profile Image */}
         {(profileImageUrl || user.image) && (
           <div className="mb-6">
             <div className="w-24 h-24 rounded-full overflow-hidden">
@@ -211,7 +209,6 @@ export function ProfileForm({
           </div>
         </div>
 
-        {/* Social Links */}
         {socialLinks && socialLinks.length > 0 && (
           <div>
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
@@ -238,7 +235,6 @@ export function ProfileForm({
     );
   }
 
-  // Render the editable form when in edit mode
   return (
     <Form {...form}>
       <div className="flex justify-between items-center mb-6 fixed top-2 right-4">
@@ -249,7 +245,6 @@ export function ProfileForm({
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Profile Image Upload */}
         <FormField
           control={form.control}
           name="profileImage"
@@ -258,7 +253,6 @@ export function ProfileForm({
               <FormLabel>Profile Image</FormLabel>
               <FormControl>
                 <div className="space-y-4">
-                  {/* Show current profile image if it exists */}
                   {(profileImageUrl || user.image) && !profileImageFile && (
                     <div className="w-24 h-24 rounded-full overflow-hidden mb-2">
                       <Image
@@ -282,19 +276,16 @@ export function ProfileForm({
                       maxFiles: 1,
                       maxSize: 4 * 1024 * 1024, // 4MB
                       accept: {
-                        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+                        "image/*": [".jpg", ".jpeg", ".png", ".webp"],
                       },
                     }}
                   >
-                    <FileInput className="h-64 border-dashed">
-                      <div className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
-                        <span>
-                          Drag & drop or click to upload profile image
-                        </span>
-                        <span className="text-[10px]">
-                          (Max file size: 4MB, Formats: JPG, PNG, GIF, WebP)
-                        </span>
-                      </div>
+                    <FileInput className="h-64 border-dashed flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+                      <ImageIcon size={24} className="mb-4" />
+                      <p>Drag & drop or click to upload profile image</p>
+                      <p className="text-[10px]">
+                        (Max file size: 4MB, Formats: JPG, PNG, WebP)
+                      </p>
                     </FileInput>
 
                     {profileImageFile && profileImageFile.length > 0 && (
