@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { CreateProject } from "./create-project";
+import { Upload } from "lucide-react";
+
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export function GlobalDropZone() {
@@ -80,28 +82,14 @@ export function GlobalDropZone() {
 
   return (
     <>
-      {/* Visual overlay that appears when dragging files */}
       {isDragging && (
-        <div className="absolute inset-0 z-10 bg-primary/10 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-background border-2 border-dashed border-primary rounded-lg p-8 shadow-lg">
-            <div className="text-center">
-              <svg
-                className="w-16 h-16 text-primary mx-auto mb-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                />
-              </svg>
-              <h3 className="text-xl font-medium text-primary mb-2">
-                Drop images to create a new project
-              </h3>
+        <div className="absolute inset-0 z-10 bg-gradient-to-br from-transparent via-transparent to-foreground/30 flex items-end justify-end">
+          <div className="m-8 bg-background rounded-sm grid grid-cols-[auto_1fr]">
+            <div className="p-6 aspect-square border-r h-full flex items-center justify-center">
+              <Upload className="w-6 h-6" />
+            </div>
+            <div className="p-6">
+              <h3 className="text-lg">Drop images to create a new project</h3>
               <p className="text-muted-foreground">
                 Your images will be uploaded and a new project form will open
               </p>
