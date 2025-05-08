@@ -20,7 +20,6 @@ import {
 } from "react-dropzone";
 import { toast } from "sonner";
 import { Trash2 as RemoveIcon } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
 
 // Types
 type DirectionOptions = "rtl" | "ltr" | undefined;
@@ -421,8 +420,6 @@ export const FileInput = forwardRef<
 
   // Don't get root props if limit reached
   const rootProps = isLimitReached ? {} : dropzoneState.getRootProps();
-
-  const { maxFiles } = dropzoneOptions;
 
   return (
     <div
