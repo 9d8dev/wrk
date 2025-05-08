@@ -35,6 +35,7 @@ type FileUploaderContextType = {
   orientation: "horizontal" | "vertical";
   direction: DirectionOptions;
   files: File[] | null;
+  dropzoneOptions: DropzoneOptions;
 };
 
 // Context
@@ -239,6 +240,7 @@ export const FileUploader = forwardRef<
           orientation,
           direction,
           files: value,
+          dropzoneOptions,
         }}
       >
         <div
@@ -277,8 +279,10 @@ export const FileUploaderContent = forwardRef<
         {...props}
         ref={ref}
         className={cn(
-          "flex rounded-xl gap-1",
-          orientation === "horizontal" ? "flex-row flex-wrap" : "flex-col",
+          "grid gap-2",
+          orientation === "horizontal"
+            ? "grid-flow-col auto-cols-max overflow-x-auto pb-2 snap-x"
+            : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
           className
         )}
       >
@@ -297,16 +301,31 @@ export const FileUploaderItem = forwardRef<
   HTMLDivElement,
   { index: number; file?: File } & React.HTMLAttributes<HTMLDivElement>
 >(({ className, index, children, file, ...props }, ref) => {
-  const { removeFile, activeIndex, direction } = useFileUpload();
+  const { removeFile, activeIndex, direction, setActiveIndex } =
+    useFileUpload();
   const isSelected = index === activeIndex;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Generate preview for image files
   useEffect(() => {
     if (!file || !file.type.startsWith("image/")) return;
 
+    setIsLoading(true);
+    setError(false);
+
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
+
+    // Simulate image loading
+    const img = new Image();
+    img.onload = () => setIsLoading(false);
+    img.onerror = () => {
+      setError(true);
+      setIsLoading(false);
+    };
+    img.src = objectUrl;
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
@@ -315,25 +334,50 @@ export const FileUploaderItem = forwardRef<
     <div
       ref={ref}
       className={cn(
-        buttonVariants({ variant: "ghost" }),
-        "h-auto min-h-6 p-1 justify-between cursor-pointer relative",
-        isSelected ? "bg-muted" : "",
+        "h-auto rounded-md overflow-hidden cursor-pointer relative group transition-all",
+        isSelected
+          ? "ring-2 ring-primary ring-offset-1"
+          : "hover:ring-1 hover:ring-primary/50",
         className
       )}
+      onClick={() => setActiveIndex(index)}
       {...props}
     >
-      <div className="font-medium leading-none tracking-tight flex items-center gap-1.5 h-full w-full">
+      <div className="w-full h-full">
         {previewUrl ? (
-          <div className="relative w-full h-56 overflow-hidden">
+          <div className="relative w-full aspect-square overflow-hidden snap-center">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+            {error && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground">
+                <span>Failed to load</span>
+              </div>
+            )}
             <img
               src={previewUrl}
-              alt="File preview"
-              className="w-full h-full rounded-md object-cover"
+              alt={file?.name || "File preview"}
+              className={cn(
+                "w-full h-full object-cover transition-opacity duration-200",
+                isLoading || error ? "opacity-0" : "opacity-100"
+              )}
             />
-            <div className="mt-1 text-xs truncate max-w-full">{children}</div>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-xs text-white truncate opacity-0 group-hover:opacity-100 transition-opacity">
+              {children || file?.name}
+            </div>
+            {/* Featured badge - could be conditionally shown */}
+            {isSelected && (
+              <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md shadow-sm">
+                Selected
+              </div>
+            )}
           </div>
         ) : (
-          children
+          <div className="flex items-center justify-center p-4 bg-muted h-full min-h-[100px]">
+            {children || file?.name || "Unknown file"}
+          </div>
         )}
       </div>
 
@@ -341,14 +385,17 @@ export const FileUploaderItem = forwardRef<
       <button
         type="button"
         className={cn(
-          "absolute",
+          "absolute opacity-0 group-hover:opacity-100 transition-opacity",
           direction === "rtl" ? "top-1 left-1" : "top-1 right-1",
-          previewUrl ? "bg-background/80 rounded-full p-1" : ""
+          "bg-background/80 rounded-full p-1 shadow-sm hover:bg-destructive hover:text-destructive-foreground"
         )}
-        onClick={() => removeFile(index)}
+        onClick={(e) => {
+          e.stopPropagation();
+          removeFile(index);
+        }}
       >
         <span className="sr-only">Remove file {index + 1}</span>
-        <RemoveIcon className="w-4 h-4 hover:stroke-destructive duration-200 ease-in-out" />
+        <RemoveIcon className="w-4 h-4" />
       </button>
     </div>
   );
@@ -363,36 +410,119 @@ export const FileInput = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  const { dropzoneState, isFileTooBig, isLimitReached, files } =
-    useFileUpload();
+  const {
+    dropzoneState,
+    isFileTooBig,
+    isLimitReached,
+    files,
+    dropzoneOptions,
+  } = useFileUpload();
   const hasFiles = files && files.length > 0;
 
   // Don't get root props if limit reached
   const rootProps = isLimitReached ? {} : dropzoneState.getRootProps();
+
+  const { maxFiles } = dropzoneOptions;
 
   return (
     <div
       ref={ref}
       {...props}
       className={cn(
-        "relative w-full border rounded bg-accent/30 hover:bg-accent/50 transition-all h-56 flex items-center justify-center",
-        isLimitReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        "relative w-full border rounded-lg transition-all flex items-center justify-center",
+        dropzoneState.isDragActive
+          ? "border-primary border-2 bg-primary/5"
+          : "border-border bg-accent/30 hover:bg-accent/50",
+        isLimitReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+        hasFiles ? "h-auto" : "h-56"
       )}
     >
       {!hasFiles && (
         <div
           className={cn(
-            "w-full rounded-lg duration-300 ease-in-out",
+            "w-full h-full rounded-lg duration-300 ease-in-out flex flex-col items-center justify-center p-6",
             dropzoneState.isDragAccept
-              ? "border-green-500"
+              ? "text-green-600 dark:text-green-400"
               : dropzoneState.isDragReject || isFileTooBig
-              ? "border-red-500"
-              : "border-gray-300",
+              ? "text-destructive"
+              : "text-muted-foreground",
             className
           )}
           {...rootProps}
         >
           {children}
+
+          {/* Add subtle helper text */}
+          {!dropzoneState.isDragActive && (
+            <p className="text-xs mt-2 opacity-70">
+              {isLimitReached
+                ? `Maximum ${dropzoneOptions.maxFiles || 1} file${
+                    (dropzoneOptions.maxFiles || 1) > 1 ? "s" : ""
+                  } reached`
+                : `Click or drag to upload${
+                    (dropzoneOptions.maxFiles || 1) > 1
+                      ? ` (${files?.length || 0}/${
+                          dropzoneOptions.maxFiles || 1
+                        })`
+                      : ""
+                  }`}
+            </p>
+          )}
+
+          {/* Active drag overlay */}
+          {dropzoneState.isDragActive && (
+            <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm border-2 border-dashed border-primary z-10">
+              <div className="text-center p-4">
+                {dropzoneState.isDragAccept ? (
+                  <>
+                    <svg
+                      className="w-10 h-10 text-primary mx-auto mb-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                      />
+                    </svg>
+                    <p className="text-primary font-medium">Drop to upload</p>
+                    {(dropzoneOptions.maxFiles || 1) > 1 && (
+                      <p className="text-xs mt-1 text-muted-foreground">
+                        {files?.length || 0} of {dropzoneOptions.maxFiles} files
+                        selected
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-10 h-10 text-destructive mx-auto mb-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-destructive font-medium">
+                      {isLimitReached
+                        ? "File limit reached"
+                        : "File type not supported"}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
