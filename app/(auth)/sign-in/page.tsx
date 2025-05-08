@@ -49,6 +49,10 @@ const SignInForm = () => {
     <Container className="space-y-4">
       <h3 className="text-xl font-semibold">Login to your account</h3>
 
+      <p className="text-sm text-muted-foreground">
+        Welcome back! Sign in to your account.
+      </p>
+
       <form
         className="grid gap-2"
         onSubmit={async (e) => {
@@ -95,7 +99,10 @@ const SignInForm = () => {
       </form>
 
       <p className="text-sm text-muted-foreground">
-        Welcome back! Sign in to your account.
+        Forgot your password?{" "}
+        <Link href="/reset-password" className="text-primary">
+          Reset Password
+        </Link>
       </p>
     </Container>
   );
@@ -187,7 +194,7 @@ const SignUpForm = () => {
         By signing up, you agree to our{" "}
         <Link href="/terms" className="text-primary">
           Terms of Service
-        </Link>
+        </Link>{" "}
         and{" "}
         <Link href="/privacy" className="text-primary">
           Privacy Policy
