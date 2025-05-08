@@ -56,7 +56,7 @@ export function ProjectList({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -72,7 +72,7 @@ export function ProjectList({
 
       try {
         const oldIndex = items.findIndex(
-          (item) => item.project.id === activeId,
+          (item) => item.project.id === activeId
         );
         const newIndex = items.findIndex((item) => item.project.id === overId);
 

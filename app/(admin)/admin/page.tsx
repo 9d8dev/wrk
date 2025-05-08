@@ -33,13 +33,11 @@ export default async function AdminPage() {
         </Suspense>
       </AdminHeader>
       <section className="space-y-6 p-4 max-w-5xl mx-auto">
-        <ClientOnly>
-          <ProjectList
-            projectsWithImages={projectsWithImages}
-            userId={session.user.id}
-            username={session.user.username!}
-          />
-        </ClientOnly>
+        <ProjectList
+          projectsWithImages={projectsWithImages}
+          userId={session.user.id}
+          username={session.user.username!}
+        />
       </section>
     </>
   );
