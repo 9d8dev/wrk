@@ -2,10 +2,12 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, UserCircle, Hash } from "lucide-react";
-import { Container, Section } from "@/components/ds";
+import { Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/logo";
 
+import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp } from "@/lib/actions/auth";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,28 +17,59 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function SignInPage() {
+  const [activeTab, setActiveTab] = useState("sign-in");
+
   return (
-    <Section className="flex items-center justify-center min-h-screen relative">
-      <Tabs defaultValue="sign-in" className="w-md">
-        <TabsList className="w-full">
-          <TabsTrigger value="sign-in">Login</TabsTrigger>
-          <TabsTrigger value="sign-up">Create Account</TabsTrigger>
-        </TabsList>
-        <TabsContent className="bg-background rounded mt-2" value="sign-in">
-          <SignInForm />
-        </TabsContent>
-        <TabsContent className="bg-background rounded mt-2" value="sign-up">
-          <SignUpForm />
-        </TabsContent>
-      </Tabs>
+    <main className="h-screen w-screen relative overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md mx-auto sm:mt-[25%] p-4 sm:p-0"
+      >
+        <Logo className="text-background mb-8" />
+
+        <Tabs
+          defaultValue="sign-in"
+          className="w-full"
+          onValueChange={(value) => setActiveTab(value)}
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="sign-in">Login</TabsTrigger>
+            <TabsTrigger value="sign-up">Create Account</TabsTrigger>
+          </TabsList>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: activeTab === "sign-in" ? -20 : 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: activeTab === "sign-in" ? 20 : -20 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="bg-background rounded mt-2"
+            >
+              {activeTab === "sign-in" && (
+                <TabsContent value="sign-in">
+                  <SignInForm />
+                </TabsContent>
+              )}
+              {activeTab === "sign-up" && (
+                <TabsContent value="sign-up">
+                  <SignUpForm />
+                </TabsContent>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Tabs>
+      </motion.div>
 
       <Image
         src={Water}
         alt="Water"
-        className="absolute inset-0 object-cover h-full w-full -z-10"
+        className="absolute scale-125 -mt-4 inset-0 object-cover h-full w-full -z-10"
         placeholder="blur"
       />
-    </Section>
+    </main>
   );
 }
 
@@ -47,15 +80,30 @@ const SignInForm = () => {
 
   return (
     <Container className="space-y-4">
-      <h3 className="text-xl font-semibold">Login to your account</h3>
+      <motion.h3
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="text-xl font-semibold"
+      >
+        Login to your account
+      </motion.h3>
 
-      <p className="text-sm text-muted-foreground">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="text-sm text-muted-foreground"
+      >
         Welcome back! Sign in to your account.
-      </p>
+      </motion.p>
 
-      <form
+      <motion.form
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
         className="grid gap-2"
-        onSubmit={async (e) => {
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           setIsLoading(true);
           const formData = new FormData(e.currentTarget);
@@ -96,14 +144,19 @@ const SignInForm = () => {
         <Button type="submit" className="mt-2" disabled={isLoading}>
           Sign In
         </Button>
-      </form>
+      </motion.form>
 
-      <p className="text-sm text-muted-foreground">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+        className="text-sm text-muted-foreground"
+      >
         Forgot your password?{" "}
         <Link href="/reset-password" className="text-primary">
           Reset Password
         </Link>
-      </p>
+      </motion.p>
     </Container>
   );
 };
@@ -117,15 +170,30 @@ const SignUpForm = () => {
 
   return (
     <Container className="space-y-4">
-      <h3 className="text-xl font-semibold">Create an account</h3>
+      <motion.h3
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="text-xl font-semibold"
+      >
+        Create an account
+      </motion.h3>
 
-      <p className="text-sm text-muted-foreground">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="text-sm text-muted-foreground"
+      >
         Sign up for free to get started.
-      </p>
+      </motion.p>
 
-      <form
+      <motion.form
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
         className="grid gap-2"
-        onSubmit={async (e) => {
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           setIsLoading(true);
           const formData = new FormData(e.currentTarget);
@@ -188,9 +256,14 @@ const SignUpForm = () => {
         <Button type="submit" className="mt-2" disabled={isLoading}>
           Sign Up
         </Button>
-      </form>
+      </motion.form>
 
-      <p className="text-sm text-muted-foreground">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+        className="text-sm text-muted-foreground"
+      >
         By signing up, you agree to our{" "}
         <Link href="/terms" className="text-primary">
           Terms of Service
@@ -199,7 +272,7 @@ const SignUpForm = () => {
         <Link href="/privacy" className="text-primary">
           Privacy Policy
         </Link>
-      </p>
+      </motion.p>
     </Container>
   );
 };
