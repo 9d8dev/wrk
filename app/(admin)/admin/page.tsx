@@ -3,11 +3,9 @@ import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 
-import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { GlobalDropZone } from "@/components/admin/global-drop-zone";
-import { Suspense } from "react";
 
 export default async function AdminPage() {
   const session = await getSession();
