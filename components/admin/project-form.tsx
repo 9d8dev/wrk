@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import {
   getFeaturedImageByProjectId,
-  getMediaByProjectId,
+  getAllProjectImages,
 } from "@/lib/data/media";
 
 import { Loader2, UploadCloud, Trash2 } from "lucide-react";
@@ -119,12 +119,14 @@ export const ProjectForm = ({
           setFeaturedImageId(featured.id);
         }
 
-        // Fetch all project media
-        const allMedia = await getMediaByProjectId(project.id);
+        // Fetch all project media using the new function that handles imageIds
+        const allMedia = await getAllProjectImages(project.id);
 
         // Set all media as selected image IDs
         const mediaIds = allMedia.map((media) => media.id);
         setSelectedImageIds(mediaIds);
+
+        console.log("Loaded image IDs for project:", mediaIds);
 
         // Filter out the featured image for display purposes
         const additional = featured
@@ -150,6 +152,7 @@ export const ProjectForm = ({
 
       // Upload all project images first
       const newImageIds: string[] = [...selectedImageIds]; // Start with existing IDs
+      const uploadedImageIds: string[] = [];
 
       // Upload new images if any
       if (projectImages.length > 0) {
@@ -161,9 +164,13 @@ export const ProjectForm = ({
           const result = await uploadImage(formData);
           if (result.success && result.mediaId) {
             newImageIds.push(result.mediaId);
+            uploadedImageIds.push(result.mediaId);
           }
         }
       }
+
+      console.log("Uploaded image IDs:", uploadedImageIds);
+      console.log("All image IDs for project:", newImageIds);
 
       // Use the selected featured image ID or the first image if none selected
       let newFeaturedImageId = featuredImageId;
@@ -359,7 +366,6 @@ export const ProjectForm = ({
         />
 
         <MediaGrid media={uploadedMedia} title="Additional Media" />
-        <MediaGrid media={existingAdditionalMedia} title="Existing Media" />
 
         <div className="flex justify-end space-x-2">
           {onCancel && (

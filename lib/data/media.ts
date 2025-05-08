@@ -204,31 +204,66 @@ export const getMediaByProjectId = async (projectId: string) => {
 /**
  * Gets the featured image for a project using the featuredImageId field
  */
-export const getFeaturedImageByProjectId = async (projectId: string) => {
-  // First, get the project to find the featuredImageId
-  const projectData = await db
-    .select()
-    .from(project)
-    .where(eq(project.id, projectId))
-    .limit(1);
+export async function getFeaturedImageByProjectId(projectId: string) {
+  try {
+    // First, get the project to find the featuredImageId
+    const [projectData] = await db
+      .select()
+      .from(project)
+      .where(eq(project.id, projectId))
+      .limit(1);
 
-  if (!projectData.length || !projectData[0].featuredImageId) {
-    // If no project found or no featuredImageId, try to get the first media item as fallback
-    const mediaData = await db
+    if (!projectData || !projectData.featuredImageId) {
+      return null;
+    }
+
+    // Then get the media item using the featuredImageId
+    const [mediaItem] = await db
       .select()
       .from(media)
-      .where(eq(media.projectId, projectId))
+      .where(eq(media.id, projectData.featuredImageId))
       .limit(1);
-    
-    return mediaData.length > 0 ? mediaData[0] : null;
+
+    return mediaItem || null;
+  } catch (error) {
+    console.error("Error fetching featured image:", error);
+    return null;
   }
+}
 
-  // Get the featured image using the featuredImageId
-  const featuredImageData = await db
-    .select()
-    .from(media)
-    .where(eq(media.id, projectData[0].featuredImageId))
-    .limit(1);
+/**
+ * Gets all images for a project using the imageIds array
+ */
+export async function getAllProjectImages(projectId: string) {
+  try {
+    // First, get the project to find the imageIds
+    const [projectData] = await db
+      .select()
+      .from(project)
+      .where(eq(project.id, projectId))
+      .limit(1);
 
-  return featuredImageData.length > 0 ? featuredImageData[0] : null;
-};
+    if (!projectData || !projectData.imageIds || projectData.imageIds.length === 0) {
+      // If no imageIds, try to get all media associated with the project
+      return await getMediaByProjectId(projectId);
+    }
+
+    // Get all media items using the imageIds array
+    const mediaItems = await Promise.all(
+      projectData.imageIds.map(async (id: string) => {
+        const [mediaItem] = await db
+          .select()
+          .from(media)
+          .where(eq(media.id, id))
+          .limit(1);
+        return mediaItem;
+      })
+    );
+
+    // Filter out any null values
+    return mediaItems.filter(Boolean);
+  } catch (error) {
+    console.error("Error fetching project images:", error);
+    return [];
+  }
+}
