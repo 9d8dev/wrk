@@ -14,8 +14,27 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-export function CreateProject() {
-  const [open, setOpen] = useState(false);
+interface CreateProjectProps {
+  initialImages?: File[];
+  onClose?: () => void;
+  buttonHidden?: boolean;
+  initialOpen?: boolean;
+}
+
+export function CreateProject({
+  initialImages,
+  onClose,
+  buttonHidden = false,
+  initialOpen = false,
+}: CreateProjectProps = {}) {
+  const [open, setOpen] = useState(initialOpen);
+
+  // If initialOpen changes, update the open state
+  useEffect(() => {
+    if (initialOpen) {
+      setOpen(true);
+    }
+  }, [initialOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -39,14 +58,16 @@ export function CreateProject() {
 
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
-      <DrawerTrigger asChild>
-        <ShortcutButton
-          letter="c"
-          label="Create Project"
-          size="sm"
-          variant="default"
-        />
-      </DrawerTrigger>
+      {!buttonHidden && (
+        <DrawerTrigger asChild>
+          <ShortcutButton
+            letter="c"
+            label="Create Project"
+            size="sm"
+            variant="default"
+          />
+        </DrawerTrigger>
+      )}
       <DrawerContent>
         <div className="mx-auto w-full overflow-y-auto no-scrollbar">
           <DrawerHeader>
@@ -58,8 +79,10 @@ export function CreateProject() {
           </DrawerHeader>
           <div className="p-4 sm:p-6">
             <ProjectForm
+              initialImages={initialImages}
               onSuccess={() => {
                 setOpen(false);
+                onClose?.();
               }}
             />
           </div>

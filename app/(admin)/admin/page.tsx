@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
+import { GlobalDropZone } from "@/components/admin/global-drop-zone";
 import { Suspense } from "react";
 
 export default async function AdminPage() {
@@ -26,6 +27,10 @@ export default async function AdminPage() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <GlobalDropZone />
+      </Suspense>
+
       <AdminHeader pageTitle="Projects">
         <Suspense fallback={<div>Loading...</div>}>
           <CreateProject />

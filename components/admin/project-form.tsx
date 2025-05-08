@@ -51,6 +51,7 @@ type ProjectFormValues = z.infer<typeof formSchema>;
 
 interface ProjectFormProps {
   project?: Project;
+  initialImages?: File[];
   onSubmit?: (data: ProjectFormValues) => void;
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -72,15 +73,18 @@ const generateSlugFromTitle = (title: string): string => {
     .replace(/-+/g, "-");
 };
 
+
+
 export const ProjectForm = ({
   project,
+  initialImages = [],
   onSubmit,
   onSuccess,
   onCancel,
 }: ProjectFormProps) => {
   const isEditing = !!project;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [projectImages, setProjectImages] = useState<File[]>([]);
+  const [projectImages, setProjectImages] = useState<File[]>(initialImages || []);
   const [uploadedMedia, setUploadedMedia] = useState<Media[]>([]);
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
   const [featuredImageId, setFeaturedImageId] = useState<string | null>(null);
@@ -108,6 +112,11 @@ export const ProjectForm = ({
 
   // Fetch existing media for the project if in edit mode
   useEffect(() => {
+    // If initial images were provided, set them as project images
+    if (initialImages?.length && !isEditing) {
+      setProjectImages(initialImages);
+    }
+    
     const fetchProjectMedia = async () => {
       if (!project?.id) return;
 
@@ -143,7 +152,7 @@ export const ProjectForm = ({
     if (isEditing) {
       fetchProjectMedia();
     }
-  }, [project?.id, isEditing]);
+  }, [project?.id, isEditing, initialImages]);
 
   // Handle form submission
   const handleFormSubmit = async (values: ProjectFormValues) => {
