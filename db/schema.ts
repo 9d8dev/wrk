@@ -78,10 +78,11 @@ export const themeRelations = relations(theme, ({ one }) => ({
 export const project = pgTable("project", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
-  content: json("content"),
+  about: text("about"),
   slug: text("slug").notNull().unique(),
   externalLink: text("external_link"),
   featuredImageId: text("featured_image_id"),
+  imageIds: json("image_ids").$type<string[]>().default([]),
   displayOrder: integer("display_order").default(0),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
