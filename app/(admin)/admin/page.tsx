@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
-import { ClientOnly } from "@/components/client-only";
 import { Suspense } from "react";
 
 export default async function AdminPage() {
