@@ -1,6 +1,6 @@
 import "./globals.css";
 
-import { Inter as FontSans, Geist_Mono as FontMono } from "next/font/google";
+import { Manrope as FontSans, Geist_Mono as FontMono } from "next/font/google";
 
 import type { Metadata } from "next";
 

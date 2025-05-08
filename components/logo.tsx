@@ -6,7 +6,7 @@ export const Logo = ({ className }: { className?: string }) => {
   return (
     <Link
       href="/"
-      className={cn("tracking-tighter font-bold text-2xl", className)}
+      className={cn("tracking-tighter font-extrabold text-4xl", className)}
     >
       WRK.SO
     </Link>
