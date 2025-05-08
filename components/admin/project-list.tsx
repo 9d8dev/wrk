@@ -177,6 +177,7 @@ const SortableProjectCard = ({
 
   return (
     <div
+      suppressHydrationWarning
       ref={setNodeRef}
       style={style}
       className="grid grid-cols-[auto_1fr] rounded overflow-hidden border relative"

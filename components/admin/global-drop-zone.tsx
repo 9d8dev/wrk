@@ -83,7 +83,7 @@ export function GlobalDropZone() {
   return (
     <>
       {isDragging && (
-        <div className="absolute inset-0 z-10 bg-gradient-to-br from-transparent via-transparent to-foreground/30 flex items-end justify-end">
+        <div className="fixed inset-0 z-40 bg-gradient-to-br from-transparent via-transparent to-foreground/30 flex items-end justify-end">
           <div className="m-8 bg-background rounded-sm grid grid-cols-[auto_1fr]">
             <div className="p-6 aspect-square border-r h-full flex items-center justify-center">
               <Upload className="w-6 h-6" />
@@ -99,7 +99,6 @@ export function GlobalDropZone() {
       )}
 
       <CreateProject
-        buttonHidden
         initialImages={droppedFiles}
         initialOpen={shouldOpenDrawer}
         onClose={() => setShouldOpenDrawer(false)}
