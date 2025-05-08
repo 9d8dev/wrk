@@ -113,7 +113,7 @@ export function ProjectList({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 max-w-3xl">
       {items.length === 0 ? (
         <p>No projects found.</p>
       ) : (

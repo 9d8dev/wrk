@@ -31,7 +31,8 @@ export default async function AdminPage() {
           <CreateProject />
         </Suspense>
       </AdminHeader>
-      <section className="space-y-6 p-4 max-w-5xl mx-auto">
+
+      <section className="space-y-6 p-4">
         <ProjectList
           projectsWithImages={projectsWithImages}
           userId={session.user.id}
