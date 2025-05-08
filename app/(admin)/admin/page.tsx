@@ -27,10 +27,6 @@ export default async function AdminPage() {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <GlobalDropZone />
-      </Suspense>
-
       <AdminHeader pageTitle="Projects">
         <Suspense fallback={<div>Loading...</div>}>
           <CreateProject />
@@ -43,6 +39,9 @@ export default async function AdminPage() {
           userId={session.user.id}
           username={session.user.username!}
         />
+        <Suspense fallback={null}>
+          <GlobalDropZone />
+        </Suspense>
       </section>
     </>
   );

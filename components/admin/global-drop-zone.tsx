@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { CreateProject } from "./create-project";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export function GlobalDropZone() {
@@ -83,7 +82,7 @@ export function GlobalDropZone() {
     <>
       {/* Visual overlay that appears when dragging files */}
       {isDragging && (
-        <div className="fixed inset-0 z-50 bg-primary/10 backdrop-blur-sm flex items-center justify-center">
+        <div className="absolute inset-0 z-10 bg-primary/10 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-background border-2 border-dashed border-primary rounded-lg p-8 shadow-lg">
             <div className="text-center">
               <svg

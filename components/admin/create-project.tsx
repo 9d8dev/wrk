@@ -68,7 +68,7 @@ export function CreateProject({
           />
         </DrawerTrigger>
       )}
-      <DrawerContent>
+      <DrawerContent className="z-50">
         <div className="mx-auto w-full overflow-y-auto no-scrollbar">
           <DrawerHeader>
             <DrawerTitle>Create New Project</DrawerTitle>
