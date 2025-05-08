@@ -271,13 +271,8 @@ export const ProjectForm = ({
                   {...field}
                   onChange={(e) => {
                     field.onChange(e);
-
-                    // Only auto-generate slug for new projects and if we have a title
                     if (!isEditing && e.target.value) {
-                      // Get current slug value
                       const currentSlug = form.getValues("slug");
-
-                      // Only update if slug is empty or was previously auto-generated
                       if (
                         !currentSlug ||
                         currentSlug === generateSlugFromTitle(field.value)
@@ -460,8 +455,8 @@ const ProjectImagesField = ({
   ];
 
   return (
-    <FormItem className="space-y-4">
-      <FormLabel>Project Images (Up to 5)</FormLabel>
+    <FormItem>
+      <FormLabel className="sr-only">Project Images (Up to 5)</FormLabel>
       <FormControl>
         <FileUploader
           value={projectImages}
