@@ -25,7 +25,7 @@ export default function SignInPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md mx-auto sm:mt-[25%] p-4 sm:p-0"
+        className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0"
       >
         <Logo className="text-background mb-8" />
 
@@ -39,26 +39,34 @@ export default function SignInPage() {
             <TabsTrigger value="sign-up">Create Account</TabsTrigger>
           </TabsList>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: activeTab === "sign-in" ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: activeTab === "sign-in" ? 20 : -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="bg-background rounded mt-2"
-            >
-              {activeTab === "sign-in" && (
-                <TabsContent value="sign-in">
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTab === "sign-in" ? (
+              <motion.div
+                key="sign-in"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-background rounded mt-2"
+              >
+                <TabsContent value="sign-in" forceMount>
                   <SignInForm />
                 </TabsContent>
-              )}
-              {activeTab === "sign-up" && (
-                <TabsContent value="sign-up">
+              </motion.div>
+            ) : (
+              <motion.div
+                key="sign-up"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-background rounded mt-2"
+              >
+                <TabsContent value="sign-up" forceMount>
                   <SignUpForm />
                 </TabsContent>
-              )}
-            </motion.div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </Tabs>
       </motion.div>
@@ -66,7 +74,7 @@ export default function SignInPage() {
       <Image
         src={Water}
         alt="Water"
-        className="absolute scale-125 -mt-4 inset-0 object-cover h-full w-full -z-10"
+        className="absolute inset-0 object-cover h-full w-full -z-10"
         placeholder="blur"
       />
     </main>
