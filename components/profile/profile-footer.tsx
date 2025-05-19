@@ -19,12 +19,19 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
   return (
     <footer>
       <Section>
-        <Container className="text-sm flex justify-between items-start gap-6">
-          <div>
+        {profile.bio && (
+          <Container className="text-sm">
+            <p>{profile.bio}</p>
+          </Container>
+        )}
+        <Container className="text-sm text-muted-foreground flex justify-between items-start gap-6">
+          <div className="space-y-1">
             <p>
               © {new Date().getFullYear()} {user.name}
             </p>
-            <Link href="/">Made with Wrk.so</Link>
+            <Link className="underline underline-offset-2" href="/">
+              Made with Wrk.so
+            </Link>
           </div>
           <SocialLinks profile={profile} />
         </Container>

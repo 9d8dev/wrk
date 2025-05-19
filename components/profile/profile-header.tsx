@@ -61,15 +61,10 @@ const Info = ({
         <div className="flex items-center gap-2">
           <h1>{user.name}</h1>
           <h2 className="text-sm text-muted-foreground">@{user.username}</h2>
-          {profile.location && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Pin size={12} /> {profile.location}
-            </p>
-          )}
         </div>
-        {profile.bio && (
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {profile.bio}
+        {profile.location && (
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            {profile.location}
           </p>
         )}
       </div>
