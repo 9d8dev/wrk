@@ -61,6 +61,7 @@ export function ContactForm({ userId }: { userId: string }) {
       }
     } catch (error) {
       toast.error("An error occurred");
+      return error;
     } finally {
       setIsSubmitting(false);
     }
