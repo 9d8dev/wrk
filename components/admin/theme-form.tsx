@@ -95,7 +95,7 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
   if (!isEditing) {
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-center mb-6 fixed top-2 right-4">
+        <div className="flex justify-between items-center mb-6 fixed top-2 right-4 z-50">
           <ShortcutButton
             letter="e"
             label="Edit Theme"
