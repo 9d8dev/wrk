@@ -4,6 +4,8 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="bg-accent/30 min-w-screen min-h-screen">{children}</main>
+    <main className="max-w-screen min-h-screen overflow-x-hidden">
+      {children}
+    </main>
   );
 }

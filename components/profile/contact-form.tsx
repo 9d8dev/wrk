@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { CheckCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createLead } from "@/lib/actions/leads";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Form,
@@ -15,29 +20,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { SendIcon, CheckCircle } from "lucide-react";
 
-const contactFormSchema = z.object({
+const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  message: z.string().min(10, { message: "Message must be at least 10 characters" }),
+  message: z
+    .string()
+    .min(10, { message: "Message must be at least 10 characters" }),
 });
 
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
-interface ContactFormProps {
-  userId: string;
-}
-
-export function ContactForm({ userId }: ContactFormProps) {
+export function ContactForm({ userId }: { userId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const form = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -45,7 +44,7 @@ export function ContactForm({ userId }: ContactFormProps) {
     },
   });
 
-  async function onSubmit(data: ContactFormValues) {
+  async function onSubmit(data: FormValues) {
     setIsSubmitting(true);
     try {
       const result = await createLead({
@@ -55,14 +54,14 @@ export function ContactForm({ userId }: ContactFormProps) {
 
       if (result.success) {
         setIsSuccess(true);
-        toast.success("Message sent successfully!");
+        toast.success("Message sent successfully");
         form.reset();
       } else {
-        toast.error("Failed to send message. Please try again.");
+        toast.error("Failed to send message");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("An error occurred. Please try again later.");
+      toast.error("An error occurred");
+      return error;
     } finally {
       setIsSubmitting(false);
     }
@@ -70,22 +69,20 @@ export function ContactForm({ userId }: ContactFormProps) {
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-        <h3 className="text-xl font-medium">Message Sent!</h3>
-        <p className="text-muted-foreground mt-2 max-w-md">
-          Thank you for reaching out. Your message has been received and will be
-          responded to as soon as possible.
+      <div className="space-y-4 p-6 border rounded-sm bg-accent/50">
+        <CheckCircle className="text-green-500" />
+        <h3 className="font-medium">Message Sent!</h3>
+        <p className="text-muted-foreground">
+          Thank you for reaching out. I&apos;ll respond as soon as possible.
         </p>
         <Button
           variant="outline"
-          className="mt-6"
           onClick={() => {
             setIsSuccess(false);
             form.reset();
           }}
         >
-          Send Another Message
+          Send Another
         </Button>
       </div>
     );
@@ -95,7 +92,7 @@ export function ContactForm({ userId }: ContactFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-xl mx-auto"
+        className="space-y-4 p-6 border rounded-sm bg-accent/50"
       >
         <FormField
           control={form.control}
@@ -110,7 +107,6 @@ export function ContactForm({ userId }: ContactFormProps) {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="email"
@@ -124,7 +120,6 @@ export function ContactForm({ userId }: ContactFormProps) {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="message"
@@ -132,29 +127,14 @@ export function ContactForm({ userId }: ContactFormProps) {
             <FormItem>
               <FormLabel>Message</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="How can I help you?"
-                  className="min-h-32"
-                  {...field}
-                />
+                <Textarea placeholder="How can I help you?" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            "Sending..."
-          ) : (
-            <>
-              <SendIcon className="mr-2 h-4 w-4" /> Send Message
-            </>
-          )}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Send Message"}
         </Button>
       </form>
     </Form>

@@ -18,15 +18,7 @@ export default async function LeadsPage() {
   return (
     <>
       <AdminHeader pageTitle="Leads" />
-      <section className="space-y-6 p-4 max-w-5xl">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Manage Your Leads</h2>
-          <p className="text-muted-foreground">
-            View and manage inquiries from potential clients who have contacted
-            you through your portfolio.
-          </p>
-        </div>
-
+      <section className="space-y-6 p-4 max-w-3xl">
         <Suspense fallback={<div>Loading leads...</div>}>
           <LeadsList userId={session.user.id} leads={leads} />
         </Suspense>

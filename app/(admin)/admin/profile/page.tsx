@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import {
   getProfileByUserId,
   getSocialLinksByProfileId,
-} from "@/lib/actions/profile";
+} from "@/lib/data/profile";
+
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db/drizzle";

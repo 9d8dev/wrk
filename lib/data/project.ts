@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserByUsername } from "@/lib/actions/user";
+import { getUserByUsername } from "@/lib/data/user";
 import { project } from "@/db/schema";
 import { db } from "@/db/drizzle";
 import { eq, and } from "drizzle-orm";
@@ -8,9 +8,9 @@ import { eq, and } from "drizzle-orm";
 export const getProjectsByUsername = async (username: string) => {
   const userInfo = await getUserByUsername(username);
 
-  if (!userInfo || userInfo.length === 0) return null;
+  if (!userInfo) return null;
 
-  const user = userInfo[0];
+  const user = userInfo;
 
   const data = await db
     .select()
@@ -28,9 +28,9 @@ export const getProjectByUsernameAndSlug = async (
 ) => {
   const userInfo = await getUserByUsername(username);
 
-  if (!userInfo || userInfo.length === 0) return null;
+  if (!userInfo) return null;
 
-  const user = userInfo[0];
+  const user = userInfo;
 
   const data = await db
     .select()
@@ -38,7 +38,7 @@ export const getProjectByUsernameAndSlug = async (
     .where(and(eq(project.userId, user.id), eq(project.slug, projectSlug)))
     .limit(1);
 
-  return data.length > 0 ? data[0] : null;
+  return data[0];
 };
 
 export const getAllProjects = async (userId: string) => {

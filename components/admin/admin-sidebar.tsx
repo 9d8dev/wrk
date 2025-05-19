@@ -25,7 +25,7 @@ export function AdminSidebar({
   return (
     <Sidebar className="border-dashed bg-accent/30">
       <SidebarHeader className="h-12 flex justify-center border-b border-dashed bg-muted/50">
-        <Logo />
+        <Logo className="text-2xl" />
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-8 justify-between">
         <SidebarGroup>
