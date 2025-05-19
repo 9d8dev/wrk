@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 
 import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ContactForm } from "@/components/profile/contact-form";
-import { Mail } from "lucide-react";
 
 export default async function ContactPage({
   params,
@@ -27,6 +27,7 @@ export default async function ContactPage({
           <ContactForm userId={user.id} />
         </Container>
       </Section>
+      <ProfileFooter username={username} />
     </>
   );
 }

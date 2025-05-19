@@ -1,5 +1,6 @@
 import { Section, Container } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileFooter } from "@/components/profile/profile-footer";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -54,6 +55,7 @@ export default async function PortfolioPage({
           ))}
         </Container>
       </Section>
+      <ProfileFooter username={username} />
     </>
   );
 }

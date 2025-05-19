@@ -8,6 +8,7 @@ import { getUserByUsername } from "@/lib/data/user";
 import { getMediaById } from "@/lib/data/media";
 
 import Image from "next/image";
+import Link from "next/link";
 
 export const ProfileHeader = async ({ username }: { username: string }) => {
   const profile = await getProfileByUsername(username);
@@ -45,7 +46,7 @@ const Info = ({
   imageSrc: string | null;
 }) => {
   return (
-    <div className="flex gap-4">
+    <Link href={`/${user.username}`} className="flex gap-4">
       {imageSrc && (
         <Image
           src={imageSrc}
@@ -72,6 +73,6 @@ const Info = ({
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
