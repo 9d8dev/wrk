@@ -7,6 +7,7 @@ import {
 } from "@/lib/data/profile";
 
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 export const ProfileFooter = async ({ username }: { username: string }) => {
   const profile = await getProfileByUsername(username);
@@ -27,10 +28,13 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
         <Container className="text-sm text-muted-foreground flex justify-between items-start gap-6">
           <div className="space-y-1">
             <p>
-              © {new Date().getFullYear()} {user.name}
+              {new Date().getFullYear()} © {user.name}, All rights reserved.
             </p>
-            <Link className="underline underline-offset-2" href="/">
-              Made with Wrk.so
+            <Link
+              className="underline underline-offset-2 flex items-center gap-1"
+              href="/"
+            >
+              Made with Wrk.so <ArrowUpRight size={12} />
             </Link>
           </div>
           <SocialLinks profile={profile} />
@@ -45,17 +49,21 @@ const SocialLinks = async ({ profile }: { profile: any }) => {
     ? await getSocialLinksByProfileId(profile.id)
     : [];
 
+  if (socialLinks.length === 0) {
+    return null;
+  }
+
   return (
-    <div>
+    <div className="flex gap-4">
       {socialLinks.map((link: any) => (
         <a
           key={link.id}
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
         >
-          {link.name}
+          {link.platform} <ArrowUpRight size={12} />
         </a>
       ))}
     </div>
