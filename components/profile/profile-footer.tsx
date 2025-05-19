@@ -53,6 +53,7 @@ const SocialLinks = async ({ profile }: { profile: any }) => {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
+          className="text-muted-foreground hover:text-foreground transition-colors"
         >
           {link.name}
         </a>
