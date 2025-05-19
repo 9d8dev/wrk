@@ -8,6 +8,12 @@ import Image from "next/image";
 import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
+import { getAllUsers } from "@/lib/data/user";
+
+export async function generateStaticParams() {
+  const users = await getAllUsers();
+  return users.map((user) => ({ username: user.username }));
+}
 
 export default async function ProjectPage({
   params,

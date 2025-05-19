@@ -12,6 +12,12 @@ import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
+import { getAllUsers } from "@/lib/data/user";
+
+export async function generateStaticParams() {
+  const users = await getAllUsers();
+  return users.map((user) => ({ username: user.username }));
+}
 
 export default async function PortfolioPage({
   params,
