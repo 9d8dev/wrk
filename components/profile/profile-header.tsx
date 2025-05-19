@@ -46,22 +46,24 @@ const Info = ({
   imageSrc: string | null;
 }) => {
   return (
-    <Link href={`/${user.username}`} className="flex gap-4">
+    <div className="grid grid-cols-[auto_1fr] gap-4">
       {imageSrc && (
-        <Image
-          src={imageSrc}
-          alt={user.name || user.username}
-          width={48}
-          height={48}
-          className="rounded-full"
-          priority
-        />
+        <Link href={`/${user.username}`}>
+          <Image
+            src={imageSrc}
+            alt={user.name || user.username}
+            width={48}
+            height={48}
+            className="rounded-full"
+            priority
+          />
+        </Link>
       )}
       <div>
-        <div className="flex items-center gap-2">
+        <Link href={`/${user.username}`} className="flex items-center gap-2">
           <h1>{user.name}</h1>
           <h2 className="text-sm text-muted-foreground">@{user.username}</h2>
-        </div>
+        </Link>
         {profile.title && (
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             {profile.title}
@@ -73,6 +75,6 @@ const Info = ({
           </p>
         )}
       </div>
-    </Link>
+    </div>
   );
 };
