@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
-import { GlobalDropZone } from "@/components/admin/global-drop-zone";
+import { DropZone } from "@/components/admin/drop-zone";
+import { CreateProject } from "@/components/admin/create-project";
 
 export default async function AdminPage() {
   const session = await getSession();
@@ -26,10 +27,11 @@ export default async function AdminPage() {
   return (
     <>
       <AdminHeader pageTitle="Projects">
-        <GlobalDropZone />
+        <CreateProject />
       </AdminHeader>
 
       <section className="space-y-6 p-4">
+        <DropZone />
         <ProjectList
           projectsWithImages={projectsWithImages}
           userId={session.user.id}
