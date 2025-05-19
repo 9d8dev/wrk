@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import { Manrope as FontSans, Geist_Mono as FontMono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 import type { Metadata } from "next";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans tracking-tight antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
