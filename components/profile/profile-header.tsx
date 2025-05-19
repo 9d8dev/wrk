@@ -62,6 +62,11 @@ const Info = ({
           <h1>{user.name}</h1>
           <h2 className="text-sm text-muted-foreground">@{user.username}</h2>
         </div>
+        {profile.title && (
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            {profile.title}
+          </p>
+        )}
         {profile.location && (
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             {profile.location}

@@ -15,6 +15,13 @@
       "when": 1746675224411,
       "tag": "0001_loose_susan_delgado",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747675545768,
+      "tag": "0002_amusing_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }
