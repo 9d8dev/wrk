@@ -1,4 +1,7 @@
 import { Section, Container } from "@/components/ds";
+import { ArrowUpRight } from "lucide-react";
+
+import Link from "next/link";
 
 import { getUserByUsername } from "@/lib/data/user";
 import {
@@ -6,8 +9,7 @@ import {
   getSocialLinksByProfileId,
 } from "@/lib/data/profile";
 
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import type { Profile } from "@/db/schema";
 
 export const ProfileFooter = async ({ username }: { username: string }) => {
   const profile = await getProfileByUsername(username);
@@ -44,7 +46,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
   );
 };
 
-const SocialLinks = async ({ profile }: { profile: any }) => {
+const SocialLinks = async ({ profile }: { profile: Profile }) => {
   const socialLinks = profile
     ? await getSocialLinksByProfileId(profile.id)
     : [];
@@ -55,7 +57,7 @@ const SocialLinks = async ({ profile }: { profile: any }) => {
 
   return (
     <div className="flex gap-4">
-      {socialLinks.map((link: any) => (
+      {socialLinks.map((link) => (
         <a
           key={link.id}
           href={link.url}

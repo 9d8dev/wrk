@@ -1,14 +1,14 @@
 import { Section, Container } from "@/components/ds";
 import { ProfileNav } from "@/components/profile/profile-nav";
 
-import { Pin } from "lucide-react";
-
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
 import { getMediaById } from "@/lib/data/media";
 
 import Image from "next/image";
 import Link from "next/link";
+
+import type { Profile, User } from "@/db/schema";
 
 export const ProfileHeader = async ({ username }: { username: string }) => {
   const profile = await getProfileByUsername(username);
@@ -41,8 +41,8 @@ const Info = ({
   user,
   imageSrc,
 }: {
-  profile: any;
-  user: any;
+  profile: Profile;
+  user: User;
   imageSrc: string | null;
 }) => {
   return (

@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
-export const ProfileNav = ({ user }: { user: any }) => {
+import type { User } from "@/db/schema";
+
+export const ProfileNav = ({ user }: { user: User }) => {
   const pathname = usePathname();
 
   return (

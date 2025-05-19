@@ -72,7 +72,7 @@ export function ContactForm({ userId }: { userId: string }) {
         <CheckCircle className="text-green-500" />
         <h3 className="font-medium">Message Sent!</h3>
         <p className="text-muted-foreground">
-          Thank you for reaching out. I'll respond as soon as possible.
+          Thank you for reaching out. I&apos;ll respond as soon as possible.
         </p>
         <Button
           variant="outline"
