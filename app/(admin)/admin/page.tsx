@@ -7,6 +7,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { DropZone } from "@/components/admin/drop-zone";
 import { CreateProject } from "@/components/admin/create-project";
+import { PageWrapper } from "@/components/admin/page-wrapper";
 
 export default async function AdminPage() {
   const session = await getSession();
@@ -30,14 +31,14 @@ export default async function AdminPage() {
         <CreateProject />
       </AdminHeader>
 
-      <section className="space-y-6 p-4">
+      <PageWrapper>
         <DropZone />
         <ProjectList
           projectsWithImages={projectsWithImages}
           userId={session.user.id}
           username={session.user.username!}
         />
-      </section>
+      </PageWrapper>
     </>
   );
 }

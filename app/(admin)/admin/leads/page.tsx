@@ -1,5 +1,6 @@
-import { LeadsList } from "@/components/admin/leads-list";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+import { LeadsList } from "@/components/admin/leads-list";
 import { Suspense } from "react";
 
 import { getLeadsByUserId } from "@/lib/actions/leads";
@@ -18,11 +19,11 @@ export default async function LeadsPage() {
   return (
     <>
       <AdminHeader pageTitle="Leads" />
-      <section className="space-y-6 p-4 max-w-3xl">
+      <PageWrapper>
         <Suspense fallback={<div>Loading leads...</div>}>
           <LeadsList userId={session.user.id} leads={leads} />
         </Suspense>
-      </section>
+      </PageWrapper>
     </>
   );
 }

@@ -1,5 +1,6 @@
-import { ThemeForm } from "@/components/admin/theme-form";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+import { ThemeForm } from "@/components/admin/theme-form";
 import { Suspense } from "react";
 
 import { getThemeByUserId } from "@/lib/actions/theme";
@@ -18,11 +19,11 @@ export default async function ThemePage() {
   return (
     <>
       <AdminHeader pageTitle="Theme" />
-      <section className="space-y-6 p-4 max-w-3xl">
+      <PageWrapper>
         <Suspense fallback={<div>Loading...</div>}>
           <ThemeForm user={session.user} theme={theme} />
         </Suspense>
-      </section>
+      </PageWrapper>
     </>
   );
 }
