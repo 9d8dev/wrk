@@ -33,7 +33,7 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const username = (await params).username;
+  const { username } = await params;
   const profile = await getProfileByUsername(username);
   const user = await getUserByUsername(username);
 

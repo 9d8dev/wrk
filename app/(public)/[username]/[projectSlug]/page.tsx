@@ -1,25 +1,53 @@
+import { Container, Section } from "@/components/ds";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+
+import Image from "next/image";
+
+import { getProjectByUsernameAndSlug } from "@/lib/data/project";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getUserByUsername } from "@/lib/data/user";
+import { getAllUsers } from "@/lib/data/user";
+import { notFound } from "next/navigation";
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
-import { getProjectByUsernameAndSlug } from "@/lib/data/project";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Container, Section } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
-import { getAllUsers } from "@/lib/data/user";
 
+import type { Metadata, ResolvingMetadata } from "next";
+
+type Props = {
+  params: Promise<{ username: string; projectSlug: string }>;
+};
+
+// SSG
 export async function generateStaticParams() {
   const users = await getAllUsers();
   return users.map((user) => ({ username: user.username }));
 }
 
-export default async function ProjectPage({
-  params,
-}: {
-  params: Promise<{ username: string; projectSlug: string }>;
-}) {
+// Metadata Generation
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { username, projectSlug } = await params;
+  const profile = await getProfileByUsername(username);
+  const user = await getUserByUsername(username);
+  const project = await getProjectByUsernameAndSlug(username, projectSlug);
+
+  return {
+    title: `${project?.title} by ${user.name} | ${profile?.title || "Wrk.so"}`,
+    description:
+      (project?.about && project.about.length > 160
+        ? project.about.substring(0, 157) + "..."
+        : project?.about) ||
+      `${project?.title} created by ${user.name}. Portfolio created using Wrk.so.`,
+  };
+}
+
+// Page
+export default async function ProjectPage({ params }: Props) {
   const { username, projectSlug } = await params;
   const project = await getProjectByUsernameAndSlug(username, projectSlug);
 
@@ -30,11 +58,9 @@ export default async function ProjectPage({
   const featuredImage = await getFeaturedImageByProjectId(project.id);
   const allImages = await getAllProjectImages(project.id);
 
-  // Use featured image as first image, or use the first image from allImages
   const mainImage =
     featuredImage || (allImages.length > 0 ? allImages[0] : null);
 
-  // Get all other images (excluding the main one)
   const additionalImages = featuredImage
     ? allImages.filter((img) => img.id !== featuredImage.id)
     : allImages.slice(1);
