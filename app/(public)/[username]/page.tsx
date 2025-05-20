@@ -6,18 +6,44 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getProjectsByUsername } from "@/lib/data/project";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getUserByUsername } from "@/lib/data/user";
+import { getAllUsers } from "@/lib/data/user";
 import { notFound } from "next/navigation";
+
+import type { Metadata } from "next";
 
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
 
-export default async function PortfolioPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ username: string }>;
-}) {
+};
+
+// SSG
+export async function generateStaticParams() {
+  const users = await getAllUsers();
+  return users.map((user) => ({ username: user.username }));
+}
+
+// Metadata Generation
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { username } = await params;
+  const profile = await getProfileByUsername(username);
+  const user = await getUserByUsername(username);
+
+  return {
+    title: `${user.name} | ${profile?.title || "Wrk.so"}`,
+    description:
+      profile?.bio ||
+      `Collection of works created by ${user.name}. Portfolio created using Wrk.so.`,
+  };
+}
+
+// Page
+export default async function PortfolioPage({ params }: Props) {
   const { username } = await params;
 
   const allProjects = await getProjectsByUsername(username);
