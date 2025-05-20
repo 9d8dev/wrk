@@ -35,6 +35,13 @@ export async function generateMetadata(
   const profile = await getProfileByUsername(username);
   const user = await getUserByUsername(username);
   const project = await getProjectByUsernameAndSlug(username, projectSlug);
+  const featuredImage = project
+    ? await getFeaturedImageByProjectId(project.id)
+    : null;
+
+  // Fallback to first project image if no featured image
+  const allImages = project ? await getAllProjectImages(project.id) : [];
+  const ogImage = featuredImage || (allImages.length > 0 ? allImages[0] : null);
 
   return {
     title: `${project?.title} by ${user.name} | ${profile?.title || "Wrk.so"}`,
@@ -43,6 +50,29 @@ export async function generateMetadata(
         ? project.about.substring(0, 157) + "..."
         : project?.about) ||
       `${project?.title} created by ${user.name}. Portfolio created using Wrk.so.`,
+    openGraph: ogImage
+      ? {
+          images: [
+            {
+              url: ogImage.url,
+              width: ogImage.width || 1200,
+              height: ogImage.height || 630,
+              alt: ogImage.alt || project?.title || "Project image",
+            },
+          ],
+        }
+      : undefined,
+    twitter: ogImage
+      ? {
+          card: "summary_large_image",
+          images: [
+            {
+              url: ogImage.url,
+              alt: ogImage.alt || project?.title || "Project image",
+            },
+          ],
+        }
+      : undefined,
   };
 }
 

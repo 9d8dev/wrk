@@ -31,7 +31,7 @@ export async function generateStaticParams() {
 // Metadata Generation
 export async function generateMetadata(
   { params }: Props,
-  parent: ResolvingMetadata,
+  parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
@@ -60,7 +60,7 @@ export default async function PortfolioPage({ params }: Props) {
       const featuredImage = await getFeaturedImageByProjectId(project.id);
       const allImages = await getAllProjectImages(project.id);
       return { project, featuredImage, allImages };
-    }),
+    })
   );
 
   return (
