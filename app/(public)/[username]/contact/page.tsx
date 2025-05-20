@@ -7,17 +7,14 @@ import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ContactForm } from "@/components/profile/contact-form";
 
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ username: string }>;
 };
 
 // Metadata Generation
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
   const user = await getUserByUsername(username);

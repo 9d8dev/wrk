@@ -14,7 +14,7 @@ import {
   getAllProjectImages,
 } from "@/lib/data/media";
 
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -27,10 +27,7 @@ export async function generateStaticParams() {
 }
 
 // Metadata Generation
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username, projectSlug } = await params;
   const profile = await getProfileByUsername(username);
   const user = await getUserByUsername(username);
@@ -39,7 +36,6 @@ export async function generateMetadata(
     ? await getFeaturedImageByProjectId(project.id)
     : null;
 
-  // Fallback to first project image if no featured image
   const allImages = project ? await getAllProjectImages(project.id) : [];
   const ogImage = featuredImage || (allImages.length > 0 ? allImages[0] : null);
 

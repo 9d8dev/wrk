@@ -11,7 +11,7 @@ import { getUserByUsername } from "@/lib/data/user";
 import { getAllUsers } from "@/lib/data/user";
 import { notFound } from "next/navigation";
 
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 
 import {
   getFeaturedImageByProjectId,
@@ -29,10 +29,7 @@ export async function generateStaticParams() {
 }
 
 // Metadata Generation
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
   const user = await getUserByUsername(username);
