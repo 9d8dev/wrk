@@ -24,7 +24,7 @@ export default async function Layout({
       />
       <main id="admin-page" className="relative w-full">
         {children}
-        <SidebarTrigger className="absolute bottom-2 left-2" />
+        <SidebarTrigger className="fixed bottom-2 ml-2 left-[sidebar-size] z-50" />
       </main>
     </SidebarProvider>
   );
