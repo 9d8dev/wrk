@@ -6,24 +6,47 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getProjectsByUsername } from "@/lib/data/project";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getUserByUsername } from "@/lib/data/user";
+import { getAllUsers } from "@/lib/data/user";
 import { notFound } from "next/navigation";
+
+import type { Metadata, ResolvingMetadata } from "next";
 
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
-import { getAllUsers } from "@/lib/data/user";
 
+type Props = {
+  params: Promise<{ username: string }>;
+};
+
+// SSG
 export async function generateStaticParams() {
   const users = await getAllUsers();
   return users.map((user) => ({ username: user.username }));
 }
 
-export default async function PortfolioPage({
-  params,
-}: {
-  params: Promise<{ username: string }>;
-}) {
+// Metadata Generation
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const username = (await params).username;
+  const profile = await getProfileByUsername(username);
+  const user = await getUserByUsername(username);
+
+  return {
+    title: `${user.name} | ${profile?.title || "Wrk.so"}`,
+    description:
+      profile?.bio ||
+      `Collection of works created by ${user.name}. Portfolio created using Wrk.so.`,
+  };
+}
+
+// Page
+export default async function PortfolioPage({ params }: Props) {
   const { username } = await params;
 
   const allProjects = await getProjectsByUsername(username);
@@ -37,7 +60,7 @@ export default async function PortfolioPage({
       const featuredImage = await getFeaturedImageByProjectId(project.id);
       const allImages = await getAllProjectImages(project.id);
       return { project, featuredImage, allImages };
-    })
+    }),
   );
 
   return (
