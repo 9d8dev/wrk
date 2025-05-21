@@ -113,7 +113,7 @@ export default async function ProjectPage({ params }: Props) {
             </a>
           )}
         </Container>
-        <Container>
+        <Container className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {mainImage && (
             <Image
               src={mainImage.url}
@@ -123,19 +123,16 @@ export default async function ProjectPage({ params }: Props) {
               priority
             />
           )}
-          {additionalImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {additionalImages.map((image) => (
-                <Image
-                  key={image.id}
-                  src={image.url}
-                  alt={image.alt || `${project.title} image`}
-                  width={400}
-                  height={400}
-                />
-              ))}
-            </div>
-          )}
+          {additionalImages.length > 0 &&
+            additionalImages.map((image) => (
+              <Image
+                key={image.id}
+                src={image.url}
+                alt={image.alt || `${project.title} image`}
+                width={image.width || 1200}
+                height={image.height || 800}
+              />
+            ))}
         </Container>
       </Section>
       <ProfileFooter username={username} />
