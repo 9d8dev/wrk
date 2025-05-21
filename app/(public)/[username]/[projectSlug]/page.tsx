@@ -15,6 +15,8 @@ import {
 } from "@/lib/data/media";
 
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpLeft } from "lucide-react";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -101,6 +103,12 @@ export default async function ProjectPage({ params }: Props) {
             {project.about && (
               <h3 className="text-muted-foreground">{project.about}</h3>
             )}
+            <Link
+              href={`/${username}`}
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm mt-4 flex items-center gap-1"
+            >
+              <ArrowUpLeft size={12} /> Back to Portfolio
+            </Link>
           </div>
           {project.externalLink && (
             <a
