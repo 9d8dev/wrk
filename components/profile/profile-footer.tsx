@@ -20,7 +20,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
   }
 
   return (
-    <footer>
+    <footer className="border-t border-dashed bg-accent/20 mt-24">
       <Section>
         {profile.bio && (
           <Container className="text-sm">
@@ -29,7 +29,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
         )}
         <Container className="text-sm text-muted-foreground flex justify-between items-start gap-6">
           <SocialLinks profile={profile} />
-          <div className="space-y-1">
+          <div className="text-right flex items-end flex-col gap-1">
             <p>
               {new Date().getFullYear()} © {user.name}, All rights reserved.
             </p>
@@ -56,7 +56,7 @@ const SocialLinks = async ({ profile }: { profile: Profile }) => {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       {socialLinks.map((link) => (
         <a
           key={link.id}
