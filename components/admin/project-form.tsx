@@ -16,7 +16,6 @@ import {
 import {
   Loader2,
   UploadCloud,
-  Trash2,
   ChevronDown,
   ChevronUp,
   Image as ImageIcon,
@@ -25,7 +24,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 
 import {
   Form,
