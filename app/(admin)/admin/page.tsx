@@ -1,6 +1,7 @@
 import { getFeaturedImageByProjectId } from "@/lib/data/media";
 import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";
+import { getProfileByUserId } from "@/lib/data/profile";
 import { redirect } from "next/navigation";
 
 import { AdminHeader } from "@/components/admin/admin-header";
@@ -14,6 +15,12 @@ export default async function AdminPage() {
 
   if (!session?.user) {
     redirect("/sign-in");
+  }
+
+  // Check if user has completed profile
+  const userProfile = await getProfileByUserId(session.user.id);
+  if (!userProfile) {
+    redirect("/onboarding");
   }
 
   const projects = await getAllProjects(session.user.id);

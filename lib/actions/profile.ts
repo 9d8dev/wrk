@@ -5,6 +5,7 @@ import { profile, user, socialLink } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/actions/media";
+import { nanoid } from "nanoid";
 
 type UpdateProfileParams = {
   userId: string;
@@ -124,5 +125,66 @@ export async function updateProfile({
   } catch (error) {
     console.error("Error updating profile:", error);
     throw new Error("Failed to update profile");
+  }
+}
+
+type CreateProfileParams = {
+  userId: string;
+  profileData: {
+    title?: string;
+    bio: string | null;
+    location: string | null;
+  };
+  profileImageFormData?: FormData | null;
+};
+
+export async function createProfile({
+  userId,
+  profileData,
+  profileImageFormData,
+}: CreateProfileParams) {
+  try {
+    // Check if profile already exists
+    const existingProfile = await db
+      .select()
+      .from(profile)
+      .where(eq(profile.userId, userId))
+      .limit(1);
+
+    if (existingProfile.length > 0) {
+      throw new Error("Profile already exists");
+    }
+
+    // Create profile ID
+    const profileId = nanoid();
+    
+    // Handle profile image upload if provided
+    let profileImageId: string | null = null;
+    if (profileImageFormData) {
+      const imageResult = await uploadImage(profileImageFormData);
+      if (imageResult.success && imageResult.mediaId) {
+        profileImageId = imageResult.mediaId;
+      }
+    }
+
+    // Create new profile
+    await db.insert(profile).values({
+      id: profileId,
+      userId,
+      title: profileData.title || null,
+      bio: profileData.bio,
+      location: profileData.location,
+      profileImageId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/onboarding");
+    
+    return { success: true, profileId };
+  } catch (error) {
+    console.error("Error creating profile:", error);
+    throw new Error("Failed to create profile");
   }
 }

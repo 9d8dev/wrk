@@ -46,7 +46,7 @@ export const signUp = async ({
       password,
     },
   });
-  redirect("/admin");
+  redirect("/onboarding");
 };
 
 export const signOut = async () => {
