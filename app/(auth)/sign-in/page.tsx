@@ -94,7 +94,7 @@ export default function SignInPage() {
 }
 
 const SignInForm = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -127,12 +127,12 @@ const SignInForm = () => {
           e.preventDefault();
           setIsLoading(true);
           const formData = new FormData(e.currentTarget);
-          const email = formData.get("email");
+          const identifier = formData.get("identifier");
           const password = formData.get("password");
 
           try {
             await signIn({
-              email: email as string,
+              identifier: identifier as string,
               password: password as string,
             });
           } catch (error) {
@@ -144,13 +144,13 @@ const SignInForm = () => {
         }}
       >
         <Input
-          placeholder="Email"
-          type="email"
-          name="email"
-          value={email}
+          placeholder="Email or Username"
+          type="text"
+          name="identifier"
+          value={identifier}
           icon={<Mail size={16} />}
-          autoComplete="email"
-          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="username email"
+          onChange={(e) => setIdentifier(e.target.value)}
         />
         <Input
           placeholder="Password"
