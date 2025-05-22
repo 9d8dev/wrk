@@ -54,6 +54,18 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
       });
     }
 
+    // Get user to revalidate their profile page
+    const { user } = await import("@/db/schema");
+    const userResult = await db
+      .select({ username: user.username })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    
+    if (userResult.length > 0 && userResult[0].username) {
+      revalidatePath(`/${userResult[0].username}`);
+    }
+    
     revalidatePath("/admin/theme");
     return { success: true };
   } catch (error) {
@@ -73,6 +85,30 @@ export async function getThemeByUserId(userId: string) {
     return userTheme.length > 0 ? userTheme[0] : null;
   } catch (error) {
     console.error("Error fetching theme:", error);
+    return null;
+  }
+}
+
+export async function getThemeByUsername(username: string) {
+  try {
+    // First get the user to get their ID
+    const { getUserByUsername } = await import("@/lib/data/user");
+    const user = await getUserByUsername(username);
+    
+    if (!user) {
+      return null;
+    }
+
+    // Then get their theme
+    const userTheme = await db
+      .select()
+      .from(theme)
+      .where(eq(theme.userId, user.id))
+      .limit(1);
+
+    return userTheme.length > 0 ? userTheme[0] : null;
+  } catch (error) {
+    console.error("Error fetching theme by username:", error);
     return null;
   }
 }

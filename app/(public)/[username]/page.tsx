@@ -1,14 +1,18 @@
 import { Section, Container } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
-
-import Image from "next/image";
-import Link from "next/link";
+import { 
+  MasonryGrid, 
+  StandardGrid, 
+  MinimalGrid, 
+  SquareGrid 
+} from "@/components/profile/grids";
 
 import { getProjectsByUsername } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
 import { getAllUsers } from "@/lib/data/user";
+import { getThemeByUsername } from "@/lib/actions/theme";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
@@ -52,6 +56,10 @@ export default async function PortfolioPage({ params }: Props) {
     return notFound();
   }
 
+  // Get user's theme preference
+  const userTheme = await getThemeByUsername(username);
+  const gridType = userTheme?.gridType || "masonry"; // Default to masonry
+
   const projects = await Promise.all(
     allProjects.map(async (project) => {
       const featuredImage = await getFeaturedImageByProjectId(project.id);
@@ -60,25 +68,28 @@ export default async function PortfolioPage({ params }: Props) {
     })
   );
 
+  // Render the appropriate grid based on theme selection
+  const renderGrid = () => {
+    switch (gridType) {
+      case "masonry":
+        return <MasonryGrid projects={projects} username={username} />;
+      case "grid":
+        return <StandardGrid projects={projects} username={username} />;
+      case "minimal":
+        return <MinimalGrid projects={projects} username={username} />;
+      case "square":
+        return <SquareGrid projects={projects} username={username} />;
+      default:
+        return <MasonryGrid projects={projects} username={username} />;
+    }
+  };
+
   return (
     <>
       <ProfileHeader username={username} />
       <Section>
-        <Container className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => (
-            <Link
-              key={project.project.id}
-              href={`/${username}/${project.project.slug}`}
-            >
-              <Image
-                className="hover:opacity-75 transition-opacity"
-                src={project.featuredImage?.url || ""}
-                alt={project.project.title}
-                width={project.featuredImage?.width || 96}
-                height={project.featuredImage?.height || 96}
-              />
-            </Link>
-          ))}
+        <Container>
+          {renderGrid()}
         </Container>
       </Section>
       <ProfileFooter username={username} />
