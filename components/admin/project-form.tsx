@@ -13,10 +13,19 @@ import {
   getAllProjectImages,
 } from "@/lib/data/media";
 
-import { Loader2, UploadCloud, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  UploadCloud,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Image as ImageIcon,
+  X,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 import {
   Form,
@@ -73,8 +82,6 @@ const generateSlugFromTitle = (title: string): string => {
     .replace(/-+/g, "-");
 };
 
-
-
 export const ProjectForm = ({
   project,
   initialImages = [],
@@ -84,7 +91,9 @@ export const ProjectForm = ({
 }: ProjectFormProps) => {
   const isEditing = !!project;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [projectImages, setProjectImages] = useState<File[]>(initialImages || []);
+  const [projectImages, setProjectImages] = useState<File[]>(
+    initialImages || []
+  );
   const [uploadedMedia, setUploadedMedia] = useState<Media[]>([]);
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
   const [featuredImageId, setFeaturedImageId] = useState<string | null>(null);
@@ -93,6 +102,7 @@ export const ProjectForm = ({
   const [existingAdditionalMedia, setExistingAdditionalMedia] = useState<
     Media[]
   >([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Initialize form with default values
   const form = useForm<ProjectFormValues>({
@@ -116,7 +126,7 @@ export const ProjectForm = ({
     if (initialImages?.length && !isEditing) {
       setProjectImages(initialImages);
     }
-    
+
     const fetchProjectMedia = async () => {
       if (!project?.id) return;
 
@@ -249,129 +259,157 @@ export const ProjectForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-2 max-w-2xl"
+        className="space-y-4 max-w-2xl"
       >
-        <FormField
-          control={form.control}
-          name="featuredImageId"
-          render={({ field }) => (
-            <ProjectImagesField
-              field={field}
-              existingFeaturedMedia={existingFeaturedMedia}
-              existingAdditionalMedia={existingAdditionalMedia}
-              projectImages={projectImages}
-              setProjectImages={setProjectImages}
-              featuredImageId={featuredImageId}
-              setFeaturedImageId={setFeaturedImageId}
-              uploadedMedia={uploadedMedia}
-            />
-          )}
-        />
+        {/* Image Upload Section - Always visible */}
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="featuredImageId"
+            render={({ field }) => (
+              <ProjectImagesField
+                field={field}
+                existingFeaturedMedia={existingFeaturedMedia}
+                existingAdditionalMedia={existingAdditionalMedia}
+                projectImages={projectImages}
+                setProjectImages={setProjectImages}
+                featuredImageId={featuredImageId}
+                setFeaturedImageId={setFeaturedImageId}
+                uploadedMedia={uploadedMedia}
+              />
+            )}
+          />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">Title</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Title of your project"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    if (!isEditing && e.target.value) {
-                      const currentSlug = form.getValues("slug");
-                      if (
-                        !currentSlug ||
-                        currentSlug === generateSlugFromTitle(field.value)
-                      ) {
-                        form.setValue(
-                          "slug",
-                          generateSlugFromTitle(e.target.value)
-                        );
+        {/* Basic Fields - Always visible */}
+        <div className="space-y-3">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Title</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter project title"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      if (!isEditing && e.target.value) {
+                        const currentSlug = form.getValues("slug");
+                        if (
+                          !currentSlug ||
+                          currentSlug === generateSlugFromTitle(field.value)
+                        ) {
+                          form.setValue(
+                            "slug",
+                            generateSlugFromTitle(e.target.value)
+                          );
+                        }
                       }
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="about"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">About</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="About this project"
-                  className="min-h-[150px] resize-vertical"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL Slug</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="project-slug"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .toLowerCase()
+                        .replace(/[^\w\s-]/g, "")
+                        .replace(/\s+/g, "-")
+                        .replace(/-+/g, "-");
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  This will be used in the URL: wrk.so/username/slug
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">Slug</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="project-slug"
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value
-                      .toLowerCase()
-                      .replace(/[^\w\s-]/g, "")
-                      .replace(/\s+/g, "-")
-                      .replace(/-+/g, "-");
-                    field.onChange(value);
-                  }}
-                />
-              </FormControl>
-              <FormDescription className="sr-only">
-                Auto-generated from title, but you can customize it. This will
-                be used in the URL: wrk.so/username/{"{slug}"}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="about"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>About</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Describe your project..."
+                    className="min-h-[100px] resize-vertical"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="externalLink"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">
-                External Link (Optional)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Link out to project (optional)"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="sr-only">
-                Add a link to the live project or related resource
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Advanced Fields Toggle */}
+        <div className="border-t pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2"
+          >
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+            Advanced Options
+          </Button>
+        </div>
+
+        {/* Advanced Fields - Collapsible */}
+        {showAdvanced && (
+          <div className="space-y-3 pt-2">
+            <FormField
+              control={form.control}
+              name="externalLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External Link</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://example.com"
+                      type="url"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add a link to the live project or related resource
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
 
         <MediaGrid media={uploadedMedia} title="Additional Media" />
 
-        <div className="flex justify-end space-x-2">
+        {/* Actions */}
+        <div className="flex justify-end space-x-2 pt-4 border-t">
           {onCancel && (
             <Button
               type="button"
@@ -453,6 +491,7 @@ const ProjectImagesField = ({
   useEffect(() => {
     field.onChange(featuredImageId || "");
   }, [featuredImageId, field]);
+
   const handleSelectAsFeatured = (id: string) => {
     setFeaturedImageId(id);
   };
@@ -463,118 +502,129 @@ const ProjectImagesField = ({
     ...uploadedMedia,
   ];
 
+  const totalImages = allExistingMedia.length + projectImages.length;
+
   return (
     <FormItem>
-      <FormLabel className="sr-only">Project Images (Up to 5)</FormLabel>
-      <FormControl>
-        <FileUploader
-          value={projectImages}
-          onValueChange={(files: File[] | null) => {
-            if (files) {
-              const maxNewImages = Math.max(0, 5 - allExistingMedia.length);
-              const filesToAdd = files.slice(0, maxNewImages);
+      <FormLabel className="flex items-center gap-2">
+        <ImageIcon className="h-4 w-4" />
+        Project Images
+        <span className="text-sm font-normal text-muted-foreground">
+          ({totalImages}/5)
+        </span>
+      </FormLabel>
 
-              setProjectImages(filesToAdd);
-            } else {
-              setProjectImages([]);
-            }
-          }}
-          dropzoneOptions={{
-            ...IMAGE_CONFIG,
-            maxFiles: Math.max(1, 5 - allExistingMedia.length),
-            disabled: allExistingMedia.length >= 5,
-          }}
-        >
-          <FileInput>
-            <div className="flex flex-col items-center gap-2 p-4 text-muted-foreground">
-              <UploadCloud size={32} className="mb-4" />
-              <h3 className="text-xl">Project Images</h3>
-              <p className="text-sm">
-                {allExistingMedia.length >= 5
-                  ? "Maximum number of images reached (5)"
-                  : `Upload up to ${5 - allExistingMedia.length} more images`}
-              </p>
-              <p className="text-xs">Click an image to set as featured</p>
+      {/* Combined Grid View */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          {/* Existing Images */}
+          {allExistingMedia.map((media) => (
+            <div
+              key={media.id}
+              className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all ${
+                featuredImageId === media.id
+                  ? "border-primary ring-2 ring-primary/20"
+                  : "border-muted hover:border-muted-foreground/50"
+              }`}
+              onClick={() => handleSelectAsFeatured(media.id)}
+            >
+              <div className="aspect-square relative">
+                <Image
+                  src={media.url}
+                  alt={media.alt || "Project image"}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              {featuredImageId === media.id && (
+                <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+                  Featured
+                </div>
+              )}
             </div>
-          </FileInput>
-          <FileUploaderContent>
-            {/* Preview will be handled separately */}
-          </FileUploaderContent>
-        </FileUploader>
-      </FormControl>
+          ))}
 
-      {/* Display existing media */}
-      {allExistingMedia.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-sm font-medium mb-2">Existing Images</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {allExistingMedia.map((media) => (
-              <div
-                key={media.id}
-                className={`relative group cursor-pointer border-2 rounded-md overflow-hidden ${
-                  featuredImageId === media.id
-                    ? "border-primary"
-                    : "border-transparent"
-                }`}
-                onClick={() => handleSelectAsFeatured(media.id)}
-              >
-                <div className="aspect-square relative">
+          {/* New Images */}
+          {projectImages.map((file, index) => (
+            <div
+              key={`new-${index}`}
+              className="relative group border-2 border-muted hover:border-muted-foreground/50 rounded-lg overflow-hidden transition-all"
+            >
+              <div className="aspect-square relative">
+                {previewUrls[`new-${index}`] && (
                   <Image
-                    src={media.url}
-                    alt={media.alt || "Project image"}
+                    src={previewUrls[`new-${index}`]}
+                    alt={`New image ${index + 1}`}
                     fill
                     className="object-cover"
                   />
-                </div>
-                {featuredImageId === media.id && (
-                  <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md">
-                    Featured
-                  </div>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {projectImages.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-sm font-medium mb-2">New Images</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {projectImages.map((file, index) => (
-              <div
-                key={`new-${index}`}
-                className="relative group border-2 border-transparent rounded-md overflow-hidden"
-              >
-                <div className="aspect-square relative">
-                  {previewUrls[`new-${index}`] && (
-                    <Image
-                      src={previewUrls[`new-${index}`]}
-                      alt={`New image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const newImages = [...projectImages];
-                    newImages.splice(index, 1);
-                    setProjectImages(newImages);
-                  }}
-                  size="icon"
-                  variant="outline"
-                  className="absolute top-2 right-2 bg-background/80"
-                >
-                  <Trash2 size={16} />
-                </Button>
+              <div className="absolute top-1 left-1 bg-yellow-500 text-yellow-900 text-xs px-1.5 py-0.5 rounded">
+                New
               </div>
-            ))}
-          </div>
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newImages = [...projectImages];
+                  newImages.splice(index, 1);
+                  setProjectImages(newImages);
+                }}
+                size="icon"
+                variant="destructive"
+                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+
+          {/* Add More Button */}
+          {totalImages < 5 && (
+            <FileUploader
+              value={projectImages}
+              onValueChange={(files: File[] | null) => {
+                if (files) {
+                  const maxNewImages = Math.max(0, 5 - allExistingMedia.length);
+                  const filesToAdd = files.slice(0, maxNewImages);
+                  setProjectImages(filesToAdd);
+                } else {
+                  setProjectImages([]);
+                }
+              }}
+              dropzoneOptions={{
+                ...IMAGE_CONFIG,
+                maxFiles: Math.max(1, 5 - allExistingMedia.length),
+              }}
+            >
+              <FileInput>
+                <div className="aspect-square border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-muted/5">
+                  <UploadCloud className="h-6 w-6 text-muted-foreground mb-2" />
+                  <span className="text-xs text-muted-foreground">
+                    Add Image
+                  </span>
+                </div>
+              </FileInput>
+              <FileUploaderContent />
+            </FileUploader>
+          )}
         </div>
-      )}
+
+        {totalImages === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-2">
+            Add at least one image to your project
+          </p>
+        )}
+
+        {totalImages > 0 &&
+          !featuredImageId &&
+          allExistingMedia.length === 0 && (
+            <p className="text-sm text-yellow-600 text-center py-2">
+              The first image will be set as featured
+            </p>
+          )}
+      </div>
 
       <FormMessage />
     </FormItem>

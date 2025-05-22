@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
-import { DropZone } from "@/components/admin/drop-zone";
+import { QuickCreateProject } from "@/components/admin/quick-create-project";
 import { CreateProject } from "@/components/admin/create-project";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 
@@ -32,12 +32,14 @@ export default async function AdminPage() {
       </AdminHeader>
 
       <PageWrapper>
-        <DropZone />
-        <ProjectList
-          projectsWithImages={projectsWithImages}
-          userId={session.user.id}
-          username={session.user.username!}
-        />
+        <div className="space-y-6">
+          <QuickCreateProject />
+          <ProjectList
+            projectsWithImages={projectsWithImages}
+            userId={session.user.id}
+            username={session.user.username!}
+          />
+        </div>
       </PageWrapper>
     </>
   );

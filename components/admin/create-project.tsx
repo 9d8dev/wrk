@@ -73,8 +73,7 @@ export function CreateProject({
           <DrawerHeader>
             <DrawerTitle>Create New Project</DrawerTitle>
             <DrawerDescription>
-              Fill out the form below to create a new project. Click save when
-              you&apos;re done.
+              Add images and details for your new project
             </DrawerDescription>
           </DrawerHeader>
           <div className="p-4 sm:p-6">
