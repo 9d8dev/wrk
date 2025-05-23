@@ -15,6 +15,8 @@ import {
 } from "@/lib/data/media";
 
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpLeft } from "lucide-react";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -101,6 +103,12 @@ export default async function ProjectPage({ params }: Props) {
             {project.about && (
               <h3 className="text-muted-foreground">{project.about}</h3>
             )}
+            <Link
+              href={`/${username}`}
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm mt-4 flex items-center gap-1"
+            >
+              <ArrowUpLeft size={12} /> Back to Portfolio
+            </Link>
           </div>
           {project.externalLink && (
             <a
@@ -113,7 +121,7 @@ export default async function ProjectPage({ params }: Props) {
             </a>
           )}
         </Container>
-        <Container>
+        <Container className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {mainImage && (
             <Image
               src={mainImage.url}
@@ -123,19 +131,16 @@ export default async function ProjectPage({ params }: Props) {
               priority
             />
           )}
-          {additionalImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {additionalImages.map((image) => (
-                <Image
-                  key={image.id}
-                  src={image.url}
-                  alt={image.alt || `${project.title} image`}
-                  width={400}
-                  height={400}
-                />
-              ))}
-            </div>
-          )}
+          {additionalImages.length > 0 &&
+            additionalImages.map((image) => (
+              <Image
+                key={image.id}
+                src={image.url}
+                alt={image.alt || `${project.title} image`}
+                width={image.width || 1200}
+                height={image.height || 800}
+              />
+            ))}
         </Container>
       </Section>
       <ProfileFooter username={username} />

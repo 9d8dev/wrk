@@ -9,15 +9,26 @@ import { Logo } from "@/components/logo";
 
 import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp } from "@/lib/actions/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 import Water from "@/public/water.webp";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function SignInPage() {
-  const [activeTab, setActiveTab] = useState("sign-in");
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tab === "signup" ? "sign-up" : "sign-in");
+
+  useEffect(() => {
+    if (tab === "signup") {
+      setActiveTab("sign-up");
+    } else if (tab === "login") {
+      setActiveTab("sign-in");
+    }
+  }, [tab]);
 
   return (
     <main className="h-screen w-screen relative overflow-hidden">
@@ -30,6 +41,7 @@ export default function SignInPage() {
         <Logo className="text-background mb-8" />
 
         <Tabs
+          value={activeTab}
           defaultValue="sign-in"
           className="w-full"
           onValueChange={(value) => setActiveTab(value)}
@@ -82,7 +94,7 @@ export default function SignInPage() {
 }
 
 const SignInForm = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -115,12 +127,12 @@ const SignInForm = () => {
           e.preventDefault();
           setIsLoading(true);
           const formData = new FormData(e.currentTarget);
-          const email = formData.get("email");
+          const identifier = formData.get("identifier");
           const password = formData.get("password");
 
           try {
             await signIn({
-              email: email as string,
+              identifier: identifier as string,
               password: password as string,
             });
           } catch (error) {
@@ -132,13 +144,13 @@ const SignInForm = () => {
         }}
       >
         <Input
-          placeholder="Email"
-          type="email"
-          name="email"
-          value={email}
+          placeholder="Email or Username"
+          type="text"
+          name="identifier"
+          value={identifier}
           icon={<Mail size={16} />}
-          autoComplete="email"
-          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="username email"
+          onChange={(e) => setIdentifier(e.target.value)}
         />
         <Input
           placeholder="Password"

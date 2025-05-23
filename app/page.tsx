@@ -31,10 +31,10 @@ export default async function Home() {
         ) : (
           <div className="space-x-2">
             <Button asChild>
-              <Link href="/sign-in">Create an Account</Link>
+              <Link href="/sign-in?tab=signup">Create an Account</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/sign-in">Login</Link>
+              <Link href="/sign-in?tab=login">Login</Link>
             </Button>
           </div>
         )}

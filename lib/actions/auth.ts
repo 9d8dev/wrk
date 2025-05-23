@@ -12,18 +12,32 @@ export const getSession = async () => {
 };
 
 export const signIn = async ({
-  email,
+  identifier,
   password,
 }: {
-  email: string;
+  identifier: string;
   password: string;
 }) => {
-  await auth.api.signInEmail({
-    body: {
-      email,
-      password,
-    },
-  });
+  // Check if identifier is an email
+  const isEmail = identifier.includes("@");
+  
+  if (isEmail) {
+    await auth.api.signInEmail({
+      body: {
+        email: identifier,
+        password,
+      },
+    });
+  } else {
+    // Sign in with username
+    await auth.api.signInUsername({
+      body: {
+        username: identifier,
+        password,
+      },
+    });
+  }
+  
   redirect("/admin");
 };
 
@@ -46,7 +60,7 @@ export const signUp = async ({
       password,
     },
   });
-  redirect("/admin");
+  redirect("/onboarding");
 };
 
 export const signOut = async () => {

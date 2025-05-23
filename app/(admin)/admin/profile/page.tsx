@@ -1,4 +1,5 @@
 import { ProfileForm } from "@/components/admin/profile-form";
+import { PageWrapper } from "@/components/admin/page-wrapper";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { Suspense } from "react";
 
@@ -41,7 +42,7 @@ export default async function ProfilePage() {
   return (
     <>
       <AdminHeader pageTitle="Profile" />
-      <section className="space-y-6 p-4 max-w-3xl">
+      <PageWrapper>
         <Suspense fallback={<div>Loading...</div>}>
           <ProfileForm
             user={session.user}
@@ -50,7 +51,7 @@ export default async function ProfilePage() {
             profileImageUrl={profileImageUrl}
           />
         </Suspense>
-      </section>
+      </PageWrapper>
     </>
   );
 }

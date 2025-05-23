@@ -20,15 +20,16 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
   }
 
   return (
-    <footer>
+    <footer className="border-t border-dashed bg-accent/20 mt-24">
       <Section>
         {profile.bio && (
           <Container className="text-sm">
-            <p>{profile.bio}</p>
+            <p className="max-w-prose">{profile.bio}</p>
           </Container>
         )}
         <Container className="text-sm text-muted-foreground flex justify-between items-start gap-6">
-          <div className="space-y-1">
+          <SocialLinks profile={profile} />
+          <div className="text-right flex items-end flex-col gap-1">
             <p>
               {new Date().getFullYear()} © {user.name}, All rights reserved.
             </p>
@@ -39,7 +40,6 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
               Made with Wrk.so <ArrowUpRight size={12} />
             </Link>
           </div>
-          <SocialLinks profile={profile} />
         </Container>
       </Section>
     </footer>
@@ -56,7 +56,7 @@ const SocialLinks = async ({ profile }: { profile: Profile }) => {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-1">
       {socialLinks.map((link) => (
         <a
           key={link.id}
