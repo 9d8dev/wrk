@@ -17,6 +17,11 @@ export default async function AdminPage() {
     redirect("/sign-in");
   }
 
+  // Check if user has username (required for OAuth users)
+  if (!session.user.username) {
+    redirect("/onboarding");
+  }
+
   // Check if user has completed profile
   const userProfile = await getProfileByUserId(session.user.id);
   if (!userProfile) {

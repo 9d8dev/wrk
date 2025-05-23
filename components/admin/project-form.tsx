@@ -482,7 +482,7 @@ const ProjectImagesField = ({
     setPreviewUrls(urls);
 
     return () => {
-      Object.values(previewUrls).forEach(URL.revokeObjectURL);
+      Object.values(urls).forEach(URL.revokeObjectURL);
     };
   }, [projectImages]);
 

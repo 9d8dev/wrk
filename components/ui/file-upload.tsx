@@ -18,6 +18,7 @@ import {
   FileRejection,
   DropzoneOptions,
 } from "react-dropzone";
+import NextImage from "next/image";
 import { toast } from "sonner";
 import { Trash2 as RemoveIcon } from "lucide-react";
 
@@ -355,13 +356,16 @@ export const FileUploaderItem = forwardRef<
                 <span>Failed to load</span>
               </div>
             )}
-            <img
+            <NextImage
               src={previewUrl}
               alt={file?.name || "File preview"}
+              fill
               className={cn(
-                "w-full h-full object-cover transition-opacity duration-200",
+                "object-cover transition-opacity duration-200",
                 isLoading || error ? "opacity-0" : "opacity-100"
               )}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              unoptimized
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-xs text-white truncate opacity-0 group-hover:opacity-100 transition-opacity">
               {children || file?.name}
