@@ -14,6 +14,7 @@ import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { isRedirectError } from "next/dist/client/components/redirect";
 
 import Water from "@/public/water.webp";
 import Image from "next/image";
@@ -318,7 +319,7 @@ const SignUpForm = () => {
               error instanceof Error
                 ? error.message
                 : "Failed to sign up. Please check your details.";
-            setError(errorMessage);
+          setError(errorMessage);
             toast.error(errorMessage);
           } finally {
             setIsLoading(false);
