@@ -31,13 +31,18 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
               className="group relative overflow-hidden rounded-lg"
             >
               {project.featuredImage && (
-                <div className="relative">
+                <div 
+                  className="relative w-full"
+                  style={{ 
+                    aspectRatio: `${project.featuredImage.width} / ${project.featuredImage.height}` 
+                  }}
+                >
                   <AsyncImage
-                    className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                     src={project.featuredImage.url}
                     alt={project.project.title}
-                    width={project.featuredImage.width}
-                    height={project.featuredImage.height}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     placeholder="shimmer"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />

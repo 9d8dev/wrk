@@ -97,7 +97,7 @@ export function AsyncImage({
 
   return (
     <div
-      className={cn("relative overflow-hidden", className)}
+      className={cn("relative overflow-hidden", fill ? "" : "inline-block", className)}
       style={{
         width: fill ? "100%" : width,
         height: fill ? "100%" : height,
