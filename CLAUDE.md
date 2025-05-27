@@ -162,3 +162,159 @@ The Polar plugin from @polar-sh/better-auth has been fully integrated with:
 - Priority Support
 - Advanced Analytics
 - Remove Wrk.so Branding
+
+## Polar MCP Integration
+
+The project includes comprehensive Polar MCP (Model Context Protocol) integration for webhook development and testing:
+
+### Using Polar MCP for Development
+
+The Polar MCP provides direct access to the Polar API for:
+- Fetching subscription data
+- Retrieving order information
+- Managing customers
+- Getting metrics and analytics
+- Testing webhook payloads
+
+### Available MCP Functions
+
+Key Polar MCP functions available:
+
+```typescript
+// Subscriptions
+mcp_Polar_subscriptions-list({ request: { limit: 10, active: true } })
+mcp_Polar_subscriptions-get({ request: { id: "sub_123" } })
+mcp_Polar_subscriptions-update({ request: { id: "sub_123", SubscriptionUpdate: {...} } })
+
+// Orders
+mcp_Polar_orders-list({ request: { limit: 10 } })
+mcp_Polar_orders-get({ request: { id: "order_123" } })
+
+// Customers
+mcp_Polar_customers-list({ request: { limit: 10 } })
+mcp_Polar_customers-get({ request: { id: "cus_123" } })
+mcp_Polar_customers-create({ request: { email: "user@example.com" } })
+
+// Products
+mcp_Polar_products-list({ request: { limit: 10 } })
+mcp_Polar_products-get({ request: { id: "prod_123" } })
+
+// Metrics
+mcp_Polar_metrics-get({
+  request: {
+    start_date: "2024-01-01",
+    end_date: "2024-01-31",
+    interval: "day"
+  }
+})
+```
+
+### Webhook Testing Script
+
+Use the provided testing script to validate webhook integration:
+
+```bash
+npx tsx scripts/polar-webhook-test.ts
+```
+
+This script demonstrates:
+- Fetching real data via Polar MCP
+- Testing webhook payload structures
+- Validating type safety
+- Debugging webhook handlers
+
+### Type-Safe Webhook Handling
+
+The project includes comprehensive TypeScript types for Polar webhooks in `lib/polar-webhook-types.ts`:
+
+```typescript
+import {
+  PolarWebhookEvent,
+  SubscriptionData,
+  OrderData,
+  isSubscriptionEvent,
+  handleWebhookEvent
+} from '@/lib/polar-webhook-types';
+
+// Type-safe webhook handling
+function handleWebhook(event: PolarWebhookEvent) {
+  if (isSubscriptionEvent(event)) {
+    // TypeScript knows this is a subscription event
+    console.log('Subscription:', event.data.status);
+  }
+
+  // Centralized event handling
+  return handleWebhookEvent(event);
+}
+```
+
+## Development
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Set up environment variables (see above)
+
+3. Run database migrations:
+```bash
+npm run db:push
+```
+
+4. Start development server:
+```bash
+npm run dev
+```
+
+5. Test Polar integration:
+```bash
+npx tsx scripts/polar-webhook-test.ts
+```
+
+## Deployment
+
+The app is configured for Vercel deployment:
+
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
+
+### Webhook Configuration
+
+Configure Polar webhooks to point to:
+- Production: `https://wrk.so/api/auth/polar/webhooks`
+- Development: Use ngrok or similar for local testing
+
+## Key Files
+
+- `app/layout.tsx` - Root layout with auth provider
+- `lib/auth.ts` - Better Auth configuration with Polar
+- `lib/actions/polar.ts` - Polar-related server actions
+- `lib/polar-webhook-types.ts` - Type-safe webhook handling
+- `scripts/polar-webhook-test.ts` - Webhook testing utilities
+- `db/schema.ts` - Database schema
+- `components/ui/` - shadcn/ui components
+
+## Pro Subscription Features
+
+The Pro subscription ($10/month) unlocks:
+- Advanced portfolio customization
+- Priority support
+- Additional file storage
+- Premium templates
+- Analytics dashboard
+
+Subscription status is checked server-side using the `hasActiveProSubscription()` function, which queries the Polar customer state API for real-time subscription status.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test with Polar MCP if subscription-related
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.

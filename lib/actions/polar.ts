@@ -1,6 +1,5 @@
 "use server";
 
-import { authClient } from "@/lib/auth-client";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,10 +14,27 @@ export async function createCheckoutSession(productSlug: string) {
   }
 
   try {
-    // Use the Better Auth client method for checkout
-    await authClient.checkout({
-      slug: productSlug,
-    });
+    // Use the Better Auth API endpoint for Polar checkout
+    const response = await fetch(
+      `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/polar/checkout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: (await headers()).get("cookie") || "",
+        },
+        body: JSON.stringify({ slug: productSlug }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to create checkout session");
+    }
+
+    const data = await response.json();
+    if (data.url) {
+      redirect(data.url);
+    }
   } catch (error) {
     console.error("Checkout error:", error);
     throw new Error("Failed to create checkout session");
@@ -35,8 +51,26 @@ export async function createCustomerPortalSession() {
   }
 
   try {
-    // Use the Better Auth client method for portal
-    await authClient.customer.portal();
+    // Use the Better Auth API endpoint for Polar portal
+    const response = await fetch(
+      `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/polar/portal`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: (await headers()).get("cookie") || "",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to create portal session");
+    }
+
+    const data = await response.json();
+    if (data.url) {
+      redirect(data.url);
+    }
   } catch (error) {
     console.error("Portal session error:", error);
     throw new Error("Failed to create portal session");
@@ -53,8 +87,24 @@ export async function getCustomerState() {
   }
 
   try {
-    const { data: customerState } = await authClient.customer.state();
-    return customerState;
+    // Use the Better Auth API endpoint for customer state
+    const response = await fetch(
+      `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/polar/customer/state`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: (await headers()).get("cookie") || "",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching customer state:", error);
     return null;
@@ -71,14 +121,24 @@ export async function getCustomerSubscriptions() {
   }
 
   try {
-    const { data: subscriptions } = await authClient.customer.subscriptions.list({
-      query: {
-        page: 1,
-        limit: 10,
-        active: true,
-      },
-    });
-    return subscriptions;
+    // Use the Better Auth API endpoint for subscriptions
+    const response = await fetch(
+      `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/polar/customer/subscriptions`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: (await headers()).get("cookie") || "",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching subscriptions:", error);
     return null;

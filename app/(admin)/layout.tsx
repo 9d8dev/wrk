@@ -5,13 +5,13 @@ import { getSession } from "@/lib/actions/auth";
 import { hasActiveProSubscription } from "@/lib/actions/polar";
 import { redirect } from "next/navigation";
 
-interface UserWithPolar {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  username?: string | null;
-  polarCustomerId?: string | null;
-}
+// interface UserWithPolar {
+//   id: string;
+//   name?: string | null;
+//   email?: string | null;
+//   username?: string | null;
+//   polarCustomerId?: string | null;
+// }
 
 export default async function Layout({
   children,
