@@ -12,7 +12,7 @@ export interface PolarWebhookEvent {
 }
 
 // Customer-related webhook types
-export interface CustomerData {
+export interface CustomerData extends Record<string, unknown> {
   id: string;
   email: string;
   name?: string;
@@ -31,7 +31,7 @@ export interface CustomerData {
 }
 
 // Order-related webhook types
-export interface OrderData {
+export interface OrderData extends Record<string, unknown> {
   id: string;
   customer_id: string;
   product_id: string;
@@ -48,7 +48,7 @@ export interface OrderData {
 }
 
 // Subscription-related webhook types
-export interface SubscriptionData {
+export interface SubscriptionData extends Record<string, unknown> {
   id: string;
   customer_id: string;
   product_id: string;
@@ -66,7 +66,7 @@ export interface SubscriptionData {
 }
 
 // Checkout-related webhook types
-export interface CheckoutData {
+export interface CheckoutData extends Record<string, unknown> {
   id: string;
   customer_id?: string;
   product_id: string;

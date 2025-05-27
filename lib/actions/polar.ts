@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SubscriptionData } from "@/lib/polar-webhook-types";
 
 export async function createCheckoutSession(productSlug: string) {
   const session = await auth.api.getSession({
@@ -152,7 +153,7 @@ export async function hasActiveProSubscription(): Promise<boolean> {
 
     // Check if user has any active subscriptions
     const hasActiveSubscription = customerState.subscriptions?.some(
-      (subscription: any) => subscription.status === 'active'
+      (subscription: SubscriptionData) => subscription.status === 'active'
     );
 
     return hasActiveSubscription || false;
