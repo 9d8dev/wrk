@@ -188,3 +188,52 @@ export async function createProfile({
     throw new Error("Failed to create profile");
   }
 }
+
+export async function updateUsername(userId: string, username: string) {
+  try {
+    // Validate username
+    const reservedUsernames = [
+      "admin",
+      "posts",
+      "privacy-policy",
+      "terms-of-use",
+      "about",
+      "contact",
+      "dashboard",
+      "login",
+      "sign-in",
+      "sign-up",
+      "sign-out",
+    ];
+    
+    if (reservedUsernames.includes(username.toLowerCase())) {
+      throw new Error("This username is reserved");
+    }
+
+    // Check if username is already taken
+    const existingUser = await db
+      .select()
+      .from(user)
+      .where(eq(user.username, username))
+      .limit(1);
+
+    if (existingUser.length > 0) {
+      throw new Error("Username is already taken");
+    }
+
+    // Update username
+    await db
+      .update(user)
+      .set({
+        username,
+        displayUsername: username,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating username:", error);
+    throw error;
+  }
+}

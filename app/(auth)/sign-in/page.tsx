@@ -2,6 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, UserCircle, Hash } from "lucide-react";
+import { GoogleIcon } from "@/components/icons/google";
 import { Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,15 +10,16 @@ import { Logo } from "@/components/logo";
 
 import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp } from "@/lib/actions/auth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 import Water from "@/public/water.webp";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function SignInPage() {
+function SignInPageContent() {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tab === "signup" ? "sign-up" : "sign-in");
@@ -93,6 +95,26 @@ export default function SignInPage() {
   );
 }
 
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <main className="h-screen w-screen relative overflow-hidden">
+        <div className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0">
+          <Logo className="text-background mb-8" />
+        </div>
+        <Image
+          src={Water}
+          alt="Water"
+          className="absolute inset-0 object-cover h-full w-full -z-10"
+          placeholder="blur"
+        />
+      </main>
+    }>
+      <SignInPageContent />
+    </Suspense>
+  );
+}
+
 const SignInForm = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -165,6 +187,45 @@ const SignInForm = () => {
           Sign In
         </Button>
       </motion.form>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.35 }}
+        className="space-y-4"
+      >
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={async () => {
+            try {
+              await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/admin",
+              });
+            } catch (error) {
+              console.error("Google sign in error:", error);
+              toast.error("Failed to sign in with Google");
+            }
+          }}
+          disabled={isLoading}
+        >
+          <GoogleIcon className="mr-2 h-4 w-4" />
+          Continue with Google
+        </Button>
+      </motion.div>
 
       <motion.p
         initial={{ opacity: 0 }}
@@ -277,6 +338,45 @@ const SignUpForm = () => {
           Sign Up
         </Button>
       </motion.form>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.35 }}
+        className="space-y-4"
+      >
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={async () => {
+            try {
+              await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/onboarding",
+              });
+            } catch (error) {
+              console.error("Google sign up error:", error);
+              toast.error("Failed to sign up with Google");
+            }
+          }}
+          disabled={isLoading}
+        >
+          <GoogleIcon className="mr-2 h-4 w-4" />
+          Continue with Google
+        </Button>
+      </motion.div>
 
       <motion.p
         initial={{ opacity: 0 }}

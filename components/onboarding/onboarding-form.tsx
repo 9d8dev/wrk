@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, MapPin, Globe, ArrowRight } from "lucide-react";
+import { Loader2, Upload, MapPin, Globe, ArrowRight, Hash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +24,13 @@ import { createProfile } from "@/lib/actions/profile";
 import Image from "next/image";
 
 const formSchema = z.object({
+  username: z.string().min(3, { 
+    message: "Username must be at least 3 characters" 
+  }).max(50, {
+    message: "Username must be less than 50 characters"
+  }).regex(/^[a-zA-Z0-9_-]+$/, {
+    message: "Username can only contain letters, numbers, underscores, and hyphens"
+  }).optional(),
   title: z.string().min(1, { message: "Professional title is required" }),
   bio: z.string().min(10, { 
     message: "Please write at least 10 characters about yourself" 
@@ -56,11 +63,15 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
   const form = useForm<OnboardingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: user.username || "",
       title: "",
       bio: "",
       location: "",
     },
   });
+
+  // Check if user needs to set username (OAuth users)
+  const needsUsername = !user.username;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,6 +98,12 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       const formData = profileImage ? new FormData() : null;
       if (formData && profileImage) {
         formData.append("file", profileImage);
+      }
+
+      // If user needs username, update it first
+      if (needsUsername && values.username) {
+        const { updateUsername } = await import("@/lib/actions/profile");
+        await updateUsername(user.id, values.username);
       }
 
       await createProfile({
@@ -148,6 +165,32 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
               Upload a profile picture (optional)
             </p>
           </div>
+
+          {/* Username field for OAuth users */}
+          {needsUsername && (
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Hash className="w-4 h-4" />
+                    Choose Your Username
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="username" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Your unique URL will be: wrk.so/{field.value || "username"}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* Professional Title */}
           <FormField
