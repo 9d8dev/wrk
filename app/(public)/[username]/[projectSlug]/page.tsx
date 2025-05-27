@@ -1,8 +1,7 @@
 import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
-
-import Image from "next/image";
+import { AsyncImage } from "@/components/ui/async-image";
 
 import { getProjectByUsernameAndSlug } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
@@ -123,22 +122,26 @@ export default async function ProjectPage({ params }: Props) {
         </Container>
         <Container className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {mainImage && (
-            <Image
+            <AsyncImage
               src={mainImage.url}
               alt={mainImage.alt || project.title}
               width={mainImage.width || 1200}
               height={mainImage.height || 800}
               priority
+              placeholder="shimmer"
+              className="w-full h-auto rounded-lg"
             />
           )}
           {additionalImages.length > 0 &&
             additionalImages.map((image) => (
-              <Image
+              <AsyncImage
                 key={image.id}
                 src={image.url}
                 alt={image.alt || `${project.title} image`}
                 width={image.width || 1200}
                 height={image.height || 800}
+                placeholder="shimmer"
+                className="w-full h-auto rounded-lg"
               />
             ))}
         </Container>

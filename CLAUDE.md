@@ -18,6 +18,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Wrk.so** is a Next.js 15 portfolio platform using App Router with the following structure:
 
+### Tech Stack
+- **Framework:** Next.js 15.3.2 with App Router and Turbopack
+- **Language:** TypeScript with React 19
+- **Database:** PostgreSQL (Neon) with Drizzle ORM
+- **Authentication:** Better Auth with username plugin
+- **File Storage:** AWS S3 with Sharp for image processing
+- **Styling:** Tailwind CSS v4 with CSS variables
+- **Forms:** React Hook Form + Zod validation
+- **UI Components:** Shadcn/ui primitives
+
 ### Route Groups
 - `(admin)/` - Protected admin dashboard routes
 - `(auth)/` - Authentication pages (sign-in)
@@ -37,6 +47,9 @@ Key entities and relationships:
 - **Project** → **Media** (many:many) - File associations via imageIds JSON array
 - **User** → **Theme** (1:1) - Grid layout and appearance settings
 - **User** → **Leads** (1:many) - Contact form submissions
+- **Profile** → **SocialLinks** (1:many) - Social media links with display ordering
+
+**Important:** Projects and SocialLinks use `displayOrder` field for manual sorting
 
 ### Server Actions Pattern
 - All data mutations use Next.js Server Actions in `/lib/actions/`
@@ -78,3 +91,13 @@ Key entities and relationships:
 - Tailwind CSS with CSS variables for theming
 - Component variants using class-variance-authority
 - Responsive design with mobile-first approach
+
+## Environment Variables
+
+Required environment variables (see `.env.example`):
+- `DATABASE_URL` - PostgreSQL connection string
+- `BETTER_AUTH_SECRET` - Authentication secret
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
+- `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` - S3 storage
+- `S3_BUCKET_NAME` - S3 bucket for media uploads
