@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { notifyNewUserSignup } from "@/lib/utils/discord";
 
 export const getSession = async () => {
   const session = await auth.api.getSession({
@@ -60,6 +61,15 @@ export const signUp = async ({
       password,
     },
   });
+  
+  // Send Discord notification for new signup
+  await notifyNewUserSignup({
+    name,
+    email,
+    username,
+    createdAt: new Date(),
+  });
+  
   redirect("/onboarding");
 };
 
