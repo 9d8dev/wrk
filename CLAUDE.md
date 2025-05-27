@@ -112,6 +112,14 @@ Required environment variables (add to `.env.local`):
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` - S3 storage
 - `S3_BUCKET_NAME` - S3 bucket for media uploads
+- `DISCORD_WEBHOOK_URL` - Discord webhook URL for notifications (optional)
+
+## Discord Notifications
+
+Discord webhook notifications are sent when:
+- New users sign up (email/password registration)
+- Notification includes: name, username, email, and portfolio URL
+- Configure by setting `DISCORD_WEBHOOK_URL` environment variable
 
 ## Planned Features
 
