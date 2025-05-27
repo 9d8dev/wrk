@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 import { getSession } from "@/lib/actions/auth";
+import { hasActiveProSubscription } from "@/lib/actions/polar";
 import { redirect } from "next/navigation";
 
 interface UserWithPolar {
@@ -23,8 +24,8 @@ export default async function Layout({
     return redirect("/");
   }
 
-  const user = session.user as UserWithPolar;
-  const isPro = !!user.polarCustomerId;
+  // Check if user has an active Pro subscription
+  const isPro = await hasActiveProSubscription();
 
   return (
     <SidebarProvider>

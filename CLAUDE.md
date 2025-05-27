@@ -114,6 +114,12 @@ Required environment variables (add to `.env.local`):
 - `S3_BUCKET_NAME` - S3 bucket for media uploads
 - `DISCORD_WEBHOOK_URL` - Discord webhook URL for notifications (optional)
 
+### Polar Integration
+- `POLAR_ACCESS_TOKEN` - Organization access token from Polar
+- `POLAR_PRO_PRODUCT_ID` - Product ID for the Pro plan
+- `POLAR_WEBHOOK_SECRET` - Webhook secret for secure webhook verification
+- `NEXT_PUBLIC_APP_URL` - Your app's URL (e.g., https://wrk.so)
+
 ## Discord Notifications
 
 Discord webhook notifications are sent when:

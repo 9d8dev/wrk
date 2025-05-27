@@ -2,7 +2,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
-import { polar, checkout, portal } from "@polar-sh/better-auth";
+import { polar, checkout, portal, webhooks, usage } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
 import { polarConfig } from "@/lib/config/polar";
@@ -68,6 +68,61 @@ export const auth = betterAuth({
           authenticatedUsersOnly: true,
         }),
         portal(),
+        usage(),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET!,
+          onCustomerStateChanged: (payload) => {
+            console.log("Customer state changed:", payload);
+            // Handle customer state changes here
+            // This is triggered when anything regarding a customer changes
+          },
+          onOrderPaid: (payload) => {
+            console.log("Order paid:", payload);
+            // Handle successful payments here - grant Pro access
+            // This is the most important event for activating Pro features
+          },
+          onOrderRefunded: (payload) => {
+            console.log("Order refunded:", payload);
+            // Handle refunds - may need to revoke Pro access
+          },
+          onSubscriptionCreated: (payload) => {
+            console.log("Subscription created:", payload);
+            // Handle new subscriptions
+          },
+          onSubscriptionActive: (payload) => {
+            console.log("Subscription activated:", payload);
+            // Handle when subscription becomes active - grant Pro access
+          },
+          onSubscriptionCanceled: (payload) => {
+            console.log("Subscription canceled:", payload);
+            // Handle subscription cancellations - may need to revoke Pro access at period end
+          },
+          onSubscriptionRevoked: (payload) => {
+            console.log("Subscription revoked:", payload);
+            // Handle immediate subscription revocation - revoke Pro access immediately
+          },
+          onSubscriptionUncanceled: (payload) => {
+            console.log("Subscription uncanceled:", payload);
+            // Handle when a cancellation is reversed - restore Pro access
+          },
+          onCheckoutCreated: (payload) => {
+            console.log("Checkout created:", payload);
+            // Handle checkout session creation
+          },
+          onCustomerCreated: (payload) => {
+            console.log("Customer created:", payload);
+            // Handle new customer creation
+          },
+          onCustomerUpdated: (payload) => {
+            console.log("Customer updated:", payload);
+            // Handle customer updates
+          },
+          // Catch-all handler for any events not specifically handled
+          onPayload: (payload) => {
+            console.log("Polar webhook received:", payload.type, payload);
+            // Log all webhook events for debugging
+          },
+        }),
       ],
     }),
     nextCookies(),

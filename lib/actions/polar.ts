@@ -1,5 +1,6 @@
 "use server";
 
+import { authClient } from "@/lib/auth-client";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -14,29 +15,10 @@ export async function createCheckoutSession(productSlug: string) {
   }
 
   try {
-    // Use the Better Auth API endpoint for Polar checkout
-    const response = await fetch(
-      `${
-        process.env.BETTER_AUTH_URL || "http://localhost:3000"
-      }/api/auth/polar/checkout`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          cookie: (await headers()).get("cookie") || "",
-        },
-        body: JSON.stringify({ productSlug }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to create checkout session");
-    }
-
-    const data = await response.json();
-    if (data.url) {
-      redirect(data.url);
-    }
+    // Use the Better Auth client method for checkout
+    await authClient.checkout({
+      slug: productSlug,
+    });
   } catch (error) {
     console.error("Checkout error:", error);
     throw new Error("Failed to create checkout session");
@@ -53,43 +35,15 @@ export async function createCustomerPortalSession() {
   }
 
   try {
-    // Use the Better Auth API endpoint for Polar portal
-    const response = await fetch(
-      `${
-        process.env.BETTER_AUTH_URL || "http://localhost:3000"
-      }/api/auth/polar/portal`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          cookie: (await headers()).get("cookie") || "",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to create portal session");
-    }
-
-    const data = await response.json();
-    if (data.url) {
-      redirect(data.url);
-    }
+    // Use the Better Auth client method for portal
+    await authClient.customer.portal();
   } catch (error) {
     console.error("Portal session error:", error);
     throw new Error("Failed to create portal session");
   }
 }
 
-interface UserWithPolar {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  username?: string | null;
-  polarCustomerId?: string | null;
-}
-
-export async function getUserSubscription() {
+export async function getCustomerState() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -98,7 +52,52 @@ export async function getUserSubscription() {
     return null;
   }
 
-  // Check if user has Polar customer ID
-  const user = session.user as UserWithPolar;
-  return user.polarCustomerId || null;
+  try {
+    const { data: customerState } = await authClient.customer.state();
+    return customerState;
+  } catch (error) {
+    console.error("Error fetching customer state:", error);
+    return null;
+  }
+}
+
+export async function getCustomerSubscriptions() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return null;
+  }
+
+  try {
+    const { data: subscriptions } = await authClient.customer.subscriptions.list({
+      query: {
+        page: 1,
+        limit: 10,
+        active: true,
+      },
+    });
+    return subscriptions;
+  } catch (error) {
+    console.error("Error fetching subscriptions:", error);
+    return null;
+  }
+}
+
+export async function hasActiveProSubscription(): Promise<boolean> {
+  try {
+    const customerState = await getCustomerState();
+    if (!customerState) return false;
+
+    // Check if user has any active subscriptions
+    const hasActiveSubscription = customerState.subscriptions?.some(
+      (subscription: any) => subscription.status === 'active'
+    );
+
+    return hasActiveSubscription || false;
+  } catch (error) {
+    console.error("Error checking subscription status:", error);
+    return false;
+  }
 }
