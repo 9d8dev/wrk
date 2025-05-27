@@ -120,30 +120,41 @@ export default async function ProjectPage({ params }: Props) {
             </a>
           )}
         </Container>
-        <Container className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {mainImage && (
-            <AsyncImage
-              src={mainImage.url}
-              alt={mainImage.alt || project.title}
-              width={mainImage.width || 1200}
-              height={mainImage.height || 800}
-              priority
-              placeholder="shimmer"
-              className="w-full h-auto rounded-lg"
-            />
-          )}
-          {additionalImages.length > 0 &&
-            additionalImages.map((image) => (
-              <AsyncImage
-                key={image.id}
-                src={image.url}
-                alt={image.alt || `${project.title} image`}
-                width={image.width || 1200}
-                height={image.height || 800}
-                placeholder="shimmer"
-                className="w-full h-auto rounded-lg"
-              />
-            ))}
+        <Container>
+          <div className="space-y-4">
+            {mainImage && (
+              <div className="relative w-full aspect-video overflow-hidden bg-muted">
+                <AsyncImage
+                  src={mainImage.url}
+                  alt={mainImage.alt || project.title}
+                  fill
+                  priority
+                  placeholder="shimmer"
+                  className="object-contain"
+                  sizes="(max-width: 1536px) 100vw, 1536px"
+                />
+              </div>
+            )}
+            {additionalImages.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {additionalImages.map((image) => (
+                  <div
+                    key={image.id}
+                    className="relative w-full aspect-video overflow-hidden bg-muted"
+                  >
+                    <AsyncImage
+                      src={image.url}
+                      alt={image.alt || `${project.title} image`}
+                      fill
+                      placeholder="shimmer"
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Container>
       </Section>
       <ProfileFooter username={username} />
