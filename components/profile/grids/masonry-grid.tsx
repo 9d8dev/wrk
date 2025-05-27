@@ -14,8 +14,11 @@ interface MasonryGridProps {
 export function MasonryGrid({ projects, username }: MasonryGridProps) {
   // Split projects into columns for masonry layout
   const columns = 3;
-  const projectColumns: typeof projects[] = Array.from({ length: columns }, () => []);
-  
+  const projectColumns: (typeof projects)[] = Array.from(
+    { length: columns },
+    () => []
+  );
+
   projects.forEach((project, index) => {
     projectColumns[index % columns].push(project);
   });
@@ -31,10 +34,10 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
               className="group relative overflow-hidden rounded-lg"
             >
               {project.featuredImage && (
-                <div 
+                <div
                   className="relative w-full"
-                  style={{ 
-                    aspectRatio: `${project.featuredImage.width} / ${project.featuredImage.height}` 
+                  style={{
+                    aspectRatio: `${project.featuredImage.width} / ${project.featuredImage.height}`,
                   }}
                 >
                   <AsyncImage
@@ -47,7 +50,9 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <h3 className="text-white font-medium">{project.project.title}</h3>
+                    <h3 className="text-white font-medium">
+                      {project.project.title}
+                    </h3>
                   </div>
                 </div>
               )}
