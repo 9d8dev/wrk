@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AsyncImage } from "@/components/ui/async-image";
 import type { Project, Media } from "@/db/schema";
 
 interface MasonryGridProps {
@@ -32,12 +32,13 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
             >
               {project.featuredImage && (
                 <div className="relative">
-                  <Image
+                  <AsyncImage
                     className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                     src={project.featuredImage.url}
                     alt={project.project.title}
                     width={project.featuredImage.width}
                     height={project.featuredImage.height}
+                    placeholder="shimmer"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">

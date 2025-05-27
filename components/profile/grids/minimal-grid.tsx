@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { AsyncImage } from "@/components/ui/async-image";
 import type { Project, Media } from "@/db/schema";
 
 interface MinimalGridProps {
@@ -49,12 +49,13 @@ export function MinimalGrid({ projects, username }: MinimalGridProps) {
               index % 2 === 0 ? "lg:order-2" : "lg:order-1"
             )}>
               {project.featuredImage ? (
-                <Image
+                <AsyncImage
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   src={project.featuredImage.url}
                   alt={project.project.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  placeholder="shimmer"
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">

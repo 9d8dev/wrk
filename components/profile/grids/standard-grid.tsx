@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AsyncImage } from "@/components/ui/async-image";
 import type { Project, Media } from "@/db/schema";
 
 interface StandardGridProps {
@@ -24,12 +24,13 @@ export function StandardGrid({ projects, username }: StandardGridProps) {
             <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-muted">
               {project.featuredImage ? (
                 <>
-                  <Image
+                  <AsyncImage
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     src={project.featuredImage.url}
                     alt={project.project.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    placeholder="shimmer"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </>

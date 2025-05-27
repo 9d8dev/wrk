@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AsyncImage } from "@/components/ui/async-image";
 import type { Project, Media } from "@/db/schema";
 
 interface SquareGridProps {
@@ -22,12 +22,13 @@ export function SquareGrid({ projects, username }: SquareGridProps) {
         >
           {project.featuredImage ? (
             <>
-              <Image
+              <AsyncImage
                 className="object-cover transition-all duration-300 group-hover:scale-110 group-hover:brightness-75"
                 src={project.featuredImage.url}
                 alt={project.project.title}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                placeholder="shimmer"
               />
               <div className="absolute inset-0 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <h3 className="text-white text-sm font-medium">
