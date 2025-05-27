@@ -22,7 +22,9 @@ import Link from "next/link";
 function SignInPageContent() {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(tab === "signup" ? "sign-up" : "sign-in");
+  const [activeTab, setActiveTab] = useState(
+    tab === "signup" ? "sign-up" : "sign-in"
+  );
 
   useEffect(() => {
     if (tab === "signup") {
@@ -97,19 +99,21 @@ function SignInPageContent() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={
-      <main className="h-screen w-screen relative overflow-hidden">
-        <div className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0">
-          <Logo className="text-background mb-8" />
-        </div>
-        <Image
-          src={Water}
-          alt="Water"
-          className="absolute inset-0 object-cover h-full w-full -z-10"
-          placeholder="blur"
-        />
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="h-screen w-screen relative overflow-hidden">
+          <div className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0">
+            <Logo className="text-background mb-8" />
+          </div>
+          <Image
+            src={Water}
+            alt="Water"
+            className="absolute inset-0 object-cover h-full w-full -z-10"
+            placeholder="blur"
+          />
+        </main>
+      }
+    >
       <SignInPageContent />
     </Suspense>
   );
@@ -119,6 +123,7 @@ const SignInForm = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   return (
     <Container className="space-y-4">
@@ -148,6 +153,7 @@ const SignInForm = () => {
         onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           setIsLoading(true);
+          setError("");
           const formData = new FormData(e.currentTarget);
           const identifier = formData.get("identifier");
           const password = formData.get("password");
@@ -157,9 +163,14 @@ const SignInForm = () => {
               identifier: identifier as string,
               password: password as string,
             });
-          } catch (error) {
+          } catch (error: unknown) {
             console.error("Sign in error:", error);
-            toast.error("Failed to sign in. Please check your credentials.");
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to sign in. Please check your credentials.";
+            setError(errorMessage);
+            toast.error(errorMessage);
           } finally {
             setIsLoading(false);
           }
@@ -183,6 +194,15 @@ const SignInForm = () => {
           autoComplete="current-password"
           onChange={(e) => setPassword(e.target.value)}
         />
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-md"
+          >
+            {error}
+          </motion.div>
+        )}
         <Button type="submit" className="mt-2" disabled={isLoading}>
           Sign In
         </Button>
@@ -248,6 +268,7 @@ const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   return (
     <Container className="space-y-4">
@@ -277,6 +298,7 @@ const SignUpForm = () => {
         onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           setIsLoading(true);
+          setError("");
           const formData = new FormData(e.currentTarget);
           const name = formData.get("name");
           const username = formData.get("username");
@@ -290,9 +312,14 @@ const SignUpForm = () => {
               email: email as string,
               password: password as string,
             });
-          } catch (error) {
+          } catch (error: unknown) {
             console.error("Sign up error:", error);
-            toast.error("Failed to sign up. Please check your details.");
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to sign up. Please check your details.";
+            setError(errorMessage);
+            toast.error(errorMessage);
           } finally {
             setIsLoading(false);
           }
@@ -334,6 +361,15 @@ const SignUpForm = () => {
           autoComplete="new-password"
           onChange={(e) => setPassword(e.target.value)}
         />
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-md"
+          >
+            {error}
+          </motion.div>
+        )}
         <Button type="submit" className="mt-2" disabled={isLoading}>
           Sign Up
         </Button>
