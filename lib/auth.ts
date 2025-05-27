@@ -2,9 +2,16 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
+import { polar, checkout, portal } from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
+import { polarConfig } from "@/lib/config/polar";
 
 import * as schema from "@/db/schema";
+
+const polarClient = new Polar({
+  accessToken: process.env.POLAR_ACCESS_TOKEN!,
+});
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -47,6 +54,21 @@ export const auth = betterAuth({
         }
         return true;
       },
+    }),
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: true,
+      use: [
+        checkout({
+          products: polarConfig.products.map(p => ({
+            productId: p.productId,
+            slug: p.slug,
+          })),
+          successUrl: polarConfig.successUrl,
+          authenticatedUsersOnly: true,
+        }),
+        portal(),
+      ],
     }),
     nextCookies(),
   ],

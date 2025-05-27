@@ -14,6 +14,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm db:migrate` - Apply pending migrations to database
 - `pnpm db:push` - Push schema changes directly (dev only)
 
+**Initial Setup:**
+1. `pnpm install` - Install dependencies
+2. Copy environment variables to `.env.local`
+3. `pnpm db:generate` - Generate initial schema
+4. `pnpm db:migrate` - Apply migrations
+5. `pnpm dev` - Start development server
+
 ## Architecture Overview
 
 **Wrk.so** is a Next.js 15 portfolio platform using App Router with the following structure:
@@ -27,6 +34,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling:** Tailwind CSS v4 with CSS variables
 - **Forms:** React Hook Form + Zod validation
 - **UI Components:** Shadcn/ui primitives
+- **Animations:** Motion library
+- **Analytics:** Vercel Analytics
+- **Additional UI:** Vaul (drawer), cmdk (command menu), react-dropzone
 
 ### Route Groups
 - `(admin)/` - Protected admin dashboard routes
@@ -37,8 +47,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Authentication Flow
 - Better Auth with GitHub/Google OAuth + email/password
 - Username plugin for custom portfolio URLs
-- Middleware protects admin routes and redirects appropriately
-- Session-based authentication with Next.js integration
+- Middleware protects `/admin/*` and `/onboarding` routes
+- Session-based authentication via `getSessionCookie` from better-auth/cookies
+- Public access allowed for `/sign-in`, `/`, and `/api/*`
 
 ### Database Architecture (Drizzle + PostgreSQL)
 Key entities and relationships:
@@ -94,10 +105,46 @@ Key entities and relationships:
 
 ## Environment Variables
 
-Required environment variables (see `.env.example`):
+Required environment variables (add to `.env.local`):
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Authentication secret
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` - S3 storage
 - `S3_BUCKET_NAME` - S3 bucket for media uploads
+
+## Planned Features
+
+Features planned but not yet implemented:
+- Stripe payment integration via Better Auth
+- Theme Provider from shadcn
+- Privacy policy and terms of service pages
+
+## Polar Integration
+
+The Polar plugin from @polar-sh/better-auth has been fully integrated with:
+
+### Configuration
+- Server-side configuration in `/lib/auth.ts` with checkout and portal plugins
+- Client-side configuration in `/lib/auth-client.ts`
+- Product configuration in `/lib/config/polar.ts`
+- Server actions in `/lib/actions/polar.ts`
+
+### Features
+- Automatic customer creation on signup
+- Pro plan subscription ($10/mo) with checkout flow
+- Customer portal for subscription management
+- Subscription status display in admin sidebar
+- Dynamic UI based on subscription status
+
+### Environment Variables
+- `POLAR_ACCESS_TOKEN` - Organization access token from Polar
+- `POLAR_PRO_PRODUCT_ID` - Product ID for the Pro plan
+- `NEXT_PUBLIC_APP_URL` - Your app's URL (e.g., https://wrk.so)
+
+### Pro Plan Benefits
+- Custom Domain
+- Unlimited Projects
+- Priority Support
+- Advanced Analytics
+- Remove Wrk.so Branding

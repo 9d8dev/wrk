@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(pnpm lint:*)",
-      "Bash(npx next lint:*)"
+      "Bash(npx next lint:*)",
+      "Bash(pnpm add:*)",
+      "WebFetch(domain:www.better-auth.com)",
+      "Bash(npm run lint)",
+      "WebFetch(domain:docs.polar.sh)"
     ],
     "deny": []
   }
