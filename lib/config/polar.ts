@@ -12,7 +12,7 @@ export const polarConfig = {
         "Advanced Analytics",
         "Remove Wrk.so Branding",
       ],
-      price: "$10/mo",
+      price: "$12/mo",
     },
   ],
   successUrl: "/admin?checkout=success",

@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/logo";
 
 import { motion, AnimatePresence } from "motion/react";
-import { signIn, signUp } from "@/lib/actions/auth";
 import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { handlePostSignup } from "@/lib/actions/auth";
 
 import Water from "@/public/water.webp";
 import Image from "next/image";
@@ -124,6 +124,7 @@ const SignInForm = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   return (
     <Container className="space-y-4">
@@ -155,14 +156,35 @@ const SignInForm = () => {
           setIsLoading(true);
           setError("");
           const formData = new FormData(e.currentTarget);
-          const identifier = formData.get("identifier");
-          const password = formData.get("password");
+          const identifier = formData.get("identifier") as string;
+          const password = formData.get("password") as string;
 
           try {
-            await signIn({
-              identifier: identifier as string,
-              password: password as string,
-            });
+            // Check if identifier is email or username
+            const isEmail = identifier.includes("@");
+            
+            if (isEmail) {
+              const { error } = await authClient.signIn.email({
+                email: identifier,
+                password: password,
+              });
+              
+              if (error) {
+                throw new Error(error.message || "Failed to sign in");
+              }
+            } else {
+              const { error } = await authClient.signIn.username({
+                username: identifier,
+                password: password,
+              });
+              
+              if (error) {
+                throw new Error(error.message || "Failed to sign in");
+              }
+            }
+            
+            // Successful login - redirect to admin
+            router.push("/admin");
           } catch (error: unknown) {
             console.error("Sign in error:", error);
             const errorMessage =
@@ -269,6 +291,7 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   return (
     <Container className="space-y-4">
@@ -300,18 +323,28 @@ const SignUpForm = () => {
           setIsLoading(true);
           setError("");
           const formData = new FormData(e.currentTarget);
-          const name = formData.get("name");
-          const username = formData.get("username");
-          const email = formData.get("email");
-          const password = formData.get("password");
+          const name = formData.get("name") as string;
+          const username = formData.get("username") as string;
+          const email = formData.get("email") as string;
+          const password = formData.get("password") as string;
 
           try {
-            await signUp({
-              name: name as string,
-              username: username as string,
-              email: email as string,
-              password: password as string,
+            const { error } = await authClient.signUp.email({
+              name: name,
+              username: username,
+              email: email,
+              password: password,
             });
+
+            if (error) {
+              throw new Error(error.message || "Failed to sign up");
+            }
+
+            // Send Discord notification
+            await handlePostSignup({ name, email, username });
+
+            // Successful signup - redirect to onboarding
+            router.push("/onboarding");
           } catch (error: unknown) {
             console.error("Sign up error:", error);
             const errorMessage =

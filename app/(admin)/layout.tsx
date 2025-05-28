@@ -3,6 +3,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 import { getSession } from "@/lib/actions/auth";
 import { hasActiveProSubscription } from "@/lib/actions/polar";
+import { polarConfig } from "@/lib/config/polar";
 import { redirect } from "next/navigation";
 
 // interface UserWithPolar {
@@ -27,6 +28,15 @@ export default async function Layout({
   // Check if user has an active Pro subscription
   const isPro = await hasActiveProSubscription();
 
+  // Get the first product info for the upgrade plan
+  const productInfo = polarConfig.products[0] ? {
+    slug: polarConfig.products[0].slug,
+    name: polarConfig.products[0].name,
+    description: polarConfig.products[0].description,
+    features: polarConfig.products[0].features,
+    price: polarConfig.products[0].price,
+  } : undefined;
+
   return (
     <SidebarProvider>
       <AdminSidebar
@@ -34,6 +44,7 @@ export default async function Layout({
         username={session.user.username!}
         email={session.user.email!}
         isPro={isPro}
+        productInfo={productInfo}
       />
       <main id="admin-page" className="relative w-full">
         {children}
