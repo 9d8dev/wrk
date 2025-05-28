@@ -6,6 +6,13 @@ import { polar, checkout, portal, webhooks, usage } from "@polar-sh/better-auth"
 import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
 import { polarConfig } from "@/lib/config/polar";
+import {
+  getUserByPolarCustomerId,
+  getUserByEmail,
+  updateUserSubscription,
+  updateUserPolarCustomerId,
+  logSubscriptionEvent,
+} from "@/lib/actions/subscription";
 
 import * as schema from "@/db/schema";
 
@@ -72,49 +79,164 @@ export const auth = betterAuth({
         usage(),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET!,
-          onCustomerStateChanged: async (payload) => {
-            console.log("Customer state changed:", payload);
-            // Handle customer state changes here
-          },
-          onOrderPaid: async (payload) => {
-            console.log("Order paid:", payload);
-            // Handle successful payments here - grant Pro access
-          },
-          onOrderRefunded: async (payload) => {
-            console.log("Order refunded:", payload);
-            // Handle refunds - may need to revoke Pro access
-          },
-          onSubscriptionCreated: async (payload) => {
-            console.log("Subscription created:", payload);
-            // Handle new subscriptions
-          },
-          onSubscriptionActive: async (payload) => {
-            console.log("Subscription activated:", payload);
-            // Handle when subscription becomes active - grant Pro access
-          },
-          onSubscriptionCanceled: async (payload) => {
-            console.log("Subscription canceled:", payload);
-            // Handle subscription cancellations
-          },
-          onSubscriptionRevoked: async (payload) => {
-            console.log("Subscription revoked:", payload);
-            // Handle immediate subscription revocation
-          },
-          onSubscriptionUncanceled: async (payload) => {
-            console.log("Subscription uncanceled:", payload);
-            // Handle when a cancellation is reversed
-          },
-          onCheckoutCreated: async (payload) => {
-            console.log("Checkout created:", payload);
-            // Handle checkout session creation
-          },
           onCustomerCreated: async (payload) => {
             console.log("Customer created:", payload);
-            // Handle new customer creation
+            
+            // Find user by email and update their Polar customer ID
+            if (payload.data.email) {
+              const existingUser = await getUserByEmail(payload.data.email);
+              if (existingUser && payload.data.id) {
+                await updateUserPolarCustomerId({
+                  userId: existingUser.id,
+                  polarCustomerId: payload.data.id,
+                });
+              }
+            }
           },
           onCustomerUpdated: async (payload) => {
             console.log("Customer updated:", payload);
-            // Handle customer updates
+            // Log the update event if needed
+          },
+          onSubscriptionCreated: async (payload) => {
+            console.log("Subscription created:", payload);
+            
+            // Find user by Polar customer ID
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser) {
+              await updateUserSubscription({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                subscriptionStatus: payload.data.status,
+                subscriptionProductId: payload.data.product_id,
+                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+              });
+              
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                eventType: "created",
+                eventData: payload.data,
+              });
+            }
+          },
+          onSubscriptionActive: async (payload) => {
+            console.log("Subscription activated:", payload);
+            
+            // Update user's subscription to active status
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser) {
+              await updateUserSubscription({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                subscriptionStatus: "active",
+                subscriptionProductId: payload.data.product_id,
+                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+              });
+              
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                eventType: "activated",
+                eventData: payload.data,
+              });
+            }
+          },
+          onSubscriptionCanceled: async (payload) => {
+            console.log("Subscription canceled:", payload);
+            
+            // Update subscription status to canceled (but still active until period end)
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser) {
+              await updateUserSubscription({
+                userId: existingUser.id,
+                subscriptionStatus: "canceled",
+                // Keep the current period end date as they have access until then
+                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+              });
+              
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                eventType: "canceled",
+                eventData: payload.data,
+              });
+            }
+          },
+          onSubscriptionRevoked: async (payload) => {
+            console.log("Subscription revoked:", payload);
+            
+            // Immediately revoke access
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser) {
+              await updateUserSubscription({
+                userId: existingUser.id,
+                subscriptionStatus: "revoked",
+                currentPeriodEnd: new Date(), // Set to now to immediately revoke access
+              });
+              
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                eventType: "revoked",
+                eventData: payload.data,
+              });
+            }
+          },
+          onSubscriptionUncanceled: async (payload) => {
+            console.log("Subscription uncanceled:", payload);
+            
+            // Reactivate the subscription
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser) {
+              await updateUserSubscription({
+                userId: existingUser.id,
+                subscriptionStatus: "active",
+                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+              });
+              
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.id,
+                eventType: "uncanceled",
+                eventData: payload.data,
+              });
+            }
+          },
+          onOrderPaid: async (payload) => {
+            console.log("Order paid:", payload);
+            
+            // Log successful payment
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser && payload.data.subscription_id) {
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.subscription_id,
+                eventType: "payment_succeeded",
+                eventData: payload.data,
+              });
+            }
+          },
+          onOrderRefunded: async (payload) => {
+            console.log("Order refunded:", payload);
+            
+            // Handle refund - subscription status will be updated via subscription webhooks
+            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            if (existingUser && payload.data.subscription_id) {
+              await logSubscriptionEvent({
+                userId: existingUser.id,
+                subscriptionId: payload.data.subscription_id,
+                eventType: "payment_failed",
+                eventData: payload.data,
+              });
+            }
+          },
+          onCheckoutCreated: async (payload) => {
+            console.log("Checkout created:", payload);
+            // Optionally log checkout creation
+          },
+          onCustomerStateChanged: async (payload) => {
+            console.log("Customer state changed:", payload);
+            // Handle any additional customer state changes if needed
           },
         }),
       ],

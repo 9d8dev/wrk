@@ -20,7 +20,44 @@ export const user = pgTable("user", {
   displayUsername: text("display_username"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
+  // Polar subscription fields
+  polarCustomerId: text("polar_customer_id"),
+  subscriptionStatus: text("subscription_status"), // active, canceled, past_due, etc.
+  subscriptionId: text("subscription_id"),
+  subscriptionProductId: text("subscription_product_id"),
+  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
 });
+
+// SUBSCRIPTION HISTORY TABLE
+
+export const subscriptionEventTypes = [
+  "created",
+  "activated",
+  "canceled",
+  "uncanceled",
+  "revoked",
+  "updated",
+  "payment_succeeded",
+  "payment_failed",
+] as const;
+
+export const subscriptionHistory = pgTable("subscription_history", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  subscriptionId: text("subscription_id").notNull(),
+  eventType: text("event_type", { enum: subscriptionEventTypes }).notNull(),
+  eventData: json("event_data"), // Store the full webhook payload
+  createdAt: timestamp("created_at").notNull(),
+});
+
+export const subscriptionHistoryRelations = relations(subscriptionHistory, ({ one }) => ({
+  user: one(user, {
+    fields: [subscriptionHistory.userId],
+    references: [user.id],
+  }),
+}));
 
 // MEDIA TABLE
 
@@ -241,3 +278,4 @@ export type Media = typeof media.$inferSelect;
 export type SocialLink = typeof socialLink.$inferSelect;
 export type Theme = typeof theme.$inferSelect;
 export type Lead = typeof lead.$inferSelect;
+export type SubscriptionHistory = typeof subscriptionHistory.$inferSelect;
