@@ -14,7 +14,7 @@ export async function getUserByPolarCustomerId(polarCustomerId: string) {
     .from(user)
     .where(eq(user.polarCustomerId, polarCustomerId))
     .limit(1);
-  
+
   return users[0] || null;
 }
 
@@ -25,7 +25,7 @@ export async function getUserByEmail(email: string) {
     .from(user)
     .where(eq(user.email, email))
     .limit(1);
-  
+
   return users[0] || null;
 }
 
@@ -81,7 +81,7 @@ export async function logSubscriptionEvent({
 }: {
   userId: string;
   subscriptionId: string;
-  eventType: typeof subscriptionHistory.$inferSelect["eventType"];
+  eventType: (typeof subscriptionHistory.$inferSelect)["eventType"];
   eventData: unknown;
 }) {
   await db.insert(subscriptionHistory).values({
@@ -116,7 +116,7 @@ export async function hasActiveProSubscription(): Promise<boolean> {
     }
 
     // Check if subscription is active and not expired
-    const isActive = userData[0].subscriptionStatus === 'active';
+    const isActive = userData[0].subscriptionStatus === "active";
     const notExpired = userData[0].subscriptionCurrentPeriodEnd
       ? userData[0].subscriptionCurrentPeriodEnd > new Date()
       : false;

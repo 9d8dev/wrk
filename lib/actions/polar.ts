@@ -7,7 +7,7 @@ import { polarConfig } from "@/lib/config/polar";
 
 export async function createCheckoutSession(productSlug: string) {
   console.log("🚀 Starting checkout session creation for slug:", productSlug);
-  
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -20,35 +20,38 @@ export async function createCheckoutSession(productSlug: string) {
   console.log("✅ User authenticated:", {
     userId: session.user.id,
     email: session.user.email,
-    username: session.user.username
+    username: session.user.username,
   });
 
   // Validate product slug exists in config
-  const product = polarConfig.products.find(p => p.slug === productSlug);
+  const product = polarConfig.products.find((p) => p.slug === productSlug);
   if (!product) {
     console.error("❌ Product not found for slug:", productSlug);
-    console.log("Available products:", polarConfig.products.map(p => p.slug));
+    console.log(
+      "Available products:",
+      polarConfig.products.map((p) => p.slug)
+    );
     throw new Error(`Product not found for slug: ${productSlug}`);
   }
 
   console.log("✅ Product found:", {
     productId: product.productId,
     slug: product.slug,
-    name: product.name
+    name: product.name,
   });
 
   try {
     console.log("🔄 Creating checkout session via direct API call...");
-    
+
     // Create checkout session using direct API call to the auth endpoint
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const checkoutUrl = `${baseUrl}/api/auth/polar/checkout`;
-    
+
     const response = await fetch(checkoutUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Cookie': (await headers()).get('cookie') || '',
+        "Content-Type": "application/json",
+        Cookie: (await headers()).get("cookie") || "",
       },
       body: JSON.stringify({
         slug: productSlug,
@@ -80,25 +83,29 @@ export async function createCheckoutSession(productSlug: string) {
       stack: error instanceof Error ? error.stack : undefined,
       productSlug,
       userId: session.user.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     // Check if it's a Polar API error
-    if (error instanceof Error && error.message.includes('Polar')) {
+    if (error instanceof Error && error.message.includes("Polar")) {
       throw new Error(`Polar API Error: ${error.message}`);
     }
-    
+
     // Check if it's an authentication error
-    if (error instanceof Error && error.message.includes('401')) {
+    if (error instanceof Error && error.message.includes("401")) {
       throw new Error("Polar authentication failed - check POLAR_ACCESS_TOKEN");
     }
-    
+
     // Check if it's a product configuration error
-    if (error instanceof Error && error.message.includes('product')) {
+    if (error instanceof Error && error.message.includes("product")) {
       throw new Error(`Product configuration error: ${error.message}`);
     }
-    
-    throw new Error(`Failed to create checkout session: ${error instanceof Error ? error.message : String(error)}`);
+
+    throw new Error(
+      `Failed to create checkout session: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 }
 
@@ -113,16 +120,16 @@ export async function createCustomerPortalSession() {
 
   try {
     console.log("🔄 Creating customer portal session via direct API call...");
-    
+
     // Create portal session using direct API call to the auth endpoint
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const portalUrl = `${baseUrl}/api/auth/polar/portal`;
-    
+
     const response = await fetch(portalUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Cookie': (await headers()).get('cookie') || '',
+        "Content-Type": "application/json",
+        Cookie: (await headers()).get("cookie") || "",
       },
     });
 
@@ -157,16 +164,16 @@ export async function getCustomerState() {
 
   try {
     console.log("🔄 Getting customer state via direct API call...");
-    
+
     // Get customer state using direct API call to the auth endpoint
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const stateUrl = `${baseUrl}/api/auth/polar/customer-state`;
-    
+
     const response = await fetch(stateUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Cookie': (await headers()).get('cookie') || '',
+        "Content-Type": "application/json",
+        Cookie: (await headers()).get("cookie") || "",
       },
     });
 

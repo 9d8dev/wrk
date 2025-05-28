@@ -7,6 +7,7 @@ import {
   SquareArrowDownLeft,
   SquareAsterisk,
   SquareUser,
+  Settings,
 } from "lucide-react";
 
 import { usePathname } from "next/navigation";
@@ -34,6 +35,11 @@ const nav_links = [
     href: "/admin/leads",
     label: "Leads",
     icon: <SquareArrowDownLeft className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    icon: <Settings className="mr-2 h-4 w-4" />,
   },
 ];
 
