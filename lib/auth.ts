@@ -2,7 +2,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
-import { polar, checkout, portal, webhooks, usage } from "@polar-sh/better-auth";
+import { polar, checkout, portal, usage, webhooks } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
 import { polarConfig } from "@/lib/config/polar";
@@ -112,10 +112,6 @@ export const auth = betterAuth({
               }
             }
           },
-          onCustomerUpdated: async (payload) => {
-            console.log("Customer updated:", payload);
-            // Log the update event if needed
-          },
           onSubscriptionCreated: async (payload) => {
             console.log("Subscription created:", payload);
             
@@ -163,13 +159,12 @@ export const auth = betterAuth({
           onSubscriptionCanceled: async (payload) => {
             console.log("Subscription canceled:", payload);
             
-            // Update subscription status to canceled (but still active until period end)
+            // Update subscription status to canceled
             const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
             if (existingUser) {
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionStatus: "canceled",
-                // Keep the current period end date as they have access until then
                 currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
               });
               
@@ -177,46 +172,6 @@ export const auth = betterAuth({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
                 eventType: "canceled",
-                eventData: payload.data,
-              });
-            }
-          },
-          onSubscriptionRevoked: async (payload) => {
-            console.log("Subscription revoked:", payload);
-            
-            // Immediately revoke access
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
-            if (existingUser) {
-              await updateUserSubscription({
-                userId: existingUser.id,
-                subscriptionStatus: "revoked",
-                currentPeriodEnd: new Date(), // Set to now to immediately revoke access
-              });
-              
-              await logSubscriptionEvent({
-                userId: existingUser.id,
-                subscriptionId: payload.data.id,
-                eventType: "revoked",
-                eventData: payload.data,
-              });
-            }
-          },
-          onSubscriptionUncanceled: async (payload) => {
-            console.log("Subscription uncanceled:", payload);
-            
-            // Reactivate the subscription
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
-            if (existingUser) {
-              await updateUserSubscription({
-                userId: existingUser.id,
-                subscriptionStatus: "active",
-                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
-              });
-              
-              await logSubscriptionEvent({
-                userId: existingUser.id,
-                subscriptionId: payload.data.id,
-                eventType: "uncanceled",
                 eventData: payload.data,
               });
             }
@@ -234,28 +189,6 @@ export const auth = betterAuth({
                 eventData: payload.data,
               });
             }
-          },
-          onOrderRefunded: async (payload) => {
-            console.log("Order refunded:", payload);
-            
-            // Handle refund - subscription status will be updated via subscription webhooks
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
-            if (existingUser && payload.data.subscription_id) {
-              await logSubscriptionEvent({
-                userId: existingUser.id,
-                subscriptionId: payload.data.subscription_id,
-                eventType: "payment_failed",
-                eventData: payload.data,
-              });
-            }
-          },
-          onCheckoutCreated: async (payload) => {
-            console.log("Checkout created:", payload);
-            // Optionally log checkout creation
-          },
-          onCustomerStateChanged: async (payload) => {
-            console.log("Customer state changed:", payload);
-            // Handle any additional customer state changes if needed
           },
         }),
       ],
