@@ -6,6 +6,7 @@ import { polar, checkout, portal, webhooks, usage } from "@polar-sh/better-auth"
 import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
 import { polarConfig } from "@/lib/config/polar";
+import { nanoid } from "nanoid";
 import {
   getUserByPolarCustomerId,
   getUserByEmail,
@@ -22,6 +23,7 @@ const polarClient = new Polar({
 });
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: schema,
@@ -37,6 +39,23 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    database: {
+      generateId: () => {
+        // Generate a unique ID for database records
+        return nanoid();
+      },
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 30, // 30 days
+    updateAge: 60 * 60 * 24, // Update session if older than 1 day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // Cache for 5 minutes
     },
   },
   plugins: [

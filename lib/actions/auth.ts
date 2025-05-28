@@ -12,65 +12,19 @@ export const getSession = async () => {
   return session;
 };
 
-export const signIn = async ({
-  identifier,
-  password,
-}: {
-  identifier: string;
-  password: string;
-}) => {
-  // Check if identifier is an email
-  const isEmail = identifier.includes("@");
-  
-  if (isEmail) {
-    await auth.api.signInEmail({
-      body: {
-        email: identifier,
-        password,
-      },
-    });
-  } else {
-    // Sign in with username
-    await auth.api.signInUsername({
-      body: {
-        username: identifier,
-        password,
-      },
-    });
-  }
-  
-  redirect("/admin");
-};
+// These auth actions are kept for server-side use only
+// For client-side auth, use authClient from lib/auth-client.ts
 
-export const signUp = async ({
-  name,
-  username,
-  email,
-  password,
-}: {
+export const handlePostSignup = async (userData: {
   name: string;
-  username: string;
   email: string;
-  password: string;
+  username: string;
 }) => {
-  await auth.api.signUpEmail({
-    body: {
-      name,
-      username,
-      email,
-      password,
-    },
-  });
-  
   // Send Discord notification for new signup
   await notifyNewUserSignup({
-    name,
-    email,
-    username,
+    ...userData,
     createdAt: new Date(),
   });
-  
-  redirect("/onboarding");
 };
 
 export const signOut = async () => {
