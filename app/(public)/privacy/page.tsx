@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
               <h1 className="text-4xl font-bold">Privacy Policy</h1>
             </div>
             <p className="text-lg text-muted-foreground">
-              We're committed to protecting your privacy and being transparent about how we collect, use, and share your information.
+              We&apos;re committed to protecting your privacy and being transparent about how we collect, use, and share your information.
             </p>
             <Badge variant="secondary" className="px-4 py-2">
               Last updated: December 2024
@@ -119,12 +119,12 @@ export default function PrivacyPolicy() {
                 <div className="space-y-4">
                   <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                     <h3 className="text-lg font-medium mb-2 text-green-800 dark:text-green-200">
-                      What We DON'T Do
+                      What We DON&apos;T Do
                     </h3>
                     <ul className="space-y-1 text-green-700 dark:text-green-300">
                       <li>• We never sell your personal data</li>
-                      <li>• We don't share data with advertisers</li>
-                      <li>• We don't use your content for AI training without permission</li>
+                      <li>• We don&apos;t share data with advertisers</li>
+                      <li>• We don&apos;t use your content for AI training without permission</li>
                     </ul>
                   </div>
 
@@ -134,7 +134,7 @@ export default function PrivacyPolicy() {
                     <ul className="space-y-1 text-muted-foreground ml-4">
                       <li>• <strong>Service Providers:</strong> Trusted partners who help us operate (hosting, payment processing, analytics)</li>
                       <li>• <strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
-                      <li>• <strong>Business Transfers:</strong> In case of merger or acquisition (you'll be notified)</li>
+                      <li>• <strong>Business Transfers:</strong> In case of merger or acquisition (you&apos;ll be notified)</li>
                       <li>• <strong>Your Consent:</strong> When you explicitly authorize sharing</li>
                     </ul>
                   </div>
@@ -259,7 +259,7 @@ export default function PrivacyPolicy() {
 
               {/* Children's Privacy */}
               <section>
-                <h2 className="text-2xl font-semibold mb-4">8. Children's Privacy</h2>
+                <h2 className="text-2xl font-semibold mb-4">8. Children&apos;s Privacy</h2>
                 <p className="text-muted-foreground">
                   Wrk.so is not intended for children under 13. We do not knowingly collect personal information from children under 13. If you believe we have collected such information, please contact us immediately.
                 </p>
@@ -272,12 +272,12 @@ export default function PrivacyPolicy() {
                 <h2 className="text-2xl font-semibold mb-4">9. Policy Updates</h2>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    We may update this privacy policy from time to time. We'll notify you of significant changes by:
+                    We may update this privacy policy from time to time. We&apos;ll notify you of significant changes by:
                   </p>
                   <ul className="space-y-1 text-muted-foreground ml-4">
                     <li>• Email notification (for material changes)</li>
                     <li>• In-app notification</li>
-                    <li>• Updating the "Last updated" date above</li>
+                    <li>• Updating the &quot;Last updated&quot; date above</li>
                   </ul>
                 </div>
               </section>
@@ -305,4 +305,4 @@ export default function PrivacyPolicy() {
       </Section>
     </div>
   );
-} 
+}
