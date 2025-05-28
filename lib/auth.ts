@@ -115,15 +115,19 @@ export const auth = betterAuth({
           onSubscriptionCreated: async (payload) => {
             console.log("Subscription created:", payload);
             
-            // Find user by Polar customer ID
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            // Find user by Polar customer ID - safely access properties
+            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
+            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
             if (existingUser) {
+              const productId = payload.data.productId || (payload.data as Record<string, unknown>).product_id as string;
+              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
+              
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
                 subscriptionStatus: payload.data.status,
-                subscriptionProductId: payload.data.product_id,
-                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+                subscriptionProductId: productId,
+                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
               });
               
               await logSubscriptionEvent({
@@ -137,15 +141,19 @@ export const auth = betterAuth({
           onSubscriptionActive: async (payload) => {
             console.log("Subscription activated:", payload);
             
-            // Update user's subscription to active status
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            // Update user's subscription to active status - safely access properties
+            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
+            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
             if (existingUser) {
+              const productId = payload.data.productId || (payload.data as Record<string, unknown>).product_id as string;
+              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
+              
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
                 subscriptionStatus: "active",
-                subscriptionProductId: payload.data.product_id,
-                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+                subscriptionProductId: productId,
+                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
               });
               
               await logSubscriptionEvent({
@@ -159,13 +167,16 @@ export const auth = betterAuth({
           onSubscriptionCanceled: async (payload) => {
             console.log("Subscription canceled:", payload);
             
-            // Update subscription status to canceled
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
+            // Update subscription status to canceled - safely access properties
+            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
+            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
             if (existingUser) {
+              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
+              
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionStatus: "canceled",
-                currentPeriodEnd: payload.data.current_period_end ? new Date(payload.data.current_period_end) : undefined,
+                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
               });
               
               await logSubscriptionEvent({
@@ -179,12 +190,14 @@ export const auth = betterAuth({
           onOrderPaid: async (payload) => {
             console.log("Order paid:", payload);
             
-            // Log successful payment
-            const existingUser = await getUserByPolarCustomerId(payload.data.customer_id);
-            if (existingUser && payload.data.subscription_id) {
+            // Log successful payment - safely access properties
+            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
+            const subscriptionId = payload.data.subscriptionId || (payload.data as Record<string, unknown>).subscription_id as string;
+            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
+            if (existingUser && subscriptionId) {
               await logSubscriptionEvent({
                 userId: existingUser.id,
-                subscriptionId: payload.data.subscription_id,
+                subscriptionId: subscriptionId,
                 eventType: "payment_succeeded",
                 eventData: payload.data,
               });
