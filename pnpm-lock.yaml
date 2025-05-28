@@ -31,10 +31,10 @@ importers:
         version: 0.10.4
       '@polar-sh/better-auth':
         specifier: ^1.0.1
-        version: 1.0.1(@polar-sh/sdk@0.32.16(zod@3.25.30))(better-auth@1.2.8)
+        version: 1.0.1(@polar-sh/sdk@0.32.16(zod@3.25.32))(better-auth@1.2.8)
       '@polar-sh/sdk':
         specifier: ^0.32.16
-        version: 0.32.16(zod@3.25.30)
+        version: 0.32.16(zod@3.25.32)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.14
         version: 1.1.14(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -132,8 +132,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       zod:
-        specifier: ^3.25.30
-        version: 3.25.30
+        specifier: ^3.25.32
+        version: 3.25.32
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -3824,8 +3824,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@3.25.30:
-    resolution: {integrity: sha512-VolhdEtu6TJr/fzGuHA/SZ5ixvXqA6ADOG9VRcQ3rdOKmF5hkmcJbyaQjUH5BgmpA9gej++zYRX7zjSmdReIwA==}
+  zod@3.25.32:
+    resolution: {integrity: sha512-OSm2xTIRfW8CV5/QKgngwmQW/8aPfGdaQFlrGoErlgg/Epm7cjb6K6VEyExfe65a3VybUOnu381edLb0dfJl0g==}
 
 snapshots:
 
@@ -4919,16 +4919,16 @@ snapshots:
 
   '@petamoriken/float16@3.9.2': {}
 
-  '@polar-sh/better-auth@1.0.1(@polar-sh/sdk@0.32.16(zod@3.25.30))(better-auth@1.2.8)':
+  '@polar-sh/better-auth@1.0.1(@polar-sh/sdk@0.32.16(zod@3.25.32))(better-auth@1.2.8)':
     dependencies:
-      '@polar-sh/sdk': 0.32.16(zod@3.25.30)
+      '@polar-sh/sdk': 0.32.16(zod@3.25.32)
       better-auth: 1.2.8
-      zod: 3.25.30
+      zod: 3.25.32
 
-  '@polar-sh/sdk@0.32.16(zod@3.25.30)':
+  '@polar-sh/sdk@0.32.16(zod@3.25.32)':
     dependencies:
       standardwebhooks: 1.0.0
-      zod: 3.25.30
+      zod: 3.25.32
 
   '@radix-ui/number@1.1.1': {}
 
@@ -6056,7 +6056,7 @@ snapshots:
       jose: 5.10.0
       kysely: 0.28.2
       nanostores: 0.11.4
-      zod: 3.25.30
+      zod: 3.25.32
 
   better-call@1.0.9:
     dependencies:
@@ -7854,4 +7854,4 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.25.30: {}
+  zod@3.25.32: {}
