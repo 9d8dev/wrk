@@ -50,8 +50,8 @@ export default function TermsOfUse() {
                 </h2>
                 <ul className="space-y-2 text-sm">
                   <li>• You keep full ownership of your content and portfolios</li>
-                  <li>• Use our service responsibly and don't violate others' rights</li>
-                  <li>• We provide the service "as is" with reasonable effort to maintain uptime</li>
+                  <li>• Use our service responsibly and don&apos;t violate others&apos; rights</li>
+                  <li>• We provide the service &quot;as is&quot; with reasonable effort to maintain uptime</li>
                   <li>• Either party can terminate the agreement with notice</li>
                 </ul>
               </div>
@@ -61,7 +61,7 @@ export default function TermsOfUse() {
                 <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    By accessing or using Wrk.so ("Service"), you agree to be bound by these Terms of Use ("Terms"). 
+                    By accessing or using Wrk.so (&quot;Service&quot;), you agree to be bound by these Terms of Use (&quot;Terms&quot;). 
                     If you disagree with any part of these terms, you may not access the Service.
                   </p>
                   <p className="text-muted-foreground">
@@ -159,7 +159,7 @@ export default function TermsOfUse() {
                     <p className="text-muted-foreground mb-2">Your content must not:</p>
                     <ul className="space-y-1 text-muted-foreground ml-4">
                       <li>• Violate any laws or regulations</li>
-                      <li>• Infringe on others' intellectual property rights</li>
+                      <li>• Infringe on others&apos; intellectual property rights</li>
                       <li>• Contain hateful, threatening, or explicit material</li>
                       <li>• Include spam, malware, or malicious code</li>
                       <li>• Impersonate others or misrepresent your identity</li>
@@ -190,7 +190,7 @@ export default function TermsOfUse() {
                     <ul className="space-y-2 text-muted-foreground">
                       <li>• To interfere with our servers</li>
                       <li>• To create fake accounts</li>
-                      <li>• To violate others' privacy</li>
+                      <li>• To violate others&apos; privacy</li>
                       <li>• To compete directly with us</li>
                     </ul>
                   </div>
@@ -236,7 +236,7 @@ export default function TermsOfUse() {
                   <div>
                     <h3 className="text-lg font-medium mb-2">Price Changes</h3>
                     <p className="text-muted-foreground">
-                      We may change our pricing with 30 days' notice. Current subscribers will be 
+                      We may change our pricing with 30 days&apos; notice. Current subscribers will be 
                       grandfathered at their existing price for their current billing cycle.
                     </p>
                   </div>
@@ -261,7 +261,7 @@ export default function TermsOfUse() {
                   
                   <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-blue-800 dark:text-blue-200">
-                      <strong>Service Updates:</strong> We'll notify users of significant changes through email or in-app notifications.
+                      <strong>Service Updates:</strong> We&apos;ll notify users of significant changes through email or in-app notifications.
                     </p>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function TermsOfUse() {
                     <h3 className="text-lg font-medium mb-2">Service Disclaimers</h3>
                     <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                       <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                        The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind. 
+                        The Service is provided &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; without warranties of any kind. 
                         We do not guarantee that the Service will be error-free, secure, or continuously available.
                       </p>
                     </div>
@@ -348,7 +348,7 @@ export default function TermsOfUse() {
                     <h3 className="text-lg font-medium mb-2">Our Rights</h3>
                     <ul className="space-y-1 text-muted-foreground ml-4">
                       <li>• We may suspend accounts for Terms violations</li>
-                      <li>• We may terminate accounts with 30 days' notice</li>
+                      <li>• We may terminate accounts with 30 days&apos; notice</li>
                       <li>• We may immediately terminate for serious violations</li>
                       <li>• We will provide data export opportunities when possible</li>
                     </ul>
@@ -376,7 +376,7 @@ export default function TermsOfUse() {
                   <ul className="space-y-1 text-muted-foreground ml-4">
                     <li>• Email notification to account holders</li>
                     <li>• In-app notification when you next sign in</li>
-                    <li>• Updating the "Last updated" date above</li>
+                    <li>• Updating the &quot;Last updated&quot; date above</li>
                     <li>• Posting notice on our website</li>
                   </ul>
                   <p className="text-muted-foreground">
