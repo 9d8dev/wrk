@@ -9,5 +9,6 @@
       "WebFetch(domain:docs.polar.sh)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": false
 }

@@ -29,7 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Framework:** Next.js 15.3.2 with App Router and Turbopack
 - **Language:** TypeScript with React 19
 - **Database:** PostgreSQL (Neon) with Drizzle ORM
-- **Authentication:** Better Auth with username plugin
+- **Authentication:** Better Auth v1.2.8 with username plugin and Polar integration
 - **File Storage:** R2 compatible S3 storage with Sharp for image processing
 - **Styling:** Tailwind CSS v4 with CSS variables
 - **Forms:** React Hook Form + Zod validation
@@ -46,10 +46,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Authentication Flow
 - Better Auth with GitHub/Google OAuth + email/password
-- Username plugin for custom portfolio URLs
+- Username plugin for custom portfolio URLs with reserved username enforcement
+- Cookie prefix: `"better-auth"`
+- Session duration: 30 days with 1-day update threshold and 5-minute cache
 - Middleware protects `/admin/*` and `/onboarding` routes
 - Session-based authentication via `auth.api.getSession`
 - Public access allowed for `/sign-in`, `/`, and `/api/*`
+- Discord notifications sent for new email/password signups
 
 ### Database Architecture (Drizzle + PostgreSQL)
 Key entities and relationships:
@@ -63,10 +66,17 @@ Key entities and relationships:
 
 **Important:** Projects and SocialLinks use `displayOrder` field for manual sorting
 
+**Database Migration Workflow:**
+- Migrations stored in `/db/migrations/`
+- Each migration has an associated snapshot in `/db/migrations/meta/`
+- Use `pnpm db:generate` to create new migrations from schema changes
+- Use `pnpm db:migrate` to apply pending migrations
+
 ### Server Actions Pattern
 - All data mutations use Next.js Server Actions in `/lib/actions/`
 - Server-side validation with Zod schemas
 - Automatic revalidation of cached data
+- Consistent error/success response pattern
 - Error handling with try/catch blocks
 
 ### Component Organization
@@ -77,9 +87,16 @@ Key entities and relationships:
 
 ### Media Management
 - R2 (S3 compatible) integration for file uploads
-- Sharp for image processing
-- 10MB upload limit configured in Next.js
-- Automatic URL generation for stored files
+- Sharp for image processing with automatic optimization
+- 10MB upload limit configured in Next.js server actions
+- Files served from `images.wrk.so` domain
+- Media entities track dimensions, size, and MIME type
+
+### Webhook Architecture
+- Comprehensive webhook type system in `/lib/polar-webhook-types.ts`
+- Handles events: customer creation/updates, orders, subscriptions, checkouts
+- Safe property access patterns for webhook data handling
+- Webhook endpoint at `/api/webhooks/polar`
 
 ### Key Features
 - Multiple grid layouts (masonry, standard, minimal, square)
@@ -103,19 +120,26 @@ Key entities and relationships:
 - Form handling with React Hook Form + Zod validation
 
 **Styling:**
-- Tailwind CSS with CSS variables for theming
+- Tailwind CSS v4 with CSS variables for theming
 - Component variants using class-variance-authority
 - Responsive design with mobile-first approach
+
+**Error Handling Patterns:**
+- All Server Actions return `{ error?: string, data?: T }` pattern
+- Client-side error display using toast notifications
+- Form validation errors displayed inline
 
 ## Environment Variables
 
 Required environment variables (add to `.env.local`):
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Authentication secret
+- `BETTER_AUTH_URL` - Better Auth URL configuration
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` - R2 storage credentials
-- `R2_BUCKET_NAME` / `R2_ENDPOINT` - R2 bucket configuration
+- `R2_BUCKET` - R2 bucket name
+- `R2_ENDPOINT` - R2 endpoint URL
 - `R2_PUBLIC_URL` - Public URL for serving R2 files
 - `DISCORD_WEBHOOK_URL` - Discord webhook URL for notifications (optional)
 
@@ -138,7 +162,7 @@ The Polar plugin from @polar-sh/better-auth has been integrated with:
 - Automatic customer creation on signup
 - Pro plan subscription ($12/mo) with checkout flow
 - Customer portal for subscription management
-- Subscription status stored in database
+- Subscription status stored in database with statuses: `incomplete`, `incomplete_expired`, `trialing`, `active`, `past_due`, `canceled`, `unpaid`
 - Dynamic UI based on subscription status
 
 ### Pro Plan Benefits

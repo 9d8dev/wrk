@@ -8,6 +8,8 @@ import { ManageSubscriptionButton } from "@/components/admin/manage-subscription
 import { UpgradeButton } from "@/components/admin/upgrade-button";
 import { polarConfig } from "@/lib/config/polar";
 import { Card } from "@/components/ui/card";
+import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
+import { DebugPolarButton } from "@/components/admin/debug-polar-button";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
@@ -54,7 +56,13 @@ export default async function SettingsPage() {
 
           {/* Subscription Management */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Subscription</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Subscription</h2>
+              <div className="flex gap-2">
+                <SyncSubscriptionButton />
+                <DebugPolarButton />
+              </div>
+            </div>
 
             {hasActiveSubscription ? (
               <div className="space-y-4">
