@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import {
@@ -11,7 +11,7 @@ import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { Polar } from "@polar-sh/sdk";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     // Get the current user session
     const session = await auth.api.getSession({
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
           await logSubscriptionEvent({
             userId: session.user.id,
             subscriptionId: activeSubscription.id,
-            // @ts-ignore
+            // @ts-expect-error - eventType is not typed
             eventType: "manual_sync",
             eventData: activeSubscription,
           });
