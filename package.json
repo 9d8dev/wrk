@@ -51,21 +51,21 @@
     "sharp": "^0.33.5",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
-    "tw-animate-css": "^1.3.0",
+    "tw-animate-css": "^1.3.2",
     "vaul": "^1.1.2",
-    "zod": "^3.25.32"
+    "zod": "^3.25.36"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@tailwindcss/postcss": "^4.1.7",
-    "@types/node": "^20.17.51",
+    "@tailwindcss/postcss": "^4.1.8",
+    "@types/node": "^20.17.52",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "drizzle-kit": "^0.30.6",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.2.3",
     "pg": "^8.16.0",
-    "tailwindcss": "^4.1.7",
+    "tailwindcss": "^4.1.8",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
