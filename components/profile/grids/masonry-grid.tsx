@@ -31,7 +31,7 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
             <Link
               key={project.project.id}
               href={`/${username}/${project.project.slug}`}
-              className="group relative overflow-hidden rounded-lg"
+              className="group relative overflow-hidden"
             >
               {project.featuredImage && (
                 <div
