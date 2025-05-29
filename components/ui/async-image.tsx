@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { detectImageType, isAnimatedImage } from "@/lib/utils/media";
 
 interface AsyncImageProps {
   src: string;
@@ -20,6 +21,7 @@ interface AsyncImageProps {
   blurDataURL?: string;
   fallback?: React.ReactNode;
   aspectRatio?: number;
+  forceObjectFit?: "cover" | "contain" | "fill"; // Allow override for specific use cases
 }
 
 export function AsyncImage({
@@ -38,10 +40,36 @@ export function AsyncImage({
   blurDataURL,
   fallback,
   aspectRatio,
+  forceObjectFit,
 }: AsyncImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState(src);
+
+  // Use improved detection from media utils
+  const imageType = detectImageType(src);
+  const isAnimated = isAnimatedImage(src);
+
+  // Smart object-fit strategy for different scenarios
+  const getObjectFit = (): "cover" | "contain" | "fill" => {
+    // Allow manual override
+    if (forceObjectFit) return forceObjectFit;
+
+    // For animated images in constrained containers (like masonry), use cover
+    // This ensures they fill the space properly even if aspect ratio is constrained
+    if (isAnimated && aspectRatio) return "cover";
+
+    // For animated images without constraints, use contain to preserve animation
+    if (isAnimated) return "contain";
+
+    // Default to cover for static images
+    return "cover";
+  };
+
+  // Adaptive placeholder and transition based on image type
+  const effectivePlaceholder = isAnimated ? "empty" : placeholder;
+  const transitionDuration = isAnimated ? "duration-100" : "duration-300";
+  const objectFit = getObjectFit();
 
   useEffect(() => {
     setImageSrc(src);
@@ -71,12 +99,6 @@ export function AsyncImage({
           "flex items-center justify-center bg-muted text-muted-foreground",
           className
         )}
-        style={{
-          width: fill ? "100%" : width,
-          height: fill ? "100%" : height,
-          aspectRatio: aspectRatio,
-          ...style,
-        }}
       >
         <svg
           className="h-8 w-8"
@@ -97,17 +119,21 @@ export function AsyncImage({
 
   return (
     <div
-      className={cn("relative overflow-hidden", fill ? "" : "inline-block", className)}
-      style={{
-        width: fill ? "100%" : width,
-        height: fill ? "100%" : height,
-        aspectRatio: aspectRatio,
-        ...style,
-      }}
+      className={cn(
+        "relative overflow-hidden group",
+        fill ? "w-full h-full" : "inline-block",
+        className
+      )}
     >
-      {isLoading && placeholder === "shimmer" && (
+      {/* Loading states */}
+      {isLoading && effectivePlaceholder === "shimmer" && (
         <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       )}
+
+      {isLoading && effectivePlaceholder === "empty" && (
+        <div className="absolute inset-0 bg-muted animate-pulse" />
+      )}
+
       <Image
         src={imageSrc}
         alt={alt}
@@ -117,18 +143,22 @@ export function AsyncImage({
         priority={priority}
         sizes={sizes}
         className={cn(
-          "transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
-          className
+          "transition-opacity",
+          transitionDuration,
+          isLoading ? "opacity-0" : "opacity-100"
         )}
         onLoad={handleLoad}
         onError={handleError}
         placeholder={blurDataURL ? "blur" : undefined}
         blurDataURL={blurDataURL}
         style={{
-          objectFit: "cover",
+          objectFit: objectFit,
+          // Better image rendering for different types
+          imageRendering: isAnimated ? "auto" : "crisp-edges",
           ...style,
         }}
+        // Disable optimization for animated images
+        unoptimized={isAnimated}
       />
     </div>
   );
