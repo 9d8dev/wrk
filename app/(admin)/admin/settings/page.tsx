@@ -50,7 +50,7 @@ export default async function SettingsPage() {
                 <p className="text-sm text-muted-foreground">User ID</p>
                 <p className="font-mono text-xs">{session.user.id}</p>
               </div>
-            </div>
+          </div>
           </Card>
 
           {/* Subscription Management */}

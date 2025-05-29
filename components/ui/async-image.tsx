@@ -47,7 +47,7 @@ export function AsyncImage({
   const [imageSrc, setImageSrc] = useState(src);
 
   // Use improved detection from media utils
-  const imageType = detectImageType(src);
+  // const imageType = detectImageType(src);
   const isAnimated = isAnimatedImage(src);
 
   // Smart object-fit strategy for different scenarios

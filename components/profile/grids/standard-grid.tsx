@@ -15,12 +15,6 @@ interface StandardGridProps {
 }
 
 export function StandardGrid({ projects, username }: StandardGridProps) {
-  const cols = {
-    1: 1, // mobile: 1 column
-    lg: 2, // large: 2 columns
-    xl: 3, // xl: 3 columns
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 border-l border-t border-border">
       {projects.map((project) => (
