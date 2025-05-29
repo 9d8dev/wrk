@@ -14,7 +14,7 @@ interface MinimalGridProps {
 export function MinimalGrid({ projects, username }: MinimalGridProps) {
   return (
     <div className="space-y-4">
-      {projects.map((project, index) => (
+      {projects.map((project) => (
         <Link
           key={project.project.id}
           href={`/${username}/${project.project.slug}`}
