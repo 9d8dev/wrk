@@ -162,13 +162,13 @@ const SignInForm = () => {
           try {
             // Check if identifier is email or username
             const isEmail = identifier.includes("@");
-            
+
             if (isEmail) {
               const { error } = await authClient.signIn.email({
                 email: identifier,
                 password: password,
               });
-              
+
               if (error) {
                 throw new Error(error.message || "Failed to sign in");
               }
@@ -177,12 +177,12 @@ const SignInForm = () => {
                 username: identifier,
                 password: password,
               });
-              
+
               if (error) {
                 throw new Error(error.message || "Failed to sign in");
               }
             }
-            
+
             // Successful login - redirect to admin
             router.push("/admin");
           } catch (error: unknown) {

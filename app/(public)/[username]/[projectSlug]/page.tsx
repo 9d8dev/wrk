@@ -123,37 +123,24 @@ export default async function ProjectPage({ params }: Props) {
         <Container>
           <div className="space-y-4">
             {mainImage && (
-              <div className="relative w-full aspect-video overflow-hidden bg-muted">
-                <AsyncImage
-                  src={mainImage.url}
-                  alt={mainImage.alt || project.title}
-                  fill
-                  priority
-                  placeholder="shimmer"
-                  className="object-contain"
-                  sizes="(max-width: 1536px) 100vw, 1536px"
-                />
-              </div>
+              <AsyncImage
+                src={mainImage.url}
+                alt={mainImage.alt || project.title}
+                placeholder="shimmer"
+                width={mainImage.width}
+                height={mainImage.height}
+              />
             )}
-            {additionalImages.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {additionalImages.map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative w-full aspect-video overflow-hidden bg-muted"
-                  >
-                    <AsyncImage
-                      src={image.url}
-                      alt={image.alt || `${project.title} image`}
-                      fill
-                      placeholder="shimmer"
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            {additionalImages.map((image) => (
+              <AsyncImage
+                key={image.id}
+                src={image.url}
+                alt={image.alt || `${project.title} image`}
+                placeholder="shimmer"
+                width={image.width}
+                height={image.height}
+              />
+            ))}
           </div>
         </Container>
       </Section>

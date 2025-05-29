@@ -2,7 +2,7 @@ export const polarConfig = {
   products: [
     {
       productId: process.env.POLAR_PRO_PRODUCT_ID!,
-      slug: "pro",
+      slug: "wrk-pro",
       name: "Pro Plan",
       description: "Unlock all features for your portfolio",
       features: [

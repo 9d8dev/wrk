@@ -66,9 +66,9 @@ interface ProjectFormProps {
 
 const IMAGE_CONFIG = {
   maxFiles: 5,
-  maxSize: 10 * 1024 * 1024, // 10MB
+  maxSize: 15 * 1024 * 1024, // 15MB (increased for GIFs)
   accept: {
-    "image/*": [".png", ".jpg", ".jpeg", ".webp"],
+    "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif"],
   },
 };
 

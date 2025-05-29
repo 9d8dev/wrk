@@ -1,11 +1,11 @@
 import { Section, Container } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
-import { 
-  MasonryGrid, 
-  StandardGrid, 
-  MinimalGrid, 
-  SquareGrid 
+import {
+  MasonryGrid,
+  StandardGrid,
+  MinimalGrid,
+  SquareGrid,
 } from "@/components/profile/grids";
 
 import { getProjectsByUsername } from "@/lib/data/project";
@@ -88,9 +88,7 @@ export default async function PortfolioPage({ params }: Props) {
     <>
       <ProfileHeader username={username} />
       <Section>
-        <Container>
-          {renderGrid()}
-        </Container>
+        <Container>{renderGrid()}</Container>
       </Section>
       <ProfileFooter username={username} />
     </>
