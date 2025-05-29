@@ -8,7 +8,7 @@ import {
   updateUserPolarCustomerId,
   logSubscriptionEvent,
 } from "@/lib/actions/subscription";
-import type { WebhookEventTypes } from "@/lib/polar-webhook-types";
+import type { PolarWebhookEventType } from "@/lib/polar-webhook-types";
 
 // Verify webhook signature
 async function verifyWebhookSignature(
@@ -46,16 +46,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify the webhook signature
-    const isValid = await verifyWebhookSignature(body, signature, webhookSecret);
+    const isValid = await verifyWebhookSignature(
+      body,
+      signature,
+      webhookSecret
+    );
     if (!isValid) {
       console.error("❌ Invalid webhook signature");
-      return NextResponse.json(
-        { error: "Invalid signature" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
-    const event = JSON.parse(body) as WebhookEventTypes;
+    const event = JSON.parse(body) as PolarWebhookEventType;
     console.log("📥 Webhook event received:", event.type);
 
     switch (event.type) {
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "subscription.created":
-      case "subscription.updated": {
+      case "subscription.active": {
         const subscription = event.data;
         console.log("💳 Processing subscription event:", {
           type: event.type,
@@ -94,7 +95,9 @@ export async function POST(req: NextRequest) {
         });
 
         // Find user by Polar customer ID
-        const userRecord = await getUserByPolarCustomerId(subscription.customer_id);
+        const userRecord = await getUserByPolarCustomerId(
+          subscription.customer_id
+        );
         if (userRecord) {
           // Update user subscription data
           await updateUserSubscription({
@@ -102,8 +105,8 @@ export async function POST(req: NextRequest) {
             subscriptionId: subscription.id,
             subscriptionStatus: subscription.status,
             subscriptionProductId: subscription.product_id,
-            currentPeriodEnd: subscription.current_period_end 
-              ? new Date(subscription.current_period_end) 
+            currentPeriodEnd: subscription.current_period_end
+              ? new Date(subscription.current_period_end)
               : undefined,
           });
 
@@ -111,7 +114,8 @@ export async function POST(req: NextRequest) {
           await logSubscriptionEvent({
             userId: userRecord.id,
             subscriptionId: subscription.id,
-            eventType: event.type === "subscription.created" ? "created" : "updated",
+            eventType:
+              event.type === "subscription.created" ? "created" : "updated",
             eventData: subscription,
           });
 
@@ -120,27 +124,33 @@ export async function POST(req: NextRequest) {
             status: subscription.status,
           });
         } else {
-          console.error("❌ User not found for customer ID:", subscription.customer_id);
+          console.error(
+            "❌ User not found for customer ID:",
+            subscription.customer_id
+          );
         }
         break;
       }
 
-      case "subscription.canceled": {
+      case "subscription.canceled":
+      case "subscription.revoked": {
         const subscription = event.data;
         console.log("🚫 Processing subscription cancellation:", {
           subscriptionId: subscription.id,
           customerId: subscription.customer_id,
         });
 
-        const userRecord = await getUserByPolarCustomerId(subscription.customer_id);
+        const userRecord = await getUserByPolarCustomerId(
+          subscription.customer_id
+        );
         if (userRecord) {
           await updateUserSubscription({
             userId: userRecord.id,
             subscriptionId: subscription.id,
             subscriptionStatus: "canceled",
             subscriptionProductId: subscription.product_id,
-            currentPeriodEnd: subscription.current_period_end 
-              ? new Date(subscription.current_period_end) 
+            currentPeriodEnd: subscription.current_period_end
+              ? new Date(subscription.current_period_end)
               : undefined,
           });
 
@@ -156,9 +166,9 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      case "order.created": {
+      case "order.paid": {
         const order = event.data;
-        console.log("🛒 Order created:", {
+        console.log("🛒 Order paid:", {
           orderId: order.id,
           customerId: order.customer_id,
           amount: order.amount,
