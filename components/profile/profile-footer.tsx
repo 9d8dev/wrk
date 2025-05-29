@@ -28,17 +28,22 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
           </Container>
         )}
         <Container className="text-sm text-muted-foreground flex justify-between items-start gap-6">
-          <SocialLinks profile={profile} />
+          <div>
+            <SocialLinks profile={profile} />
+          </div>
           <div className="text-right flex items-end flex-col gap-1">
             <p>
               {new Date().getFullYear()} © {user.name}, All rights reserved.
             </p>
-            <Link
-              className="underline underline-offset-2 flex items-center gap-1"
-              href="/"
-            >
-              Made with Wrk.so <ArrowUpRight size={12} />
-            </Link>
+            <p className="flex items-center gap-1">
+              ✏︎{" "}
+              <Link
+                className="underline underline-offset-2 flex items-center gap-1"
+                href="/"
+              >
+                Made with Wrk.so
+              </Link>
+            </p>
           </div>
         </Container>
       </Section>
