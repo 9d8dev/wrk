@@ -18,7 +18,7 @@ export function MinimalGrid({ projects, username }: MinimalGridProps) {
         <Link
           key={project.project.id}
           href={`/${username}/${project.project.slug}`}
-          className="block group max-w-lg mx-auto"
+          className="group mx-auto relative flex gap-6 max-w-lg"
         >
           {project.featuredImage && (
             <AsyncImage
@@ -26,11 +26,17 @@ export function MinimalGrid({ projects, username }: MinimalGridProps) {
               alt={project.project.title}
               width={project.featuredImage.width}
               height={project.featuredImage.height}
-              placeholder="blur"
-              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAIhJREFUKFNj/Pr1638GPIARWcGPHz/ASjk4OOBa4Aq+f/vGcPz4cQZ+fn4GI2NjBkZGRrAiuIJnz54xLJg3l0FRUZEhMDgEbgpcwbdv3xi2btnMwMLCwuDp5Y2p4P///wx379xhePHiOYOevgEDHx8fqhUg3u/fvxl+/fzJwM7BATYJxQ24fAoAALlC+XDzTI8AAAAASUVORK5CYII="
-              className="max-w-full h-auto"
+              placeholder="shimmer"
             />
           )}
+          <div className="py-2 absolute top-0 -right-68 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 w-64">
+            <h3 className="line-clamp-1">{project.project.title}</h3>
+            {project.project.about && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {project.project.about}
+              </p>
+            )}
+          </div>
         </Link>
       ))}
     </div>
