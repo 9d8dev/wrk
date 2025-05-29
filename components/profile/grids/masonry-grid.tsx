@@ -29,11 +29,12 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
 
     // Estimate height based on image aspect ratio
     if (project.featuredImage) {
-      const aspectRatio = project.featuredImage.width / project.featuredImage.height;
+      const aspectRatio =
+        project.featuredImage.width / project.featuredImage.height;
       // Constrain aspect ratio to prevent extreme layouts
       const constrainedRatio = Math.max(0.5, Math.min(2.5, aspectRatio));
       // Estimate height: base width of 350px divided by aspect ratio, plus padding
-      const estimatedHeight = (350 / constrainedRatio) + 60;
+      const estimatedHeight = 350 / constrainedRatio + 60;
       columnHeights[minHeightIndex] += estimatedHeight;
     } else {
       // Default height for items without images
@@ -62,11 +63,14 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
                 <div
                   className="relative w-full"
                   style={{
-                    aspectRatio: getAspectRatio(project.featuredImage.width, project.featuredImage.height),
+                    aspectRatio: getAspectRatio(
+                      project.featuredImage.width,
+                      project.featuredImage.height
+                    ),
                   }}
                 >
                   <AsyncImage
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                    className="object-cover transition-transform duration-300"
                     src={project.featuredImage.url}
                     alt={project.project.title}
                     width={project.featuredImage.width}
@@ -74,8 +78,8 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
                     fill
                     placeholder="shimmer"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+
+                  <div className="flex items-end absolute w-full h-full bottom-0 left-0 aspect-square p-4 bg-gradient-to-tr from-foreground/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="text-white font-medium">
                       {project.project.title}
                     </h3>
