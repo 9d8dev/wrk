@@ -19,10 +19,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     console.log("🔄 Starting manual sync for user:", session.user.id);
@@ -30,7 +27,7 @@ export async function POST(req: NextRequest) {
     // Initialize Polar client
     const polarClient = new Polar({
       accessToken: process.env.POLAR_ACCESS_TOKEN!,
-      server: 'production',
+      server: "production",
     });
 
     // Get user data from database
@@ -41,10 +38,7 @@ export async function POST(req: NextRequest) {
       .limit(1);
 
     if (!userData[0]) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const currentUser = userData[0];
@@ -91,7 +85,10 @@ export async function POST(req: NextRequest) {
       } catch (error) {
         console.error("❌ Error managing Polar customer:", error);
         return NextResponse.json(
-          { error: "Failed to manage Polar customer", details: error instanceof Error ? error.message : "Unknown error" },
+          {
+            error: "Failed to manage Polar customer",
+            details: error instanceof Error ? error.message : "Unknown error",
+          },
           { status: 500 }
         );
       }
@@ -102,7 +99,7 @@ export async function POST(req: NextRequest) {
       console.log("📋 Fetching subscriptions for customer:", polarCustomerId);
 
       const subscriptions = await polarClient.subscriptions.list({
-        customer_id: [polarCustomerId],
+        customerId: [polarCustomerId],
         active: true,
         limit: 10,
       });
@@ -129,6 +126,7 @@ export async function POST(req: NextRequest) {
           await logSubscriptionEvent({
             userId: session.user.id,
             subscriptionId: activeSubscription.id,
+            // @ts-ignore
             eventType: "manual_sync",
             eventData: activeSubscription,
           });
@@ -154,13 +152,13 @@ export async function POST(req: NextRequest) {
 
       // Check for all subscriptions (including inactive ones) for better debugging
       const allSubscriptions = await polarClient.subscriptions.list({
-        customer_id: [polarCustomerId],
+        customerId: [polarCustomerId],
         limit: 10,
       });
 
       console.log("📊 All subscriptions for customer:", {
         count: allSubscriptions.result.items.length,
-        subscriptions: allSubscriptions.result.items.map(sub => ({
+        subscriptions: allSubscriptions.result.items.map((sub) => ({
           id: sub.id,
           status: sub.status,
           productId: sub.productId,
@@ -184,26 +182,30 @@ export async function POST(req: NextRequest) {
           id: polarCustomerId,
           email: currentUser.email,
         },
-        allSubscriptions: allSubscriptions.result.items.map(sub => ({
+        allSubscriptions: allSubscriptions.result.items.map((sub) => ({
           id: sub.id,
           status: sub.status,
           productId: sub.productId,
           currentPeriodEnd: sub.currentPeriodEnd,
         })),
       });
-
     } catch (error) {
       console.error("❌ Error fetching subscriptions:", error);
       return NextResponse.json(
-        { error: "Failed to fetch subscriptions", details: error instanceof Error ? error.message : "Unknown error" },
+        {
+          error: "Failed to fetch subscriptions",
+          details: error instanceof Error ? error.message : "Unknown error",
+        },
         { status: 500 }
       );
     }
-
   } catch (error) {
     console.error("💥 Manual sync error:", error);
     return NextResponse.json(
-      { error: "Sync failed", details: error instanceof Error ? error.message : "Unknown error" },
+      {
+        error: "Sync failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

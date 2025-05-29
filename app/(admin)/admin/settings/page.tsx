@@ -9,7 +9,6 @@ import { UpgradeButton } from "@/components/admin/upgrade-button";
 import { polarConfig } from "@/lib/config/polar";
 import { Card } from "@/components/ui/card";
 import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
-import { DebugPolarButton } from "@/components/admin/debug-polar-button";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
@@ -60,7 +59,6 @@ export default async function SettingsPage() {
               <h2 className="text-lg font-semibold">Subscription</h2>
               <div className="flex gap-2">
                 <SyncSubscriptionButton />
-                <DebugPolarButton />
               </div>
             </div>
 
@@ -138,7 +136,6 @@ export default async function SettingsPage() {
               </div>
             )}
           </Card>
-
         </div>
       </PageWrapper>
     </>
