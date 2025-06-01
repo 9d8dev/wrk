@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Lead, leadStatuses } from "@/db/schema";
 import {
   updateLeadStatus,
@@ -130,10 +130,6 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
         return "";
     }
   };
-
-  useEffect(() => {
-    refreshLeads();
-  }, [refreshLeads]);
 
   if (leads.length === 0) {
     return (

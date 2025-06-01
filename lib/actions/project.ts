@@ -11,6 +11,7 @@ import { project } from "@/db/schema";
 import type { Project } from "@/db/schema";
 
 export const createProject = async (data: Project) => {
+  console.log("🆕 createProject called");
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
@@ -37,6 +38,7 @@ export const createProject = async (data: Project) => {
     })
     .returning();
 
+  console.log("✅ createProject completed, revalidating paths");
   revalidatePath("/admin");
   revalidatePath("/(admin)/admin");
   revalidatePath("/(public)/[username]");
@@ -45,6 +47,7 @@ export const createProject = async (data: Project) => {
 };
 
 export const editProject = async (id: string, data: Partial<Project>) => {
+  console.log("✏️ editProject called for:", id);
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
@@ -54,11 +57,15 @@ export const editProject = async (id: string, data: Partial<Project>) => {
     .where(eq(projectTable.id, id))
     .returning();
 
+  console.log("✅ editProject completed, revalidating paths");
   revalidatePath("/admin");
+  revalidatePath("/(admin)/admin");
+  revalidatePath("/(public)/[username]");
   return res;
 };
 
 export const deleteProject = async (id: string) => {
+  console.log("🗑️ deleteProject called for:", id);
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
@@ -67,7 +74,10 @@ export const deleteProject = async (id: string) => {
     .where(eq(projectTable.id, id))
     .returning();
 
+  console.log("✅ deleteProject completed, revalidating paths");
   revalidatePath("/admin");
+  revalidatePath("/(admin)/admin");
+  revalidatePath("/(public)/[username]");
   return res;
 };
 
@@ -96,6 +106,11 @@ export async function updateProjectOrder(
   userId: string
 ) {
   try {
+    console.log("🔄 updateProjectOrder called with:", {
+      projectCount: projects.length,
+      userId,
+    });
+
     // Update each project's display order
     for (const project of projects) {
       await db
@@ -109,10 +124,11 @@ export async function updateProjectOrder(
         );
     }
 
+    console.log("✅ updateProjectOrder completed successfully");
     revalidatePath("/admin");
     return { success: true };
   } catch (error) {
-    console.error("Error updating project order:", error);
+    console.error("❌ Error updating project order:", error);
     return { error: "Failed to update project order" };
   }
 }
@@ -124,11 +140,15 @@ export async function updateProjectOrder(
  */
 export async function fixProjectDisplayOrders(userId: string) {
   try {
+    console.log("🔧 fixProjectDisplayOrders called for user:", userId);
+
     // Get all projects for this user
     const projects = await db
       .select()
       .from(project)
       .where(eq(project.userId, userId));
+
+    console.log("📊 Found projects to fix:", projects.length);
 
     // Sort them manually (null displayOrder at end, then by displayOrder, then by createdAt)
     const sortedProjects = [...projects].sort((a, b) => {
@@ -156,6 +176,7 @@ export async function fixProjectDisplayOrders(userId: string) {
         .where(eq(project.id, sortedProjects[i].id));
     }
 
+    console.log("✅ fixProjectDisplayOrders completed, revalidating paths");
     // Revalidate paths
     revalidatePath("/admin");
     revalidatePath("/(admin)/admin");
@@ -163,7 +184,7 @@ export async function fixProjectDisplayOrders(userId: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Error fixing project display orders:", error);
+    console.error("❌ Error fixing project display orders:", error);
     return { success: false, message: "Failed to fix project display orders" };
   }
 }
@@ -200,8 +221,21 @@ async function needsOrderFix(userId: string): Promise<boolean> {
 /**
  * Move a project up in the display order (lower number = higher position)
  */
-export async function moveProjectUp(projectId: string, userId: string) {
+export async function moveProjectUp(
+  projectId: string,
+  userId: string,
+  _recursionDepth = 0
+) {
   try {
+    // Prevent infinite recursion
+    if (_recursionDepth > 1) {
+      console.error("Recursion limit exceeded in moveProjectUp");
+      return {
+        success: false,
+        message: "Operation failed due to recursion limit",
+      };
+    }
+
     // Check if we need to fix display orders first
     if (await needsOrderFix(userId)) {
       await fixProjectDisplayOrders(userId);
@@ -220,10 +254,10 @@ export async function moveProjectUp(projectId: string, userId: string) {
 
     const current = currentProject[0];
 
-    // If display order is null, fix it first
+    // If display order is null, fix it first (with recursion prevention)
     if (current.displayOrder === null) {
       await fixProjectDisplayOrders(userId);
-      return moveProjectUp(projectId, userId);
+      return moveProjectUp(projectId, userId, _recursionDepth + 1);
     }
 
     // Find the project that is directly above this one in display order
@@ -272,8 +306,21 @@ export async function moveProjectUp(projectId: string, userId: string) {
 /**
  * Move a project down in the display order (higher number = lower position)
  */
-export async function moveProjectDown(projectId: string, userId: string) {
+export async function moveProjectDown(
+  projectId: string,
+  userId: string,
+  _recursionDepth = 0
+) {
   try {
+    // Prevent infinite recursion
+    if (_recursionDepth > 1) {
+      console.error("Recursion limit exceeded in moveProjectDown");
+      return {
+        success: false,
+        message: "Operation failed due to recursion limit",
+      };
+    }
+
     // Check if we need to fix display orders first
     if (await needsOrderFix(userId)) {
       await fixProjectDisplayOrders(userId);
@@ -292,10 +339,10 @@ export async function moveProjectDown(projectId: string, userId: string) {
 
     const current = currentProject[0];
 
-    // If display order is null, fix it first
+    // If display order is null, fix it first (with recursion prevention)
     if (current.displayOrder === null) {
       await fixProjectDisplayOrders(userId);
-      return moveProjectDown(projectId, userId);
+      return moveProjectDown(projectId, userId, _recursionDepth + 1);
     }
 
     // Find the project that is directly below this one in display order

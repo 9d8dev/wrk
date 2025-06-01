@@ -68,7 +68,11 @@ export function QuickCreateProject() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Save with Cmd/Ctrl + S
-      if ((e.metaKey || e.ctrlKey) && e.key === "s" && projectImages.length > 0) {
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        e.key === "s" &&
+        projectImages.length > 0
+      ) {
         e.preventDefault();
         handleSubmit();
       }
@@ -107,23 +111,26 @@ export function QuickCreateProject() {
     [preventDefaults]
   );
 
-  const processFiles = useCallback((fileList: FileList) => {
-    const files = Array.from(fileList);
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    
-    if (imageFiles.length === 0) {
-      toast.error("Please select image files only");
-      return;
-    }
+  const processFiles = useCallback(
+    (fileList: FileList) => {
+      const files = Array.from(fileList);
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
-    const totalImages = projectImages.length + imageFiles.length;
-    if (totalImages > 5) {
-      toast.error("Maximum 5 images per project");
-      return;
-    }
+      if (imageFiles.length === 0) {
+        toast.error("Please select image files only");
+        return;
+      }
 
-    setProjectImages((prev) => [...prev, ...imageFiles].slice(0, 5));
-  }, [projectImages]);
+      const totalImages = projectImages.length + imageFiles.length;
+      if (totalImages > 5) {
+        toast.error("Maximum 5 images per project");
+        return;
+      }
+
+      setProjectImages((prev) => [...prev, ...imageFiles].slice(0, 5));
+    },
+    [projectImages]
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -174,16 +181,22 @@ export function QuickCreateProject() {
 
       // Upload all images
       const uploadedImageIds: string[] = [];
-      
-      for (const imageFile of projectImages) {
+
+      // Upload all images in parallel for better performance
+      const uploadPromises = projectImages.map(async (imageFile) => {
         const formData = new FormData();
         formData.append("file", imageFile);
-        
-        const result = await uploadImage(formData);
+        return uploadImage(formData);
+      });
+
+      const uploadResults = await Promise.all(uploadPromises);
+
+      // Process results and collect successful uploads
+      uploadResults.forEach((result) => {
         if (result.success && result.mediaId) {
           uploadedImageIds.push(result.mediaId);
         }
-      }
+      });
 
       // Create project with featured image being the selected one
       const projectData = {
@@ -202,7 +215,7 @@ export function QuickCreateProject() {
 
       await createProject(projectData);
       toast.success("Project created successfully!");
-      
+
       // Clear form
       handleClear();
     } catch (error) {
@@ -333,10 +346,14 @@ export function QuickCreateProject() {
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showAdvanced ? (
+                <ChevronUp size={16} />
+              ) : (
+                <ChevronDown size={16} />
+              )}
               Advanced options
             </button>
-            
+
             {showAdvanced && (
               <div className="mt-3 space-y-3">
                 <Textarea
@@ -357,9 +374,13 @@ export function QuickCreateProject() {
           {/* Actions */}
           <div className="flex items-center justify-between pt-2">
             <div className="text-xs text-muted-foreground">
-              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">⌘S</kbd> to save
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">⌘S</kbd>{" "}
+              to save
               <span className="mx-2">·</span>
-              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">ESC</kbd> to clear
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
+                ESC
+              </kbd>{" "}
+              to clear
             </div>
             <div className="flex gap-2">
               <Button
@@ -375,7 +396,9 @@ export function QuickCreateProject() {
                 onClick={handleSubmit}
                 disabled={isSubmitting || !title || !slug}
               >
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Create Project
               </Button>
             </div>

@@ -291,7 +291,25 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const router = useRouter();
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow letters, numbers, underscores, and hyphens
+    const filteredValue = value.replace(/[^a-zA-Z0-9_-]/g, "");
+
+    setUsername(filteredValue);
+
+    // Show error if invalid characters were removed
+    if (value !== filteredValue) {
+      setUsernameError(
+        "Username can only contain letters, numbers, underscores (_), and hyphens (-)"
+      );
+    } else {
+      setUsernameError("");
+    }
+  };
 
   return (
     <Container className="space-y-4">
@@ -374,8 +392,17 @@ const SignUpForm = () => {
           icon={<Hash size={16} />}
           value={username}
           autoComplete="username"
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange}
         />
+        {usernameError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 text-sm p-2 rounded-md"
+          >
+            {usernameError}
+          </motion.div>
+        )}
         <Input
           placeholder="Email"
           type="email"

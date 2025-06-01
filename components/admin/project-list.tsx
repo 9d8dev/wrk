@@ -38,7 +38,11 @@ export function ProjectList({
   username,
 }: {
   username: string;
-  projectsWithImages: Array<{ project: Project; featuredImage: Media | null }>;
+  projectsWithImages: Array<{
+    project: Project;
+    featuredImage: Media | null;
+    additionalImages: Media[];
+  }>;
   userId: string;
 }) {
   const [items, setItems] = useState(projectsWithImages);
@@ -126,12 +130,13 @@ export function ProjectList({
             items={items.map((item) => item.project.id)}
             strategy={verticalListSortingStrategy}
           >
-            {items.map(({ project, featuredImage }) => (
+            {items.map(({ project, featuredImage, additionalImages }) => (
               <SortableProjectCard
                 key={project.id}
                 id={project.id}
                 project={project}
                 featuredImage={featuredImage}
+                additionalImages={additionalImages}
                 username={username}
                 isReordering={isReordering}
               />
@@ -147,12 +152,14 @@ const SortableProjectCard = ({
   id,
   project,
   featuredImage,
+  additionalImages,
   username,
   isReordering,
 }: {
   id: string;
   project: Project;
   featuredImage: Media | null;
+  additionalImages: Media[];
   username: string;
   isReordering: boolean;
 }) => {
@@ -185,7 +192,12 @@ const SortableProjectCard = ({
     >
       <ProjectImage featuredImage={featuredImage} title={project.title} />
       <div className="bg-accent/40 flex gap-2 justify-between relative">
-        <ProjectDetails project={project} username={username} />
+        <ProjectDetails
+          project={project}
+          featuredImage={featuredImage}
+          additionalImages={additionalImages}
+          username={username}
+        />
         <div
           {...listeners}
           className="cursor-grab active:cursor-grabbing bg-accent flex items-center border-l p-1"
@@ -234,9 +246,13 @@ const ProjectImage = ({
 
 const ProjectDetails = ({
   project,
+  featuredImage,
+  additionalImages,
   username,
 }: {
   project: Project;
+  featuredImage: Media | null;
+  additionalImages: Media[];
   username: string;
 }) => {
   const projectUrl = `/${username}/${project.slug}`;
@@ -248,7 +264,11 @@ const ProjectDetails = ({
       </p>
       <div className="flex items-center gap-4">
         <ViewProject url={projectUrl} />
-        <EditProject project={project} />
+        <EditProject
+          project={project}
+          featuredImage={featuredImage}
+          additionalImages={additionalImages}
+        />
         <DeleteProject project={project} />
       </div>
     </div>
