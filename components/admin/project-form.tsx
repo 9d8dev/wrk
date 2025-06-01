@@ -259,6 +259,29 @@ export const ProjectForm = ({
     ]
   );
 
+  // Add keyboard shortcut for CMD+S / Ctrl+S to save
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for CMD+S (Mac) or Ctrl+S (Windows/Linux)
+      if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+        event.preventDefault(); // Prevent browser's default save behavior
+
+        // Only submit if form is valid and not already submitting
+        if (!isSubmitting) {
+          form.handleSubmit(handleFormSubmit)();
+        }
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [form, handleFormSubmit, isSubmitting]);
+
   return (
     <Form {...form}>
       <form
@@ -414,6 +437,16 @@ export const ProjectForm = ({
 
         {/* Actions */}
         <div className="flex justify-end space-x-2 pt-4 border-t">
+          <div className="flex items-center text-xs text-muted-foreground mr-auto">
+            <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
+              {typeof window !== "undefined" &&
+              /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent)
+                ? "⌘"
+                : "Ctrl"}
+              +S
+            </kbd>{" "}
+            to save
+          </div>
           {onCancel && (
             <Button
               type="button"
