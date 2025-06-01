@@ -131,10 +131,6 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
     }
   };
 
-  useEffect(() => {
-    refreshLeads();
-  }, [refreshLeads]);
-
   if (leads.length === 0) {
     return (
       <div className="py-12">

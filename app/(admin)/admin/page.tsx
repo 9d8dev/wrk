@@ -1,4 +1,7 @@
-import { getFeaturedImageByProjectId } from "@/lib/data/media";
+import {
+  getFeaturedImageByProjectId,
+  getAllProjectImages,
+} from "@/lib/data/media";
 import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";
 import { getProfileByUserId } from "@/lib/data/profile";
@@ -32,8 +35,21 @@ export default async function AdminPage() {
 
   const projectsWithImages = await Promise.all(
     projects.map(async (project) => {
-      const featuredImage = await getFeaturedImageByProjectId(project.id);
-      return { project, featuredImage };
+      const [featuredImage, allImages] = await Promise.all([
+        getFeaturedImageByProjectId(project.id),
+        getAllProjectImages(project.id),
+      ]);
+
+      // Filter out the featured image from additional images
+      const additionalImages = featuredImage
+        ? allImages.filter((img) => img.id !== featuredImage.id)
+        : allImages;
+
+      return {
+        project,
+        featuredImage,
+        additionalImages,
+      };
     })
   );
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { createProject, editProject } from "@/lib/actions/project";
 import { uploadImage } from "@/lib/actions/media";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,6 +59,8 @@ type ProjectFormValues = z.infer<typeof formSchema>;
 interface ProjectFormProps {
   project?: Project;
   initialImages?: File[];
+  existingFeaturedImage?: Media | null;
+  existingAdditionalImages?: Media[];
   onSubmit?: (data: ProjectFormValues) => void;
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -83,6 +85,8 @@ const generateSlugFromTitle = (title: string): string => {
 export const ProjectForm = ({
   project,
   initialImages = [],
+  existingFeaturedImage,
+  existingAdditionalImages = [],
   onSubmit,
   onSuccess,
   onCancel,
@@ -96,10 +100,10 @@ export const ProjectForm = ({
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
   const [featuredImageId, setFeaturedImageId] = useState<string | null>(null);
   const [existingFeaturedMedia, setExistingFeaturedMedia] =
-    useState<Media | null>(null);
+    useState<Media | null>(existingFeaturedImage || null);
   const [existingAdditionalMedia, setExistingAdditionalMedia] = useState<
     Media[]
-  >([]);
+  >(existingAdditionalImages);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Initialize form with default values
@@ -118,145 +122,142 @@ export const ProjectForm = ({
     ),
   });
 
-  // Fetch existing media for the project if in edit mode
+  // Initialize existing media data and IDs from props
   useEffect(() => {
     // If initial images were provided, set them as project images
     if (initialImages?.length && !isEditing) {
       setProjectImages(initialImages);
     }
 
-    const fetchProjectMedia = async () => {
-      if (!project?.id) return;
-
-      try {
-        // Fetch featured image
-        const featured = await getFeaturedImageByProjectId(project.id);
-        if (featured) {
-          setExistingFeaturedMedia(featured);
-          setFeaturedImageId(featured.id);
-        }
-
-        // Fetch all project media using the new function that handles imageIds
-        const allMedia = await getAllProjectImages(project.id);
-
-        // Set all media as selected image IDs
-        const mediaIds = allMedia.map((media) => media.id);
-        setSelectedImageIds(mediaIds);
-
-        console.log("Loaded image IDs for project:", mediaIds);
-
-        // Filter out the featured image for display purposes
-        const additional = featured
-          ? allMedia.filter((media) => media.id !== featured.id)
-          : allMedia;
-
-        setExistingAdditionalMedia(additional);
-      } catch (error) {
-        console.error("Error fetching project media:", error);
-        toast.error("Failed to load project media");
-      }
-    };
-
+    // Initialize existing media from props (no server action calls!)
     if (isEditing) {
-      fetchProjectMedia();
+      if (existingFeaturedImage) {
+        setExistingFeaturedMedia(existingFeaturedImage);
+        setFeaturedImageId(existingFeaturedImage.id);
+      }
+
+      if (existingAdditionalImages?.length) {
+        // Set all media as selected image IDs
+        const mediaIds = existingAdditionalImages.map((media) => media.id);
+        setSelectedImageIds(mediaIds);
+        setExistingAdditionalMedia(existingAdditionalImages);
+      }
     }
-  }, [project?.id, isEditing, initialImages]);
+  }, [
+    project?.id,
+    isEditing,
+    initialImages,
+    existingFeaturedImage,
+    existingAdditionalImages,
+  ]);
 
   // Handle form submission
-  const handleFormSubmit = async (values: ProjectFormValues) => {
-    try {
-      setIsSubmitting(true);
+  const handleFormSubmit = useCallback(
+    async (values: ProjectFormValues) => {
+      try {
+        setIsSubmitting(true);
 
-      // Upload all project images first
-      const newImageIds: string[] = [...selectedImageIds]; // Start with existing IDs
-      const uploadedImageIds: string[] = [];
+        // Upload all project images first
+        const newImageIds: string[] = [...selectedImageIds]; // Start with existing IDs
+        const uploadedImageIds: string[] = [];
 
-      // Upload new images if any
-      if (projectImages.length > 0) {
-        // Upload all images in parallel for better performance
-        const uploadPromises = projectImages.map(async (imageFile) => {
-          const formData = new FormData();
-          formData.append("file", imageFile);
-          return uploadImage(formData);
-        });
-
-        const uploadResults = await Promise.all(uploadPromises);
-
-        // Process results and collect successful uploads
-        uploadResults.forEach((result) => {
-          if (result.success && result.mediaId) {
-            newImageIds.push(result.mediaId);
-            uploadedImageIds.push(result.mediaId);
-          }
-        });
-      }
-
-      console.log("Uploaded image IDs:", uploadedImageIds);
-      console.log("All image IDs for project:", newImageIds);
-
-      // Use the selected featured image ID or the first image if none selected
-      let newFeaturedImageId = featuredImageId;
-      if (!newFeaturedImageId && newImageIds.length > 0) {
-        newFeaturedImageId = newImageIds[0];
-      }
-
-      // Prepare the data with all required fields
-      const projectData = {
-        ...values,
-        id: project?.id || nanoid(),
-        featuredImageId: newFeaturedImageId,
-        externalLink: values.externalLink || null,
-        about: values.about || null,
-        imageIds: newImageIds,
-        displayOrder: project?.displayOrder || null,
-        createdAt: project?.createdAt || new Date(),
-        updatedAt: new Date(),
-        userId: project?.userId || "",
-      };
-
-      // Submit the data
-      if (onSubmit) {
-        onSubmit(values);
-      } else {
-        // Default submission logic
-        if (isEditing && project?.id) {
-          await editProject(project.id, {
-            title: projectData.title,
-            slug: projectData.slug,
-            externalLink: projectData.externalLink,
-            about: projectData.about,
-            featuredImageId: newFeaturedImageId,
-            imageIds: projectData.imageIds,
-            displayOrder: projectData.displayOrder,
+        // Upload new images if any
+        if (projectImages.length > 0) {
+          // Upload all images in parallel for better performance
+          const uploadPromises = projectImages.map(async (imageFile) => {
+            const formData = new FormData();
+            formData.append("file", imageFile);
+            return uploadImage(formData);
           });
-          toast.success("Project updated successfully");
-        } else {
-          await createProject(projectData);
-          toast.success("Project created successfully");
+
+          const uploadResults = await Promise.all(uploadPromises);
+
+          // Process results and collect successful uploads
+          uploadResults.forEach((result) => {
+            if (result.success && result.mediaId) {
+              newImageIds.push(result.mediaId);
+              uploadedImageIds.push(result.mediaId);
+            }
+          });
         }
-      }
 
-      // Reset form state
-      form.reset();
-      setUploadedMedia([]);
-      setProjectImages([]);
-      setSelectedImageIds([]);
-      setFeaturedImageId(null);
+        console.log("Uploaded image IDs:", uploadedImageIds);
+        console.log("All image IDs for project:", newImageIds);
 
-      if (onSuccess) {
-        onSuccess();
+        // Use the selected featured image ID or the first image if none selected
+        let newFeaturedImageId = featuredImageId;
+        if (!newFeaturedImageId && newImageIds.length > 0) {
+          newFeaturedImageId = newImageIds[0];
+        }
+
+        // Prepare the data with all required fields
+        const projectData = {
+          ...values,
+          id: project?.id || nanoid(),
+          featuredImageId: newFeaturedImageId,
+          externalLink: values.externalLink || null,
+          about: values.about || null,
+          imageIds: newImageIds,
+          displayOrder: project?.displayOrder || null,
+          createdAt: project?.createdAt || new Date(),
+          updatedAt: new Date(),
+          userId: project?.userId || "",
+        };
+
+        // Submit the data
+        if (onSubmit) {
+          onSubmit(values);
+        } else {
+          // Default submission logic
+          if (isEditing && project?.id) {
+            await editProject(project.id, {
+              title: projectData.title,
+              slug: projectData.slug,
+              externalLink: projectData.externalLink,
+              about: projectData.about,
+              featuredImageId: newFeaturedImageId,
+              imageIds: projectData.imageIds,
+              displayOrder: projectData.displayOrder,
+            });
+            toast.success("Project updated successfully");
+          } else {
+            await createProject(projectData);
+            toast.success("Project created successfully");
+          }
+        }
+
+        // Reset form state
+        form.reset();
+        setUploadedMedia([]);
+        setProjectImages([]);
+        setSelectedImageIds([]);
+        setFeaturedImageId(null);
+
+        if (onSuccess) {
+          onSuccess();
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "An error occurred. Please try again."
+        );
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "An error occurred. Please try again."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+    [
+      projectImages,
+      selectedImageIds,
+      featuredImageId,
+      project,
+      isEditing,
+      onSubmit,
+      onSuccess,
+      form,
+    ]
+  );
 
   return (
     <Form {...form}>
@@ -479,6 +480,7 @@ const ProjectImagesField = ({
 }: ProjectImagesFieldProps) => {
   const [previewUrls, setPreviewUrls] = useState<{ [key: string]: string }>({});
 
+  // Memoize preview URLs to prevent unnecessary re-creation
   useEffect(() => {
     const urls: { [key: string]: string } = {};
     projectImages.forEach((file, index) => {
@@ -491,19 +493,28 @@ const ProjectImagesField = ({
     };
   }, [projectImages]);
 
+  // Only update field when featuredImageId actually changes
   useEffect(() => {
-    field.onChange(featuredImageId || "");
+    const currentValue = field.value;
+    const newValue = featuredImageId || "";
+    if (currentValue !== newValue) {
+      field.onChange(newValue);
+    }
   }, [featuredImageId, field]);
 
   const handleSelectAsFeatured = (id: string) => {
     setFeaturedImageId(id);
   };
 
-  const allExistingMedia = [
-    ...(existingFeaturedMedia ? [existingFeaturedMedia] : []),
-    ...existingAdditionalMedia,
-    ...uploadedMedia,
-  ];
+  // Memoize the combined media array to prevent unnecessary re-calculations
+  const allExistingMedia = useMemo(
+    () => [
+      ...(existingFeaturedMedia ? [existingFeaturedMedia] : []),
+      ...existingAdditionalMedia,
+      ...uploadedMedia,
+    ],
+    [existingFeaturedMedia, existingAdditionalMedia, uploadedMedia]
+  );
 
   const totalImages = allExistingMedia.length + projectImages.length;
 
