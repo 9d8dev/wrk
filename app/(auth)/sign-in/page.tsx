@@ -297,13 +297,15 @@ const SignUpForm = () => {
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow letters, numbers, underscores, and hyphens
-    const filteredValue = value.replace(/[^a-zA-Z0-9_-]/g, '');
-    
+    const filteredValue = value.replace(/[^a-zA-Z0-9_-]/g, "");
+
     setUsername(filteredValue);
-    
+
     // Show error if invalid characters were removed
     if (value !== filteredValue) {
-      setUsernameError("Username can only contain letters, numbers, underscores (_), and hyphens (-)");
+      setUsernameError(
+        "Username can only contain letters, numbers, underscores (_), and hyphens (-)"
+      );
     } else {
       setUsernameError("");
     }
