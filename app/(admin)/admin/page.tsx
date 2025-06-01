@@ -1,17 +1,17 @@
+import { QuickCreateProject } from "@/components/admin/quick-create-project";
+import { CreateProject } from "@/components/admin/create-project";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { ProjectList } from "@/components/admin/project-list";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+
+import { getProfileByUserId } from "@/lib/data/profile";
+import { getAllProjects } from "@/lib/data/project";
+import { getSession } from "@/lib/actions/auth";
+import { redirect } from "next/navigation";
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
-import { getAllProjects } from "@/lib/data/project";
-import { getSession } from "@/lib/actions/auth";
-import { getProfileByUserId } from "@/lib/data/profile";
-import { redirect } from "next/navigation";
-
-import { AdminHeader } from "@/components/admin/admin-header";
-import { ProjectList } from "@/components/admin/project-list";
-import { QuickCreateProject } from "@/components/admin/quick-create-project";
-import { CreateProject } from "@/components/admin/create-project";
-import { PageWrapper } from "@/components/admin/page-wrapper";
 
 export default async function AdminPage() {
   const session = await getSession();
