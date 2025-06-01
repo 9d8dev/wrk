@@ -121,6 +121,10 @@ export async function updateProfile({
     }
 
     revalidatePath("/admin/profile");
+    revalidatePath("/admin");
+    revalidatePath("/(admin)/admin");
+    revalidatePath(`/${userData.username}`);
+    revalidatePath("/(public)/[username]");
     return { success: true };
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -157,7 +161,7 @@ export async function createProfile({
 
     // Create profile ID
     const profileId = nanoid();
-    
+
     // Handle profile image upload if provided
     let profileImageId: string | null = null;
     if (profileImageFormData) {
@@ -180,8 +184,9 @@ export async function createProfile({
     });
 
     revalidatePath("/admin");
+    revalidatePath("/(admin)/admin");
     revalidatePath("/onboarding");
-    
+
     return { success: true, profileId };
   } catch (error) {
     console.error("Error creating profile:", error);
@@ -205,7 +210,7 @@ export async function updateUsername(userId: string, username: string) {
       "sign-up",
       "sign-out",
     ];
-    
+
     if (reservedUsernames.includes(username.toLowerCase())) {
       throw new Error("This username is reserved");
     }
@@ -230,6 +235,12 @@ export async function updateUsername(userId: string, username: string) {
         updatedAt: new Date(),
       })
       .where(eq(user.id, userId));
+
+    // Revalidate paths since username change affects public profile URL
+    revalidatePath("/admin");
+    revalidatePath("/admin/profile");
+    revalidatePath(`/${username}`);
+    revalidatePath("/(public)/[username]");
 
     return { success: true };
   } catch (error) {

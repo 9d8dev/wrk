@@ -59,6 +59,8 @@ export const editProject = async (id: string, data: Partial<Project>) => {
 
   console.log("✅ editProject completed, revalidating paths");
   revalidatePath("/admin");
+  revalidatePath("/(admin)/admin");
+  revalidatePath("/(public)/[username]");
   return res;
 };
 
@@ -74,6 +76,8 @@ export const deleteProject = async (id: string) => {
 
   console.log("✅ deleteProject completed, revalidating paths");
   revalidatePath("/admin");
+  revalidatePath("/(admin)/admin");
+  revalidatePath("/(public)/[username]");
   return res;
 };
 
