@@ -173,17 +173,22 @@ export const ProjectForm = ({
 
       // Upload new images if any
       if (projectImages.length > 0) {
-        for (const imageFile of projectImages) {
+        // Upload all images in parallel for better performance
+        const uploadPromises = projectImages.map(async (imageFile) => {
           const formData = new FormData();
           formData.append("file", imageFile);
+          return uploadImage(formData);
+        });
 
-          // Upload the image
-          const result = await uploadImage(formData);
+        const uploadResults = await Promise.all(uploadPromises);
+
+        // Process results and collect successful uploads
+        uploadResults.forEach((result) => {
           if (result.success && result.mediaId) {
             newImageIds.push(result.mediaId);
             uploadedImageIds.push(result.mediaId);
           }
-        }
+        });
       }
 
       console.log("Uploaded image IDs:", uploadedImageIds);
