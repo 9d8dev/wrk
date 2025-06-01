@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Lead, leadStatuses } from "@/db/schema";
 import {
   updateLeadStatus,

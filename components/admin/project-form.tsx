@@ -8,10 +8,6 @@ import { useForm, ControllerRenderProps } from "react-hook-form";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  getFeaturedImageByProjectId,
-  getAllProjectImages,
-} from "@/lib/data/media";
 
 import {
   Loader2,
