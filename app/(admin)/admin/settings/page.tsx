@@ -33,110 +33,89 @@ export default async function SettingsPage() {
     <>
       <AdminHeader pageTitle="Settings" />
       <PageWrapper>
-        <div className="space-y-6">
-          {/* Account Information */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Account Information</h2>
-            <div className="space-y-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium">{session.user.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Username</p>
-                <p className="font-medium">{session.user.username}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">User ID</p>
-                <p className="font-mono text-xs">{session.user.id}</p>
-              </div>
+        {/* Subscription Management */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Subscription</h2>
+            <div className="flex gap-2">
+              <SyncSubscriptionButton />
+            </div>
           </div>
-          </Card>
 
-          {/* Subscription Management */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Subscription</h2>
-              <div className="flex gap-2">
-                <SyncSubscriptionButton />
+          {hasActiveSubscription ? (
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg bg-primary/5">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h3 className="font-medium">Wrk.so Pro</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Active subscription
+                    </p>
+                  </div>
+                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                    ⭐ PRO
+                  </span>
+                </div>
+
+                {subscriptionDetails.subscriptionCurrentPeriodEnd && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Renews on{" "}
+                    {new Date(
+                      subscriptionDetails.subscriptionCurrentPeriodEnd
+                    ).toLocaleDateString()}
+                  </p>
+                )}
+
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-medium">Pro Benefits:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {proProduct?.features.map((feature, i) => (
+                      <li key={i}>✓ {feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <ManageSubscriptionButton
+                variant="outline"
+                size="default"
+                className="w-full sm:w-auto"
+              />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-medium mb-2">Free Plan</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Upgrade to Pro to unlock all features and support Wrk.so
+                </p>
+
+                {proProduct && (
+                  <div className="space-y-4">
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <h4 className="font-medium mb-2">{proProduct.name}</h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {proProduct.description}
+                      </p>
+                      <ul className="space-y-1 text-sm mb-4">
+                        {proProduct.features.map((feature, i) => (
+                          <li key={i}>✓ {feature}</li>
+                        ))}
+                      </ul>
+                      <UpgradeButton
+                        productSlug={proProduct.slug}
+                        price={proProduct.price}
+                        variant="default"
+                        size="default"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-
-            {hasActiveSubscription ? (
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg bg-primary/5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h3 className="font-medium">Wrk.so Pro</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Active subscription
-                      </p>
-                    </div>
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                      ⭐ PRO
-                    </span>
-                  </div>
-
-                  {subscriptionDetails.subscriptionCurrentPeriodEnd && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Renews on{" "}
-                      {new Date(
-                        subscriptionDetails.subscriptionCurrentPeriodEnd
-                      ).toLocaleDateString()}
-                    </p>
-                  )}
-
-                  <div className="mt-4 space-y-2">
-                    <h4 className="text-sm font-medium">Pro Benefits:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      {proProduct?.features.map((feature, i) => (
-                        <li key={i}>✓ {feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <ManageSubscriptionButton
-                  variant="outline"
-                  size="default"
-                  className="w-full sm:w-auto"
-                />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-medium mb-2">Free Plan</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Upgrade to Pro to unlock all features and support Wrk.so
-                  </p>
-
-                  {proProduct && (
-                    <div className="space-y-4">
-                      <div className="border rounded-lg p-4 bg-muted/30">
-                        <h4 className="font-medium mb-2">{proProduct.name}</h4>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {proProduct.description}
-                        </p>
-                        <ul className="space-y-1 text-sm mb-4">
-                          {proProduct.features.map((feature, i) => (
-                            <li key={i}>✓ {feature}</li>
-                          ))}
-                        </ul>
-                        <UpgradeButton
-                          productSlug={proProduct.slug}
-                          price={proProduct.price}
-                          variant="default"
-                          size="default"
-                          className="w-full"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </Card>
-        </div>
+          )}
+        </Card>
       </PageWrapper>
     </>
   );
