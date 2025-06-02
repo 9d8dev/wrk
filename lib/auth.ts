@@ -41,10 +41,27 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        return {
+          username: profile.login, // GitHub provides a login field which is their username
+          name: profile.name || profile.login, // Use display name or fallback to username
+        };
+      },
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        // Generate username from email since Google doesn't have usernames
+        const emailUsername = profile.email.split("@")[0];
+        // Clean it to match your username validation rules
+        const cleanUsername = emailUsername.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+        return {
+          username: cleanUsername,
+          name: profile.name || profile.given_name || cleanUsername,
+        };
+      },
     },
   },
   advanced: {
