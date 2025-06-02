@@ -1,14 +1,10 @@
+import { Section, Container } from "@/components/ds";
+import { Logo } from "@/components/logo";
+
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 
-import { Section, Container, Prose } from "@/components/ds";
-import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/logo";
-
-import Image from "next/image";
 import Link from "next/link";
-import LogoSvg from "@/public/logo.svg";
-import { ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -59,11 +55,11 @@ export default async function Home() {
         <Section>
           <Container>
             <div className="flex justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Logo width={24} />
-              </div>
               <p className="text-sm text-muted-foreground">
-                © 2024 Wrk.so. All rights reserved.
+                Created by <a href="https://wip.is">WIP</a>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                © 2025 Wrk.so. All rights reserved.
               </p>
             </div>
           </Container>
