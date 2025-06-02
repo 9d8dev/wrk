@@ -23,30 +23,45 @@ type Props = {
 
 // SSG
 export async function generateStaticParams() {
-  const users = await getAllUsers();
-  return users.map((user) => ({ username: user.username }));
+  const usersResult = await getAllUsers();
+  if (!usersResult.success) {
+    return [];
+  }
+  return usersResult.data.items.map((user) => ({ username: user.username }));
 }
 
 // Metadata Generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username, projectSlug } = await params;
-  const profile = await getProfileByUsername(username);
-  const user = await getUserByUsername(username);
-  const project = await getProjectByUsernameAndSlug(username, projectSlug);
-  const featuredImage = project
-    ? await getFeaturedImageByProjectId(project.id)
-    : null;
-
-  const allImages = project ? await getAllProjectImages(project.id) : [];
+  const profileResult = await getProfileByUsername(username);
+  const userResult = await getUserByUsername(username);
+  const projectResult = await getProjectByUsernameAndSlug(username, projectSlug);
+  
+  if (!userResult.success || !userResult.data || !projectResult.success || !projectResult.data) {
+    return {
+      title: "Project | Wrk.so",
+      description: "Portfolio project created using Wrk.so.",
+    };
+  }
+  
+  const user = userResult.data;
+  const profile = profileResult.success ? profileResult.data : null;
+  const project = projectResult.data.project;
+  
+  const featuredImageResult = await getFeaturedImageByProjectId(project.id);
+  const allImagesResult = await getAllProjectImages(project.id);
+  
+  const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+  const allImages = allImagesResult.success ? allImagesResult.data : [];
   const ogImage = featuredImage || (allImages.length > 0 ? allImages[0] : null);
 
   return {
-    title: `${project?.title} by ${user.name} | ${profile?.title || "Wrk.so"}`,
+    title: `${project.title} by ${user.name} | ${profile?.profile.title || "Wrk.so"}`,
     description:
-      (project?.about && project.about.length > 160
+      (project.about && project.about.length > 160
         ? project.about.substring(0, 157) + "..."
-        : project?.about) ||
-      `${project?.title} created by ${user.name}. Portfolio created using Wrk.so.`,
+        : project.about) ||
+      `${project.title} created by ${user.name}. Portfolio created using Wrk.so.`,
     openGraph: ogImage
       ? {
           images: [
@@ -54,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
               url: ogImage.url,
               width: ogImage.width || 1200,
               height: ogImage.height || 630,
-              alt: ogImage.alt || project?.title || "Project image",
+              alt: ogImage.alt || project.title || "Project image",
             },
           ],
         }
@@ -65,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           images: [
             {
               url: ogImage.url,
-              alt: ogImage.alt || project?.title || "Project image",
+              alt: ogImage.alt || project.title || "Project image",
             },
           ],
         }
@@ -76,14 +91,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // Page
 export default async function ProjectPage({ params }: Props) {
   const { username, projectSlug } = await params;
-  const project = await getProjectByUsernameAndSlug(username, projectSlug);
+  const projectResult = await getProjectByUsernameAndSlug(username, projectSlug);
 
-  if (!project) {
+  if (!projectResult.success || !projectResult.data) {
     return notFound();
   }
 
-  const featuredImage = await getFeaturedImageByProjectId(project.id);
-  const allImages = await getAllProjectImages(project.id);
+  const project = projectResult.data.project;
+  const featuredImageResult = await getFeaturedImageByProjectId(project.id);
+  const allImagesResult = await getAllProjectImages(project.id);
+  
+  const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+  const allImages = allImagesResult.success ? allImagesResult.data : [];
 
   const mainImage =
     featuredImage || (allImages.length > 0 ? allImages[0] : null);

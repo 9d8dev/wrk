@@ -28,19 +28,25 @@ export default async function AdminPage() {
   }
 
   // Check if user has completed profile
-  const userProfile = await getProfileByUserId(session.user.id);
-  if (!userProfile) {
+  const profileResult = await getProfileByUserId(session.user.id);
+  if (!profileResult.success || !profileResult.data) {
     redirect("/onboarding");
   }
 
-  const projects = await getAllProjects(session.user.id);
+  const projectsResult = await getAllProjects(session.user.id);
+  if (!projectsResult.success) {
+    throw new Error(projectsResult.error);
+  }
 
   const projectsWithImages = await Promise.all(
-    projects.map(async (project) => {
-      const [featuredImage, allImages] = await Promise.all([
+    projectsResult.data.items.map(async (project) => {
+      const [featuredImageResult, allImagesResult] = await Promise.all([
         getFeaturedImageByProjectId(project.id),
         getAllProjectImages(project.id),
       ]);
+
+      const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+      const allImages = allImagesResult.success ? allImagesResult.data : [];
 
       // Filter out the featured image from additional images
       const additionalImages = featuredImage

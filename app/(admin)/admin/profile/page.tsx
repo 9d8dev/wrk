@@ -23,11 +23,14 @@ export default async function ProfilePage() {
     redirect("/sign-in");
   }
 
-  const profile = await getProfileByUserId(session.user.id);
+  const profileResult = await getProfileByUserId(session.user.id);
+  const profile = profileResult.success ? profileResult.data : null;
 
-  const socialLinks = profile
+  const socialLinksResult = profile
     ? await getSocialLinksByProfileId(profile.id)
-    : [];
+    : null;
+  
+  const socialLinks = socialLinksResult?.success ? socialLinksResult.data : [];
 
   let profileImageUrl = undefined;
 

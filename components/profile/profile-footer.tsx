@@ -12,12 +12,15 @@ import {
 import type { Profile } from "@/db/schema";
 
 export const ProfileFooter = async ({ username }: { username: string }) => {
-  const profile = await getProfileByUsername(username);
-  const user = await getUserByUsername(username);
+  const profileResult = await getProfileByUsername(username);
+  const userResult = await getUserByUsername(username);
 
-  if (!profile || !user) {
+  if (!profileResult.success || !profileResult.data || !userResult.success || !userResult.data) {
     return null;
   }
+
+  const profile = profileResult.data.profile;
+  const user = userResult.data;
 
   return (
     <footer className="border-t border-dashed bg-accent/20 mt-24">
@@ -52,13 +55,13 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
 };
 
 const SocialLinks = async ({ profile }: { profile: Profile }) => {
-  const socialLinks = profile
-    ? await getSocialLinksByProfileId(profile.id)
-    : [];
-
-  if (socialLinks.length === 0) {
+  const socialLinksResult = await getSocialLinksByProfileId(profile.id);
+  
+  if (!socialLinksResult.success || socialLinksResult.data.length === 0) {
     return null;
   }
+
+  const socialLinks = socialLinksResult.data;
 
   return (
     <div className="flex flex-col gap-1">

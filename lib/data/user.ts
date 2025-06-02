@@ -2,26 +2,192 @@
 
 import { user } from "@/db/schema";
 import { db } from "@/db/drizzle";
-import { eq } from "drizzle-orm";
+import { eq, sql, ilike, desc } from "drizzle-orm";
+import { 
+  DataResponse, 
+  PaginatedResponse, 
+  withErrorHandling,
+  calculatePagination,
+  getPaginationOffset,
+  dedupe
+} from "./utils";
+import { 
+  userIdSchema, 
+  usernameSchema,
+  paginationSchema 
+} from "./schemas";
+import type { User } from "@/db/schema";
 
-export const getAllUsers = async () => {
-  const data = await db.select().from(user);
+/**
+ * Get all users with pagination
+ */
+export async function getAllUsers(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<DataResponse<PaginatedResponse<User>>> {
+  return withErrorHandling(async () => {
+    const validation = paginationSchema.safeParse({
+      page: params?.page,
+      limit: params?.limit,
+    });
 
-  return data;
-};
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid pagination parameters");
+    }
 
-export const getUserById = async (userId: string) => {
-  const data = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+    const { page, limit } = validation.data;
+    const offset = getPaginationOffset(page, limit);
 
-  return data[0];
-};
+    // Build query conditions
+    const conditions = [];
+    if (params?.search) {
+      conditions.push(
+        ilike(user.username, `%${params.search}%`)
+      );
+    }
 
-export const getUserByUsername = async (username: string) => {
-  const data = await db
-    .select()
-    .from(user)
-    .where(eq(user.username, username))
-    .limit(1);
+    // Get total count
+    const countQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(user)
+      .where(conditions.length > 0 ? conditions[0] : undefined);
+    
+    const total = countQuery[0].count;
 
-  return data[0];
-};
+    // Get paginated users
+    const users = await db
+      .select()
+      .from(user)
+      .where(conditions.length > 0 ? conditions[0] : undefined)
+      .orderBy(desc(user.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return {
+      items: users,
+      ...calculatePagination(total, page, limit),
+    };
+  }, "Failed to fetch users");
+}
+
+/**
+ * Get a user by ID with caching
+ */
+export const getUserById = dedupe(async (userId: string): Promise<DataResponse<User | null>> => {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = userIdSchema.safeParse(userId);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid user ID");
+    }
+
+    const data = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    return data[0] || null;
+  }, "Failed to fetch user");
+});
+
+/**
+ * Get a user by username with caching
+ */
+export const getUserByUsername = dedupe(async (username: string): Promise<DataResponse<User | null>> => {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = usernameSchema.safeParse(username);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid username");
+    }
+
+    const data = await db
+      .select()
+      .from(user)
+      .where(eq(user.username, username))
+      .limit(1);
+
+    return data[0] || null;
+  }, "Failed to fetch user by username");
+});
+
+/**
+ * Check if a username is available
+ */
+export async function isUsernameAvailable(username: string): Promise<DataResponse<boolean>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = usernameSchema.safeParse(username);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid username");
+    }
+
+    // Check reserved usernames
+    const reservedUsernames = [
+      "admin",
+      "posts",
+      "privacy-policy",
+      "terms-of-use",
+      "about",
+      "contact",
+      "dashboard",
+      "login",
+      "sign-in",
+      "sign-up",
+      "sign-out",
+    ];
+
+    if (reservedUsernames.includes(username.toLowerCase())) {
+      return false;
+    }
+
+    // Check database
+    const existing = await db
+      .select({ id: user.id })
+      .from(user)
+      .where(eq(user.username, username))
+      .limit(1);
+
+    return existing.length === 0;
+  }, "Failed to check username availability");
+}
+
+/**
+ * Get user statistics
+ */
+export async function getUserStats(userId: string): Promise<DataResponse<{
+  projectCount: number;
+  leadCount: number;
+  totalViews: number;
+}>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = userIdSchema.safeParse(userId);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid user ID");
+    }
+
+    // Import here to avoid circular dependencies
+    const { project, lead } = await import("@/db/schema");
+
+    // Get counts in parallel
+    const [projectCount, leadCount] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(project)
+        .where(eq(project.userId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(lead)
+        .where(eq(lead.userId, userId)),
+    ]);
+
+    return {
+      projectCount: projectCount[0].count,
+      leadCount: leadCount[0].count,
+      totalViews: 0, // TODO: Implement view tracking
+    };
+  }, "Failed to fetch user statistics");
+}

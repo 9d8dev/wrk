@@ -14,8 +14,8 @@ export default async function OnboardingPage() {
   }
 
   // Check if user already has a profile
-  const existingProfile = await getProfileByUserId(session.user.id);
-  if (existingProfile) {
+  const profileResult = await getProfileByUserId(session.user.id);
+  if (profileResult.success && profileResult.data) {
     redirect("/admin");
   }
 

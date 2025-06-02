@@ -2,21 +2,32 @@
 
 import { db } from "@/db/drizzle";
 import { media, project } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { nanoid } from "nanoid";
+import { 
+  DataResponse, 
+  withErrorHandling,
+  dedupe
+} from "./utils";
+import { 
+  mediaIdSchema,
+  projectIdSchema 
+} from "./schemas";
+import type { Media, Project } from "@/db/schema";
 
 /**
- * Creates a new media entry in the database
+ * Media with related project
  */
-export async function createMedia({
-  url,
-  width,
-  height,
-  alt,
-  size,
-  mimeType,
-  projectId,
-}: {
+export interface MediaWithProject {
+  media: Media;
+  project: Project | null;
+}
+
+/**
+ * Create media input
+ */
+export interface CreateMediaInput {
   url: string;
   width: number;
   height: number;
@@ -24,32 +35,70 @@ export async function createMedia({
   size?: number;
   mimeType?: string;
   projectId?: string;
-}) {
-  try {
-    const id = crypto.randomUUID();
+}
+
+/**
+ * Creates a new media entry in the database
+ */
+export async function createMedia(
+  input: CreateMediaInput
+): Promise<DataResponse<Media>> {
+  return withErrorHandling(async () => {
+    const id = nanoid();
     const now = new Date();
 
     const [newMedia] = await db
       .insert(media)
       .values({
         id,
-        url,
-        width,
-        height,
-        alt: alt || null,
-        size: size || null,
-        mimeType: mimeType || null,
-        projectId: projectId || null,
+        url: input.url,
+        width: input.width,
+        height: input.height,
+        alt: input.alt || null,
+        size: input.size || null,
+        mimeType: input.mimeType || null,
+        projectId: input.projectId || null,
         createdAt: now,
         updatedAt: now,
       })
       .returning();
 
-    return { success: true, media: newMedia };
-  } catch (error) {
-    console.error("Error creating media:", error);
-    return { success: false, error: "Failed to create media" };
-  }
+    return newMedia;
+  }, "Failed to create media");
+}
+
+/**
+ * Creates multiple media entries in a batch
+ */
+export async function createMediaBatch(
+  inputs: CreateMediaInput[]
+): Promise<DataResponse<Media[]>> {
+  return withErrorHandling(async () => {
+    if (inputs.length === 0) {
+      return [];
+    }
+
+    const now = new Date();
+    const mediaValues = inputs.map(input => ({
+      id: nanoid(),
+      url: input.url,
+      width: input.width,
+      height: input.height,
+      alt: input.alt || null,
+      size: input.size || null,
+      mimeType: input.mimeType || null,
+      projectId: input.projectId || null,
+      createdAt: now,
+      updatedAt: now,
+    }));
+
+    const newMediaItems = await db
+      .insert(media)
+      .values(mediaValues)
+      .returning();
+
+    return newMediaItems;
+  }, "Failed to create media batch");
 }
 
 /**
@@ -66,8 +115,14 @@ export async function updateMedia(
     mimeType?: string;
     projectId?: string | null;
   }
-) {
-  try {
+): Promise<DataResponse<Media>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = mediaIdSchema.safeParse(id);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid media ID");
+    }
+
     const [updatedMedia] = await db
       .update(media)
       .set({
@@ -78,74 +133,140 @@ export async function updateMedia(
       .returning();
 
     if (!updatedMedia) {
-      return { success: false, error: "Media not found" };
+      throw new Error("Media not found");
     }
 
-    return { success: true, media: updatedMedia };
-  } catch (error) {
-    console.error("Error updating media:", error);
-    return { success: false, error: "Failed to update media" };
-  }
+    return updatedMedia;
+  }, "Failed to update media");
 }
 
 /**
  * Deletes a media entry
  */
-export async function deleteMedia(id: string) {
-  try {
+export async function deleteMedia(id: string): Promise<DataResponse<void>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = mediaIdSchema.safeParse(id);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid media ID");
+    }
+
     const [deletedMedia] = await db
       .delete(media)
       .where(eq(media.id, id))
       .returning();
 
     if (!deletedMedia) {
-      return { success: false, error: "Media not found" };
+      throw new Error("Media not found");
     }
 
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting media:", error);
-    return { success: false, error: "Failed to delete media" };
-  }
+    return undefined;
+  }, "Failed to delete media");
 }
 
 /**
- * Gets a media entry by ID
+ * Deletes multiple media entries in a batch
  */
-export async function getMediaById(id: string) {
-  try {
-    const mediaItems = await db
+export async function deleteMediaBatch(
+  ids: string[]
+): Promise<DataResponse<number>> {
+  return withErrorHandling(async () => {
+    if (ids.length === 0) {
+      return 0;
+    }
+
+    // Validate all IDs
+    for (const id of ids) {
+      const validation = mediaIdSchema.safeParse(id);
+      if (!validation.success) {
+        throw new Error(`Invalid media ID: ${id}`);
+      }
+    }
+
+    await db
+      .delete(media)
+      .where(inArray(media.id, ids));
+
+    // Return count of deleted items
+    return ids.length;
+  }, "Failed to delete media batch");
+}
+
+/**
+ * Gets a media entry by ID with caching
+ */
+export const getMediaById = dedupe(async (
+  id: string
+): Promise<DataResponse<Media | null>> => {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = mediaIdSchema.safeParse(id);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid media ID");
+    }
+
+    const [mediaItem] = await db
       .select()
       .from(media)
       .where(eq(media.id, id))
       .limit(1);
 
-    if (!mediaItems || mediaItems.length === 0) {
-      return { success: false, error: "Media not found" };
+    return mediaItem || null;
+  }, "Failed to get media");
+});
+
+/**
+ * Gets multiple media entries by IDs in a single query
+ */
+export async function getMediaByIds(
+  ids: string[]
+): Promise<DataResponse<Media[]>> {
+  return withErrorHandling(async () => {
+    if (ids.length === 0) {
+      return [];
     }
 
-    return { success: true, media: mediaItems[0] };
-  } catch (error) {
-    console.error("Error getting media:", error);
-    return { success: false, error: "Failed to get media" };
-  }
+    // Validate all IDs
+    for (const id of ids) {
+      const validation = mediaIdSchema.safeParse(id);
+      if (!validation.success) {
+        throw new Error(`Invalid media ID: ${id}`);
+      }
+    }
+
+    const mediaItems = await db
+      .select()
+      .from(media)
+      .where(inArray(media.id, ids));
+
+    // Return in the same order as requested
+    const mediaMap = new Map(mediaItems.map(item => [item.id, item]));
+    return ids
+      .map(id => mediaMap.get(id))
+      .filter((item): item is Media => item !== undefined);
+  }, "Failed to get media by IDs");
 }
 
 /**
  * Gets all media for a project
  */
-export async function getAllMediaByProjectId(projectId: string) {
-  try {
+export async function getAllMediaByProjectId(
+  projectId: string
+): Promise<DataResponse<Media[]>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = projectIdSchema.safeParse(projectId);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid project ID");
+    }
+
     const mediaItems = await db
       .select()
       .from(media)
       .where(eq(media.projectId, projectId));
 
-    return { success: true, media: mediaItems };
-  } catch (error) {
-    console.error("Error getting project media:", error);
-    return { success: false, error: "Failed to get project media" };
-  }
+    return mediaItems;
+  }, "Failed to get project media");
 }
 
 /**
@@ -154,8 +275,19 @@ export async function getAllMediaByProjectId(projectId: string) {
 export async function associateMediaWithProject(
   mediaId: string,
   projectId: string
-) {
-  try {
+): Promise<DataResponse<Media>> {
+  return withErrorHandling(async () => {
+    // Validate inputs
+    const mediaValidation = mediaIdSchema.safeParse(mediaId);
+    if (!mediaValidation.success) {
+      throw new Error(mediaValidation.error.errors[0]?.message || "Invalid media ID");
+    }
+
+    const projectValidation = projectIdSchema.safeParse(projectId);
+    if (!projectValidation.success) {
+      throw new Error(projectValidation.error.errors[0]?.message || "Invalid project ID");
+    }
+
     const [updatedMedia] = await db
       .update(media)
       .set({
@@ -166,15 +298,135 @@ export async function associateMediaWithProject(
       .returning();
 
     if (!updatedMedia) {
-      return { success: false, error: "Media not found" };
+      throw new Error("Media not found");
     }
 
     revalidatePath(`/admin/projects/${projectId}`);
-    return { success: true, media: updatedMedia };
-  } catch (error) {
-    console.error("Error associating media with project:", error);
-    return { success: false, error: "Failed to associate media with project" };
-  }
+    return updatedMedia;
+  }, "Failed to associate media with project");
+}
+
+/**
+ * Gets the featured image for a project
+ */
+export const getFeaturedImageByProjectId = dedupe(async (
+  projectId: string
+): Promise<DataResponse<Media | null>> => {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = projectIdSchema.safeParse(projectId);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid project ID");
+    }
+
+    // Get project with featured image in a single query
+    const result = await db
+      .select({
+        media: media,
+      })
+      .from(project)
+      .leftJoin(media, eq(media.id, project.featuredImageId))
+      .where(eq(project.id, projectId))
+      .limit(1);
+
+    return result[0]?.media || null;
+  }, "Failed to fetch featured image");
+});
+
+/**
+ * Gets all images for a project using the imageIds array
+ */
+export async function getAllProjectImages(
+  projectId: string
+): Promise<DataResponse<Media[]>> {
+  return withErrorHandling(async () => {
+    // Validate input
+    const validation = projectIdSchema.safeParse(projectId);
+    if (!validation.success) {
+      throw new Error(validation.error.errors[0]?.message || "Invalid project ID");
+    }
+
+    // Get the project to find the imageIds
+    const [projectData] = await db
+      .select({
+        imageIds: project.imageIds,
+        projectId: project.id,
+      })
+      .from(project)
+      .where(eq(project.id, projectId))
+      .limit(1);
+
+    if (!projectData || !projectData.imageIds || projectData.imageIds.length === 0) {
+      // If no imageIds, get all media associated with the project
+      const allMedia = await db
+        .select()
+        .from(media)
+        .where(eq(media.projectId, projectId));
+      return allMedia;
+    }
+
+    // Get all media items using the imageIds array in a single query
+    const mediaResult = await getMediaByIds(projectData.imageIds);
+    
+    if (!mediaResult.success) {
+      throw new Error(mediaResult.error);
+    }
+
+    return mediaResult.data;
+  }, "Failed to fetch project images");
+}
+
+/**
+ * Get media statistics for a user
+ */
+export async function getUserMediaStats(userId: string): Promise<DataResponse<{
+  totalMedia: number;
+  totalSize: number;
+  mediaByType: Record<string, number>;
+}>> {
+  return withErrorHandling(async () => {
+    // Get all media for user's projects
+    const userProjects = await db
+      .select({ id: project.id })
+      .from(project)
+      .where(eq(project.userId, userId));
+
+    if (userProjects.length === 0) {
+      return {
+        totalMedia: 0,
+        totalSize: 0,
+        mediaByType: {},
+      };
+    }
+
+    const projectIds = userProjects.map(p => p.id);
+
+    // Get media statistics
+    const mediaStats = await db
+      .select({
+        count: sql<number>`count(*)`,
+        totalSize: sql<number>`sum(${media.size})`,
+        mimeType: media.mimeType,
+      })
+      .from(media)
+      .where(inArray(media.projectId, projectIds))
+      .groupBy(media.mimeType);
+
+    const totalMedia = mediaStats.reduce((sum, stat) => sum + stat.count, 0);
+    const totalSize = mediaStats.reduce((sum, stat) => sum + (stat.totalSize || 0), 0);
+    const mediaByType = mediaStats.reduce((acc, stat) => {
+      if (stat.mimeType) {
+        acc[stat.mimeType] = stat.count;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      totalMedia,
+      totalSize,
+      mediaByType,
+    };
+  }, "Failed to fetch media statistics");
 }
 
 /**
@@ -184,86 +436,15 @@ export async function associateMediaWithProject(
 /**
  * Gets a media item by ID (legacy version)
  */
-export const getMedia = async (id: string) => {
-  const data = await db.select().from(media).where(eq(media.id, id)).limit(1);
-  return data.length > 0 ? data[0] : null;
+export const getMedia = async (id: string): Promise<Media | null> => {
+  const result = await getMediaById(id);
+  return result.success ? result.data : null;
 };
 
 /**
  * Gets all media for a project (legacy version)
  */
-export const getMediaByProjectId = async (projectId: string) => {
-  const data = await db
-    .select()
-    .from(media)
-    .where(eq(media.projectId, projectId));
-
-  return data;
+export const getMediaByProjectId = async (projectId: string): Promise<Media[]> => {
+  const result = await getAllMediaByProjectId(projectId);
+  return result.success ? result.data : [];
 };
-
-/**
- * Gets the featured image for a project using the featuredImageId field
- */
-export async function getFeaturedImageByProjectId(projectId: string) {
-  try {
-    // First, get the project to find the featuredImageId
-    const [projectData] = await db
-      .select()
-      .from(project)
-      .where(eq(project.id, projectId))
-      .limit(1);
-
-    if (!projectData || !projectData.featuredImageId) {
-      return null;
-    }
-
-    // Then get the media item using the featuredImageId
-    const [mediaItem] = await db
-      .select()
-      .from(media)
-      .where(eq(media.id, projectData.featuredImageId))
-      .limit(1);
-
-    return mediaItem || null;
-  } catch (error) {
-    console.error("Error fetching featured image:", error);
-    return null;
-  }
-}
-
-/**
- * Gets all images for a project using the imageIds array
- */
-export async function getAllProjectImages(projectId: string) {
-  try {
-    // First, get the project to find the imageIds
-    const [projectData] = await db
-      .select()
-      .from(project)
-      .where(eq(project.id, projectId))
-      .limit(1);
-
-    if (!projectData || !projectData.imageIds || projectData.imageIds.length === 0) {
-      // If no imageIds, try to get all media associated with the project
-      return await getMediaByProjectId(projectId);
-    }
-
-    // Get all media items using the imageIds array
-    const mediaItems = await Promise.all(
-      projectData.imageIds.map(async (id: string) => {
-        const [mediaItem] = await db
-          .select()
-          .from(media)
-          .where(eq(media.id, id))
-          .limit(1);
-        return mediaItem;
-      })
-    );
-
-    // Filter out any null values
-    return mediaItems.filter(Boolean);
-  } catch (error) {
-    console.error("Error fetching project images:", error);
-    return [];
-  }
-}

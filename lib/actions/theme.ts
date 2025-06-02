@@ -93,9 +93,9 @@ export async function getThemeByUsername(username: string) {
   try {
     // First get the user to get their ID
     const { getUserByUsername } = await import("@/lib/data/user");
-    const user = await getUserByUsername(username);
+    const userResult = await getUserByUsername(username);
     
-    if (!user) {
+    if (!userResult.success || !userResult.data) {
       return null;
     }
 
@@ -103,7 +103,7 @@ export async function getThemeByUsername(username: string) {
     const userTheme = await db
       .select()
       .from(theme)
-      .where(eq(theme.userId, user.id))
+      .where(eq(theme.userId, userResult.data.id))
       .limit(1);
 
     return userTheme.length > 0 ? userTheme[0] : null;

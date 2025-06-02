@@ -92,7 +92,7 @@ export const uploadImage = async (formData: FormData, projectId?: string) => {
   }
 
   const mediaId =
-    mediaResult.success && mediaResult.media ? mediaResult.media.id : undefined;
+    mediaResult.success && mediaResult.data ? mediaResult.data.id : undefined;
 
   return {
     success: true,
