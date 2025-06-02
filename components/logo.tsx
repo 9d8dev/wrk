@@ -1,17 +1,30 @@
+import LogoLightMode from "@/public/logo.svg";
+import LogoDarkMode from "@/public/logo-white.svg";
+import Image from "next/image";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
-
-export const Logo = ({ className }: { className?: string }) => {
+export const Logo = ({
+  href = "/",
+  width = 72,
+  className,
+}: {
+  href?: string;
+  width?: number;
+  className?: string;
+}) => {
   return (
-    <Link
-      href="/"
-      className={cn(
-        "block tracking-tighter font-extrabold text-4xl",
-        className
-      )}
-    >
-      WRK.SO
+    <Link href={href} className={className}>
+      <Image
+        width={width}
+        src={LogoLightMode}
+        alt="Logo"
+        className="block dark:hidden"
+      />
+      <Image
+        width={width}
+        src={LogoDarkMode}
+        alt="Logo"
+        className="hidden dark:block"
+      />
     </Link>
   );
-};
