@@ -20,6 +20,11 @@ import {
   updateUserPolarCustomerId,
   logSubscriptionEvent,
 } from "@/lib/actions/subscription";
+import {
+  generateUniqueUsername,
+  generateUsernameFromEmail,
+  generateUsernameFromName,
+} from "@/lib/utils/username";
 
 import * as schema from "@/db/schema";
 
@@ -41,10 +46,42 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      mapProfileToUser: async (profile) => {
+        // GitHub provides a login field which is their username
+        // But we need to ensure it's unique in our system
+        const baseUsername = profile.login;
+        const uniqueUsername = await generateUniqueUsername(baseUsername);
+
+        return {
+          username: uniqueUsername,
+          name: profile.name || profile.login,
+        };
+      },
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      mapProfileToUser: async (profile) => {
+        // Google doesn't have usernames, so we generate from email and name
+        const emailUsername = generateUsernameFromEmail(profile.email);
+        const nameUsername = profile.name
+          ? generateUsernameFromName(profile.name)
+          : null;
+
+        // Try email-based username first, then name-based as fallback
+        let baseUsername = emailUsername;
+        if (nameUsername && nameUsername.length >= 3) {
+          // Use name-based if it's valid and different from email-based
+          baseUsername = nameUsername;
+        }
+
+        const uniqueUsername = await generateUniqueUsername(baseUsername);
+
+        return {
+          username: uniqueUsername,
+          name: profile.name || profile.given_name || uniqueUsername,
+        };
+      },
     },
   },
   advanced: {

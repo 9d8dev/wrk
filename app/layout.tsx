@@ -1,8 +1,7 @@
 import "./globals.css";
 import "lenis/dist/lenis.css";
 
-import { Inter as FontSans, Geist_Mono as FontMono } from "next/font/google";
-import { LenisProvider } from "@/components/providers/lenis-provider";
+import { Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 
 import type { Metadata } from "next";
@@ -18,7 +17,7 @@ const fontMono = FontMono({
 });
 
 export const metadata: Metadata = {
-  title: "Wrk.so",
+  title: "Wrk.so / Portfolios for Creatives",
   description: "A place for creatives to share their work.",
 };
 
@@ -32,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
-        <LenisProvider>{children}</LenisProvider>
+        {children}
         <Analytics />
       </body>
     </html>
