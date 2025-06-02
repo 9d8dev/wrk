@@ -4,27 +4,35 @@ import { redirect } from "next/navigation";
 import { Section, Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Logo } from "@/components/logo";
 
 import Image from "next/image";
 import Link from "next/link";
 import LogoSvg from "@/public/logo.svg";
-import { 
-  ArrowRight, 
-  Check, 
-  Globe, 
-  Palette, 
-  Zap, 
-  Users, 
+import {
+  ArrowRight,
+  Check,
+  Globe,
+  Palette,
+  Zap,
+  Users,
   Star,
-  Github,
-  Twitter,
+  Github as GithubIcon,
+  Twitter as TwitterIcon,
   Layout,
   BarChart3,
   Shield,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getSession();
@@ -43,15 +51,24 @@ export default async function Home() {
               <Image src={LogoSvg} alt="Wrk.so" width={24} height={32} />
               <Logo className="text-xl" />
             </div>
-            
+
             <div className="hidden md:flex items-center gap-6">
-              <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="#features"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Features
               </Link>
-              <Link href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="#pricing"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Pricing
               </Link>
-              <Link href="#about" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="#about"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 About
               </Link>
             </div>
@@ -76,17 +93,18 @@ export default async function Home() {
               <Sparkles className="w-4 h-4 mr-2" />
               The Future of Professional Portfolios
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
               Your Work,
               <span className="block text-primary">Beautifully Showcased</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Create stunning portfolios that convert visitors into clients. 
-              Wrk.so makes it effortless to showcase your best work with professional templates and powerful customization.
+              Create stunning portfolios that convert visitors into clients.
+              Wrk.so makes it effortless to showcase your best work with
+              professional templates and powerful customization.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button asChild size="lg" className="text-lg px-8 py-6">
                 <Link href="/sign-in?tab=signup">
@@ -94,15 +112,20 @@ export default async function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-                <Link href="#features">
-                  See How It Works
-                </Link>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-6"
+              >
+                <Link href="#features">See How It Works</Link>
               </Button>
             </div>
-            
+
             <div className="pt-8">
-              <p className="text-sm text-muted-foreground mb-4">Trusted by creatives worldwide</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Trusted by creatives worldwide
+              </p>
               <div className="flex items-center justify-center gap-8 opacity-60">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 fill-current" />
@@ -126,9 +149,12 @@ export default async function Home() {
       <Section id="features" className="py-20">
         <Container>
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold">Everything You Need</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Everything You Need
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to help you create, customize, and convert with your portfolio
+              Powerful features designed to help you create, customize, and
+              convert with your portfolio
             </p>
           </div>
 
@@ -140,7 +166,8 @@ export default async function Home() {
                 </div>
                 <CardTitle>Beautiful Templates</CardTitle>
                 <CardDescription>
-                  Choose from professionally designed templates that make your work shine
+                  Choose from professionally designed templates that make your
+                  work shine
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -152,7 +179,8 @@ export default async function Home() {
                 </div>
                 <CardTitle>Custom Themes</CardTitle>
                 <CardDescription>
-                  Personalize your portfolio with custom colors, fonts, and layouts
+                  Personalize your portfolio with custom colors, fonts, and
+                  layouts
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -164,7 +192,8 @@ export default async function Home() {
                 </div>
                 <CardTitle>Lightning Fast</CardTitle>
                 <CardDescription>
-                  Optimized for speed with instant loading and smooth interactions
+                  Optimized for speed with instant loading and smooth
+                  interactions
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -176,7 +205,8 @@ export default async function Home() {
                 </div>
                 <CardTitle>Analytics & Insights</CardTitle>
                 <CardDescription>
-                  Track visitor engagement and optimize your portfolio performance
+                  Track visitor engagement and optimize your portfolio
+                  performance
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -188,7 +218,8 @@ export default async function Home() {
                 </div>
                 <CardTitle>Custom Domains</CardTitle>
                 <CardDescription>
-                  Use your own domain to maintain your professional brand identity
+                  Use your own domain to maintain your professional brand
+                  identity
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -212,9 +243,12 @@ export default async function Home() {
       <Section id="pricing" className="py-20 bg-muted/30">
         <Container>
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold">Simple, Transparent Pricing</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Simple, Transparent Pricing
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start free, upgrade when you&apos;re ready to unlock premium features
+              Start free, upgrade when you&apos;re ready to unlock premium
+              features
             </p>
           </div>
 
@@ -258,7 +292,12 @@ export default async function Home() {
               </div>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Pro</CardTitle>
-                <div className="text-4xl font-bold">$9<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+                <div className="text-4xl font-bold">
+                  $9
+                  <span className="text-lg font-normal text-muted-foreground">
+                    /month
+                  </span>
+                </div>
                 <CardDescription>For serious professionals</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -305,7 +344,8 @@ export default async function Home() {
               Ready to Showcase Your Best Work?
             </h2>
             <p className="text-xl text-muted-foreground">
-              Join thousands of creatives who trust Wrk.so to present their work professionally
+              Join thousands of creatives who trust Wrk.so to present their work
+              professionally
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="text-lg px-8 py-6">
@@ -314,10 +354,13 @@ export default async function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-                <Link href="mailto:hello@wrk.so">
-                  Contact Sales
-                </Link>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-6"
+              >
+                <Link href="mailto:hello@wrk.so">Contact Sales</Link>
               </Button>
             </div>
           </div>
@@ -334,17 +377,18 @@ export default async function Home() {
                 <Logo className="text-lg" />
               </div>
               <p className="text-sm text-muted-foreground">
-                The modern way to showcase your professional work and attract your ideal clients.
+                The modern way to showcase your professional work and attract
+                your ideal clients.
               </p>
               <div className="flex gap-4">
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="https://twitter.com/wrkso">
-                    <Twitter className="w-4 h-4" />
+                    <TwitterIcon className="w-4 h-4" />
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="https://github.com/brijr/wrk">
-                    <Github className="w-4 h-4" />
+                    <GithubIcon className="w-4 h-4" />
                   </Link>
                 </Button>
               </div>
@@ -353,30 +397,114 @@ export default async function Home() {
             <div className="space-y-4">
               <h4 className="font-semibold">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#features" className="hover:text-foreground transition-colors">Features</Link></li>
-                <li><Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                <li><Link href="/changelog" className="hover:text-foreground transition-colors">Changelog</Link></li>
-                <li><Link href="/roadmap" className="hover:text-foreground transition-colors">Roadmap</Link></li>
+                <li>
+                  <Link
+                    href="#features"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#pricing"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/changelog"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Changelog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/roadmap"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Roadmap
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div className="space-y-4">
               <h4 className="font-semibold">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
-                <li><Link href="/help" className="hover:text-foreground transition-colors">Help Center</Link></li>
-                <li><Link href="mailto:support@wrk.so" className="hover:text-foreground transition-colors">Contact Support</Link></li>
-                <li><Link href="/status" className="hover:text-foreground transition-colors">Status</Link></li>
+                <li>
+                  <Link
+                    href="/docs"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Documentation
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/help"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="mailto:support@wrk.so"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Contact Support
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/status"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Status
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div className="space-y-4">
               <h4 className="font-semibold">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
+                <li>
+                  <Link
+                    href="/about"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/blog"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Terms
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

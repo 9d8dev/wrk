@@ -8,7 +8,11 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Public routes that don't require authentication
-  if (pathname.startsWith("/sign-in") || pathname === "/" || pathname.startsWith("/api")) {
+  if (
+    pathname.startsWith("/sign-in") ||
+    pathname === "/" ||
+    pathname.startsWith("/api")
+  ) {
     return NextResponse.next();
   }
 
@@ -19,13 +23,10 @@ export async function middleware(request: NextRequest) {
 
   // For admin routes, we'll check profile completion on the page level
   // This is because we can't easily check database from middleware
-  
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/onboarding",
-  ],
+  matcher: ["/admin/:path*", "/onboarding"],
 };

@@ -31,14 +31,18 @@ export const DeleteProject = ({ project, onSuccess }: DeleteProjectProps) => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await deleteProject(project.id);
-      toast.success("Project deleted successfully");
-      if (onSuccess) {
-        onSuccess();
+      const result = await deleteProject(project.id);
+      if (result.success) {
+        toast.success("Project deleted successfully");
+        if (onSuccess) {
+          onSuccess();
+        }
+      } else {
+        throw new Error(result.error);
       }
     } catch (error) {
       console.error("Error deleting project:", error);
-      toast.error("Failed to delete project");
+      toast.error(error instanceof Error ? error.message : "Failed to delete project");
     } finally {
       setIsDeleting(false);
     }

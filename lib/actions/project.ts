@@ -1,389 +1,545 @@
 "use server";
 
 import { project as projectTable } from "@/db/schema";
-import { eq, desc, and, isNull, lt, asc, gt } from "drizzle-orm";
+import { eq, desc, and, asc, sql } from "drizzle-orm";
 import { db } from "@/db/drizzle";
-
 import { revalidatePath } from "next/cache";
-import { getSession } from "./auth";
-import { project } from "@/db/schema";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { nanoid } from "nanoid";
+import { ActionResponse, REVALIDATION_PATHS } from "./utils";
+import { 
+  createProjectSchema, 
+  updateProjectSchema, 
+  deleteProjectSchema,
+  reorderProjectsSchema 
+} from "./schemas";
 
-import type { Project } from "@/db/schema";
-
-export const createProject = async (data: Project) => {
-  console.log("🆕 createProject called");
-  const session = await getSession();
-  if (!session) throw new Error("Unauthorized");
-
-  // Find the highest display order for the current user's projects
-  const highestOrderProjects = await db
-    .select({ displayOrder: projectTable.displayOrder })
-    .from(projectTable)
-    .where(eq(projectTable.userId, session.user.id))
-    .orderBy(desc(projectTable.displayOrder))
-    .limit(1);
-
-  // Calculate the new display order (highest + 1, or 0 if no projects exist)
-  const newDisplayOrder =
-    highestOrderProjects.length > 0
-      ? (highestOrderProjects[0].displayOrder || 0) + 1
-      : 0;
-
-  const res = await db
-    .insert(projectTable)
-    .values({
-      ...data,
-      userId: session.user.id,
-      displayOrder: newDisplayOrder,
-    })
-    .returning();
-
-  console.log("✅ createProject completed, revalidating paths");
-  revalidatePath("/admin");
-  revalidatePath("/(admin)/admin");
-  revalidatePath("/(public)/[username]");
-
-  return res;
+type ProjectData = {
+  title: string;
+  about?: string | null;
+  externalLink?: string | null;
+  imageIds?: string[] | null;
+  featuredImageId?: string | null;
+  displayOrder?: number | null;
 };
 
-export const editProject = async (id: string, data: Partial<Project>) => {
-  console.log("✏️ editProject called for:", id);
-  const session = await getSession();
-  if (!session) throw new Error("Unauthorized");
-
-  const res = await db
-    .update(projectTable)
-    .set({ ...data, updatedAt: new Date() })
-    .where(eq(projectTable.id, id))
-    .returning();
-
-  console.log("✅ editProject completed, revalidating paths");
-  revalidatePath("/admin");
-  revalidatePath("/(admin)/admin");
-  revalidatePath("/(public)/[username]");
-  return res;
+type ProjectResult = {
+  id: string;
+  slug: string;
+  title: string;
 };
 
-export const deleteProject = async (id: string) => {
-  console.log("🗑️ deleteProject called for:", id);
-  const session = await getSession();
-  if (!session) throw new Error("Unauthorized");
+/**
+ * Create a new project with ownership and validation
+ */
+export async function createProject(
+  data: ProjectData
+): Promise<ActionResponse<ProjectResult>> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-  const res = await db
-    .delete(projectTable)
-    .where(eq(projectTable.id, id))
-    .returning();
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
 
-  console.log("✅ deleteProject completed, revalidating paths");
-  revalidatePath("/admin");
-  revalidatePath("/(admin)/admin");
-  revalidatePath("/(public)/[username]");
-  return res;
-};
+    const userId = session.user.id;
+    const username = session.user.username;
 
-export const updateProject = async (
+    // Validate input
+    const validation = createProjectSchema.safeParse(data);
+    if (!validation.success) {
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
+      };
+    }
+
+    // Use transaction for atomic operation
+    const result = await db.transaction(async (tx) => {
+      // Find the highest display order for the current user's projects
+      const highestOrderProjects = await tx
+        .select({ displayOrder: projectTable.displayOrder })
+        .from(projectTable)
+        .where(eq(projectTable.userId, userId))
+        .orderBy(desc(projectTable.displayOrder))
+        .limit(1);
+
+      // Calculate the new display order
+      const newDisplayOrder =
+        highestOrderProjects.length > 0 && highestOrderProjects[0].displayOrder !== null
+          ? highestOrderProjects[0].displayOrder + 1
+          : 0;
+
+      // Generate slug from title
+      const slug = data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      // Create project
+      const newProject = await tx
+        .insert(projectTable)
+        .values({
+          id: nanoid(),
+          userId,
+          title: data.title,
+          slug,
+          about: data.about || null,
+          externalLink: data.externalLink || null,
+          imageIds: data.imageIds || null,
+          featuredImageId: data.featuredImageId || null,
+          displayOrder: newDisplayOrder,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      return newProject[0];
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: result.id,
+        slug: result.slug,
+        title: result.title,
+      },
+    };
+  } catch (error) {
+    console.error("Error creating project:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create project",
+    };
+  }
+}
+
+/**
+ * Update an existing project with ownership check
+ */
+export async function updateProject(
   id: string,
-  data: Partial<Omit<Project, "id" | "userId" | "createdAt">>
-) => {
-  const session = await getSession();
-  if (!session) throw new Error("Unauthorized");
+  data: Partial<ProjectData>
+): Promise<ActionResponse<ProjectResult>> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-  const res = await db
-    .update(projectTable)
-    .set({ ...data, updatedAt: new Date() })
-    .where(eq(projectTable.id, id))
-    .returning();
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
 
-  revalidatePath("/admin");
-  return res;
-};
+    const userId = session.user.id;
+    const username = session.user.username;
+
+    // Validate input
+    const validation = updateProjectSchema.safeParse({ id, ...data });
+    if (!validation.success) {
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
+      };
+    }
+
+    // Use transaction for atomic operation
+    const result = await db.transaction(async (tx) => {
+      // Check ownership
+      const existing = await tx
+        .select()
+        .from(projectTable)
+        .where(and(eq(projectTable.id, id), eq(projectTable.userId, userId)))
+        .limit(1);
+
+      if (!existing || existing.length === 0) {
+        throw new Error("Project not found or unauthorized");
+      }
+
+      // Generate new slug if title changed
+      let slug = existing[0].slug;
+      if (data.title && data.title !== existing[0].title) {
+        slug = data.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      // Update project
+      const updated = await tx
+        .update(projectTable)
+        .set({
+          ...data,
+          slug,
+          updatedAt: new Date(),
+        })
+        .where(eq(projectTable.id, id))
+        .returning();
+
+      return updated[0];
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username, result.slug);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: result.id,
+        slug: result.slug,
+        title: result.title,
+      },
+    };
+  } catch (error) {
+    console.error("Error updating project:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update project",
+    };
+  }
+}
+
+/**
+ * Delete a project with ownership check
+ */
+export async function deleteProject(id: string): Promise<ActionResponse<void>> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+    const username = session.user.username;
+
+    // Validate input
+    const validation = deleteProjectSchema.safeParse({ id });
+    if (!validation.success) {
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
+      };
+    }
+
+    // Use transaction for atomic operation
+    await db.transaction(async (tx) => {
+      // Check ownership before deleting
+      const existing = await tx
+        .select()
+        .from(projectTable)
+        .where(and(eq(projectTable.id, id), eq(projectTable.userId, userId)))
+        .limit(1);
+
+      if (!existing || existing.length === 0) {
+        throw new Error("Project not found or unauthorized");
+      }
+
+      // Delete project
+      await tx.delete(projectTable).where(eq(projectTable.id, id));
+
+      // Reorder remaining projects
+      const remainingProjects = await tx
+        .select()
+        .from(projectTable)
+        .where(eq(projectTable.userId, userId))
+        .orderBy(asc(projectTable.displayOrder));
+
+      // Update display orders to be sequential
+      for (let i = 0; i < remainingProjects.length; i++) {
+        await tx
+          .update(projectTable)
+          .set({ displayOrder: i })
+          .where(eq(projectTable.id, remainingProjects[i].id));
+      }
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
+    }
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete project",
+    };
+  }
+}
 
 /**
  * Update the display order of multiple projects
  */
 export async function updateProjectOrder(
-  projects: Array<{ id: string; displayOrder: number }>,
-  userId: string
-) {
+  projectIds: string[]
+): Promise<ActionResponse<void>> {
   try {
-    console.log("🔄 updateProjectOrder called with:", {
-      projectCount: projects.length,
-      userId,
+    const session = await auth.api.getSession({
+      headers: await headers(),
     });
 
-    // Update each project's display order
-    for (const project of projects) {
-      await db
-        .update(projectTable)
-        .set({
-          displayOrder: project.displayOrder,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(eq(projectTable.id, project.id), eq(projectTable.userId, userId))
-        );
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    console.log("✅ updateProjectOrder completed successfully");
-    revalidatePath("/admin");
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error updating project order:", error);
-    return { error: "Failed to update project order" };
-  }
-}
+    const userId = session.user.id;
+    const username = session.user.username;
 
-/**
- * Fix duplicate display orders for a user's projects
- * This assigns sequential display orders (0, 1, 2, ...) to all projects
- * This function is internal and not exposed in the UI
- */
-export async function fixProjectDisplayOrders(userId: string) {
-  try {
-    console.log("🔧 fixProjectDisplayOrders called for user:", userId);
-
-    // Get all projects for this user
-    const projects = await db
-      .select()
-      .from(project)
-      .where(eq(project.userId, userId));
-
-    console.log("📊 Found projects to fix:", projects.length);
-
-    // Sort them manually (null displayOrder at end, then by displayOrder, then by createdAt)
-    const sortedProjects = [...projects].sort((a, b) => {
-      // Handle null display orders
-      if (a.displayOrder === null && b.displayOrder === null) {
-        return a.createdAt.getTime() - b.createdAt.getTime();
-      }
-      if (a.displayOrder === null) return 1;
-      if (b.displayOrder === null) return -1;
-
-      // Compare by display order
-      if (a.displayOrder !== b.displayOrder) {
-        return a.displayOrder - b.displayOrder;
-      }
-
-      // If display orders are the same, sort by creation date
-      return a.createdAt.getTime() - b.createdAt.getTime();
-    });
-
-    // Update each project with a new sequential display order
-    for (let i = 0; i < sortedProjects.length; i++) {
-      await db
-        .update(project)
-        .set({ displayOrder: i })
-        .where(eq(project.id, sortedProjects[i].id));
-    }
-
-    console.log("✅ fixProjectDisplayOrders completed, revalidating paths");
-    // Revalidate paths
-    revalidatePath("/admin");
-    revalidatePath("/(admin)/admin");
-    revalidatePath("/(public)/[username]");
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error fixing project display orders:", error);
-    return { success: false, message: "Failed to fix project display orders" };
-  }
-}
-
-/**
- * Check if project orders need fixing (have duplicates or nulls)
- */
-async function needsOrderFix(userId: string): Promise<boolean> {
-  // Get all projects for this user
-  const projects = await db
-    .select({ displayOrder: project.displayOrder })
-    .from(project)
-    .where(eq(project.userId, userId));
-
-  // Check for null display orders using isNull for at least one project
-  const nullOrderExists = await db
-    .select({ id: project.id })
-    .from(project)
-    .where(and(eq(project.userId, userId), isNull(project.displayOrder)))
-    .limit(1);
-
-  if (nullOrderExists.length > 0) {
-    return true;
-  }
-
-  // Check for duplicate display orders
-  const orders = projects.map((p) => p.displayOrder).filter((o) => o !== null);
-  const uniqueOrders = new Set(orders);
-
-  // If there are duplicates, we need to fix
-  return orders.length !== uniqueOrders.size;
-}
-
-/**
- * Move a project up in the display order (lower number = higher position)
- */
-export async function moveProjectUp(
-  projectId: string,
-  userId: string,
-  _recursionDepth = 0
-) {
-  try {
-    // Prevent infinite recursion
-    if (_recursionDepth > 1) {
-      console.error("Recursion limit exceeded in moveProjectUp");
+    // Validate input
+    const validation = reorderProjectsSchema.safeParse({ projectIds });
+    if (!validation.success) {
       return {
         success: false,
-        message: "Operation failed due to recursion limit",
+        error: validation.error.errors[0]?.message || "Invalid input",
       };
     }
 
-    // Check if we need to fix display orders first
-    if (await needsOrderFix(userId)) {
-      await fixProjectDisplayOrders(userId);
+    // Use transaction for atomic operation
+    await db.transaction(async (tx) => {
+      // Verify all projects belong to the user
+      const userProjects = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(eq(projectTable.userId, userId));
+
+      const userProjectIds = new Set(userProjects.map(p => p.id));
+      const allProjectsBelongToUser = projectIds.every(id => userProjectIds.has(id));
+
+      if (!allProjectsBelongToUser) {
+        throw new Error("Unauthorized: Not all projects belong to user");
+      }
+
+      // Update each project's display order
+      for (let i = 0; i < projectIds.length; i++) {
+        await tx
+          .update(projectTable)
+          .set({
+            displayOrder: i,
+            updatedAt: new Date(),
+          })
+          .where(and(
+            eq(projectTable.id, projectIds[i]),
+            eq(projectTable.userId, userId)
+          ));
+      }
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
     }
 
-    // Get the current project
-    const currentProject = await db
-      .select()
-      .from(project)
-      .where(and(eq(project.id, projectId), eq(project.userId, userId)))
-      .limit(1);
+    return { success: true, data: undefined };
+  } catch (error) {
+    console.error("Error updating project order:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update project order",
+    };
+  }
+}
 
-    if (!currentProject || currentProject.length === 0) {
-      return { success: false, message: "Project not found" };
+/**
+ * Move a project up in the display order
+ */
+export async function moveProjectUp(projectId: string): Promise<ActionResponse<void>> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const current = currentProject[0];
+    const userId = session.user.id;
+    const username = session.user.username;
 
-    // If display order is null, fix it first (with recursion prevention)
-    if (current.displayOrder === null) {
-      await fixProjectDisplayOrders(userId);
-      return moveProjectUp(projectId, userId, _recursionDepth + 1);
-    }
+    // Use transaction for atomic operation
+    await db.transaction(async (tx) => {
+      // Get current project with ownership check
+      const currentProject = await tx
+        .select()
+        .from(projectTable)
+        .where(and(eq(projectTable.id, projectId), eq(projectTable.userId, userId)))
+        .limit(1);
 
-    // Find the project that is directly above this one in display order
-    const previousProjects = await db
-      .select()
-      .from(project)
-      .where(
-        and(
-          eq(project.userId, userId),
-          lt(project.displayOrder, current.displayOrder || 0)
+      if (!currentProject || currentProject.length === 0) {
+        throw new Error("Project not found or unauthorized");
+      }
+
+      const current = currentProject[0];
+      
+      if (current.displayOrder === null || current.displayOrder === 0) {
+        throw new Error("Project is already at the top");
+      }
+
+      // Find the project directly above
+      const previousProject = await tx
+        .select()
+        .from(projectTable)
+        .where(
+          and(
+            eq(projectTable.userId, userId),
+            eq(projectTable.displayOrder, current.displayOrder - 1)
+          )
         )
-      )
-      .orderBy(desc(project.displayOrder))
-      .limit(1);
+        .limit(1);
 
-    // If there's no project above, this is already at the top
-    if (!previousProjects || previousProjects.length === 0) {
-      return { success: false, message: "Project is already at the top" };
+      if (!previousProject || previousProject.length === 0) {
+        throw new Error("No project found above");
+      }
+
+      // Swap display orders
+      await tx
+        .update(projectTable)
+        .set({ displayOrder: current.displayOrder - 1 })
+        .where(eq(projectTable.id, current.id));
+
+      await tx
+        .update(projectTable)
+        .set({ displayOrder: current.displayOrder })
+        .where(eq(projectTable.id, previousProject[0].id));
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
     }
 
-    const previous = previousProjects[0];
-
-    // Swap the display orders
-    await db
-      .update(project)
-      .set({ displayOrder: previous.displayOrder })
-      .where(eq(project.id, current.id));
-
-    await db
-      .update(project)
-      .set({ displayOrder: current.displayOrder })
-      .where(eq(project.id, previous.id));
-
-    // Revalidate the paths where projects are displayed
-    revalidatePath("/admin");
-    revalidatePath("/(admin)/admin");
-    revalidatePath("/(public)/[username]");
-
-    return { success: true };
+    return { success: true, data: undefined };
   } catch (error) {
     console.error("Error moving project up:", error);
-    return { success: false, message: "Failed to update project order" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to move project",
+    };
   }
 }
 
 /**
- * Move a project down in the display order (higher number = lower position)
+ * Legacy alias for updateProject - used by existing components
  */
-export async function moveProjectDown(
-  projectId: string,
-  userId: string,
-  _recursionDepth = 0
-) {
+export async function editProject(
+  id: string,
+  data: Partial<ProjectData>
+): Promise<ActionResponse<ProjectResult>> {
+  return updateProject(id, data);
+}
+
+/**
+ * Move a project down in the display order
+ */
+export async function moveProjectDown(projectId: string): Promise<ActionResponse<void>> {
   try {
-    // Prevent infinite recursion
-    if (_recursionDepth > 1) {
-      console.error("Recursion limit exceeded in moveProjectDown");
-      return {
-        success: false,
-        message: "Operation failed due to recursion limit",
-      };
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    // Check if we need to fix display orders first
-    if (await needsOrderFix(userId)) {
-      await fixProjectDisplayOrders(userId);
-    }
+    const userId = session.user.id;
+    const username = session.user.username;
 
-    // Get the current project
-    const currentProject = await db
-      .select()
-      .from(project)
-      .where(and(eq(project.id, projectId), eq(project.userId, userId)))
-      .limit(1);
+    // Use transaction for atomic operation
+    await db.transaction(async (tx) => {
+      // Get current project with ownership check
+      const currentProject = await tx
+        .select()
+        .from(projectTable)
+        .where(and(eq(projectTable.id, projectId), eq(projectTable.userId, userId)))
+        .limit(1);
 
-    if (!currentProject || currentProject.length === 0) {
-      return { success: false, message: "Project not found" };
-    }
+      if (!currentProject || currentProject.length === 0) {
+        throw new Error("Project not found or unauthorized");
+      }
 
-    const current = currentProject[0];
+      const current = currentProject[0];
 
-    // If display order is null, fix it first (with recursion prevention)
-    if (current.displayOrder === null) {
-      await fixProjectDisplayOrders(userId);
-      return moveProjectDown(projectId, userId, _recursionDepth + 1);
-    }
+      // Get total count of projects
+      const totalCount = await tx
+        .select({ count: sql<number>`count(*)` })
+        .from(projectTable)
+        .where(eq(projectTable.userId, userId));
 
-    // Find the project that is directly below this one in display order
-    const nextProjects = await db
-      .select()
-      .from(project)
-      .where(
-        and(
-          eq(project.userId, userId),
-          gt(project.displayOrder, current.displayOrder || 0)
+      const maxOrder = totalCount[0].count - 1;
+
+      if (current.displayOrder === null || current.displayOrder >= maxOrder) {
+        throw new Error("Project is already at the bottom");
+      }
+
+      // Find the project directly below
+      const nextProject = await tx
+        .select()
+        .from(projectTable)
+        .where(
+          and(
+            eq(projectTable.userId, userId),
+            eq(projectTable.displayOrder, current.displayOrder + 1)
+          )
         )
-      )
-      .orderBy(asc(project.displayOrder))
-      .limit(1);
+        .limit(1);
 
-    // If there's no project below, this is already at the bottom
-    if (!nextProjects || nextProjects.length === 0) {
-      return { success: false, message: "Project is already at the bottom" };
+      if (!nextProject || nextProject.length === 0) {
+        throw new Error("No project found below");
+      }
+
+      // Swap display orders
+      await tx
+        .update(projectTable)
+        .set({ displayOrder: current.displayOrder + 1 })
+        .where(eq(projectTable.id, current.id));
+
+      await tx
+        .update(projectTable)
+        .set({ displayOrder: current.displayOrder })
+        .where(eq(projectTable.id, nextProject[0].id));
+    });
+
+    // Revalidate paths
+    if (username) {
+      const paths = REVALIDATION_PATHS.project(username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
     }
 
-    const next = nextProjects[0];
-
-    // Swap the display orders
-    await db
-      .update(project)
-      .set({ displayOrder: next.displayOrder })
-      .where(eq(project.id, current.id));
-
-    await db
-      .update(project)
-      .set({ displayOrder: current.displayOrder })
-      .where(eq(project.id, next.id));
-
-    // Revalidate the paths where projects are displayed
-    revalidatePath("/admin");
-    revalidatePath("/(admin)/admin");
-    revalidatePath("/(public)/[username]");
-
-    return { success: true };
+    return { success: true, data: undefined };
   } catch (error) {
     console.error("Error moving project down:", error);
-    return { success: false, message: "Failed to update project order" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to move project",
+    };
   }
 }

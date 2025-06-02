@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { Logo } from "@/components/logo";
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
   const session = await getSession();
 
@@ -12,8 +14,8 @@ export default async function OnboardingPage() {
   }
 
   // Check if user already has a profile
-  const existingProfile = await getProfileByUserId(session.user.id);
-  if (existingProfile) {
+  const profileResult = await getProfileByUserId(session.user.id);
+  if (profileResult.success && profileResult.data) {
     redirect("/admin");
   }
 

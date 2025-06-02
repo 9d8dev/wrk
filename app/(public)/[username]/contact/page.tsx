@@ -16,17 +16,21 @@ type Props = {
 // Metadata Generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  const profile = await getProfileByUsername(username);
-  const user = await getUserByUsername(username);
+  const profileResult = await getProfileByUsername(username);
+  const userResult = await getUserByUsername(username);
 
-  // Get profile image if available
-  let profileImage = null;
-  if (profile?.profileImageId) {
-    const { getMediaById } = await import("@/lib/data/media");
-    profileImage = await getMediaById(profile.profileImageId);
+  if (!userResult.success || !userResult.data) {
+    return {
+      title: "Contact | Wrk.so",
+      description: "Get in touch via Wrk.so.",
+    };
   }
 
-  const imageSrc = profileImage?.media?.url || user.image || null;
+  const user = userResult.data;
+  const profile = profileResult.success ? profileResult.data?.profile : null;
+  const profileImage = profileResult.success ? profileResult.data?.profileImage : null;
+
+  const imageSrc = profileImage?.url || user.image || null;
 
   return {
     title: `Contact ${user.name} | ${profile?.title || "Wrk.so"}`,
@@ -64,11 +68,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ContactPage({ params }: Props) {
   const { username } = await params;
 
-  const user = await getUserByUsername(username);
+  const userResult = await getUserByUsername(username);
 
-  if (!user) {
+  if (!userResult.success || !userResult.data) {
     return notFound();
   }
+
+  const user = userResult.data;
 
   return (
     <>

@@ -103,11 +103,13 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       // If user needs username, update it first
       if (needsUsername && values.username) {
         const { updateUsername } = await import("@/lib/actions/profile");
-        await updateUsername(user.id, values.username);
+        const usernameResult = await updateUsername(values.username);
+        if (!usernameResult.success) {
+          throw new Error(usernameResult.error);
+        }
       }
 
-      await createProfile({
-        userId: user.id,
+      const profileResult = await createProfile({
         profileData: {
           title: values.title,
           bio: values.bio || null,
@@ -115,6 +117,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
         },
         profileImageFormData: formData,
       });
+      
+      if (!profileResult.success) {
+        throw new Error(profileResult.error);
+      }
 
       toast.success("Profile created successfully!");
       router.push("/admin");
