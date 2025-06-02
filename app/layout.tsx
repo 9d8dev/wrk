@@ -1,6 +1,8 @@
 import "./globals.css";
+import "lenis/dist/lenis.css";
 
 import { Inter as FontSans, Geist_Mono as FontMono } from "next/font/google";
+import { LenisProvider } from "@/components/providers/lenis-provider";
 import { Analytics } from "@vercel/analytics/next";
 
 import type { Metadata } from "next";
@@ -30,7 +32,7 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
-        {children}
+        <LenisProvider>{children}</LenisProvider>
         <Analytics />
       </body>
     </html>
