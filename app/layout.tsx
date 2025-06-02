@@ -1,7 +1,7 @@
 import "./globals.css";
 import "lenis/dist/lenis.css";
 
-import { Inter as FontSans, Geist_Mono as FontMono } from "next/font/google";
+import { Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 
 import type { Metadata } from "next";

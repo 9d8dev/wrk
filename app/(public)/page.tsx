@@ -16,9 +16,9 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-accent">
+    <main className="h-screen overflow-hidden flex flex-col bg-accent font-mono">
       <nav>
-        <Section>
+        <Section className="!p-0">
           <Container>
             <div className="flex justify-between items-center gap-4">
               <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export default async function Home() {
 
       {/* Footer */}
       <footer>
-        <Section>
+        <Section className="!p-0">
           <Container>
             <div className="flex justify-between items-center gap-4">
               <p className="text-sm text-muted-foreground">
