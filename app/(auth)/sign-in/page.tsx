@@ -1,12 +1,23 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, UserCircle, Hash } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  UserCircle,
+  Hash,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { GoogleIcon } from "@/components/icons/google";
 import { GitHubIcon } from "@/components/icons/github";
 import { Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/logo";
+import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
 
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, Suspense } from "react";
@@ -310,6 +321,12 @@ const SignUpForm = () => {
   const [usernameError, setUsernameError] = useState("");
   const router = useRouter();
 
+  // Username availability checking
+  const usernameAvailability = useUsernameAvailability(username);
+
+  // Password strength checking
+  const passwordStrength = usePasswordStrength(password);
+
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow letters, numbers, underscores, and hyphens
@@ -326,6 +343,14 @@ const SignUpForm = () => {
       setUsernameError("");
     }
   };
+
+  // Determine if form is valid for submission
+  const isFormValid =
+    username.length >= 3 &&
+    email.length > 0 &&
+    passwordStrength.score >= 3 && // Require at least "fair" password
+    usernameAvailability.isAvailable === true &&
+    !usernameError;
 
   return (
     <Container className="space-y-4">
@@ -401,15 +426,41 @@ const SignUpForm = () => {
           autoComplete="name"
           onChange={(e) => setName(e.target.value)}
         />
-        <Input
-          placeholder="Username"
-          type="text"
-          name="username"
-          icon={<Hash size={16} />}
-          value={username}
-          autoComplete="username"
-          onChange={handleUsernameChange}
-        />
+        <div className="relative">
+          <Input
+            placeholder="Username"
+            type="text"
+            name="username"
+            icon={<Hash size={16} />}
+            value={username}
+            autoComplete="username"
+            onChange={handleUsernameChange}
+            className={
+              username.length >= 3
+                ? usernameAvailability.isAvailable === true
+                  ? "border-green-500 pr-10"
+                  : usernameAvailability.isAvailable === false
+                  ? "border-red-500 pr-10"
+                  : "pr-10"
+                : ""
+            }
+          />
+
+          {/* Username availability indicator */}
+          {username.length >= 3 && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              {usernameAvailability.isChecking ? (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              ) : usernameAvailability.isAvailable === true ? (
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              ) : usernameAvailability.isAvailable === false ? (
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        {/* Username feedback messages */}
         {usernameError && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -419,6 +470,30 @@ const SignUpForm = () => {
             {usernameError}
           </motion.div>
         )}
+
+        {/* Username availability feedback */}
+        {username.length >= 3 &&
+          !usernameError &&
+          usernameAvailability.message && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`text-sm p-2 rounded-md ${
+                usernameAvailability.isAvailable === true
+                  ? "bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200"
+                  : usernameAvailability.isAvailable === false
+                  ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
+                  : "bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200"
+              }`}
+            >
+              {usernameAvailability.message}
+              {usernameAvailability.isAvailable === true && (
+                <span className="block text-xs mt-1 opacity-75">
+                  Your portfolio will be available at wrk.so/{username}
+                </span>
+              )}
+            </motion.div>
+          )}
         <Input
           placeholder="Email"
           type="email"
@@ -428,15 +503,82 @@ const SignUpForm = () => {
           autoComplete="email"
           onChange={(e) => setEmail(e.target.value)}
         />
-        <Input
-          placeholder="Password"
-          type="password"
-          name="password"
-          icon={<Lock size={16} />}
-          value={password}
-          autoComplete="new-password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="space-y-2">
+          <Input
+            placeholder="Password"
+            type="password"
+            name="password"
+            icon={<Lock size={16} />}
+            value={password}
+            autoComplete="new-password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {/* Password strength indicator */}
+          {password && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-2"
+            >
+              {/* Strength bar */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Password strength
+                  </span>
+                  <span
+                    className={`capitalize ${
+                      passwordStrength.color === "green"
+                        ? "text-green-600"
+                        : passwordStrength.color === "blue"
+                        ? "text-blue-600"
+                        : passwordStrength.color === "yellow"
+                        ? "text-yellow-600"
+                        : passwordStrength.color === "orange"
+                        ? "text-orange-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {passwordStrength.strength.replace("-", " ")}
+                  </span>
+                </div>
+                <div className="flex space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-2 flex-1 rounded-full ${
+                        i < passwordStrength.score
+                          ? passwordStrength.color === "green"
+                            ? "bg-green-500"
+                            : passwordStrength.color === "blue"
+                            ? "bg-blue-500"
+                            : passwordStrength.color === "yellow"
+                            ? "bg-yellow-500"
+                            : passwordStrength.color === "orange"
+                            ? "bg-orange-500"
+                            : "bg-red-500"
+                          : "bg-gray-200 dark:bg-gray-700"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Feedback */}
+              {passwordStrength.feedback.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  <p className="mb-1">To strengthen your password:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    {passwordStrength.feedback.slice(0, 3).map((tip, i) => (
+                      <li key={i}>{tip}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -446,8 +588,20 @@ const SignUpForm = () => {
             {error}
           </motion.div>
         )}
-        <Button type="submit" className="mt-2" disabled={isLoading}>
-          Sign Up
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={isLoading || !isFormValid}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating account...
+            </>
+          ) : (
+            "Create account"
+          )}
         </Button>
       </motion.form>
 
