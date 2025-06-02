@@ -15,7 +15,7 @@ import { GitHubIcon } from "@/components/icons/github";
 import { Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Logo } from "@/components/logo";
+
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
 import { usePasswordStrength } from "@/hooks/use-password-strength";
 
@@ -51,7 +51,7 @@ function SignInPageContent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0"
+        className="w-full max-w-md mx-auto sm:mt-12 p-4 sm:p-0"
       >
         <Tabs
           value={activeTab}
@@ -261,7 +261,7 @@ const SignInForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/admin",
+                callbackURL: "/username-setup",
               });
             } catch (error) {
               console.error("Google sign in error:", error);
@@ -282,7 +282,7 @@ const SignInForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "github",
-                callbackURL: "/admin",
+                callbackURL: "/username-setup",
               });
             } catch (error) {
               console.error("GitHub sign in error:", error);
@@ -630,7 +630,7 @@ const SignUpForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/onboarding",
+                callbackURL: "/username-setup",
               });
             } catch (error) {
               console.error("Google sign up error:", error);
@@ -651,7 +651,7 @@ const SignUpForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "github",
-                callbackURL: "/onboarding",
+                callbackURL: "/username-setup",
               });
             } catch (error) {
               console.error("GitHub sign up error:", error);
