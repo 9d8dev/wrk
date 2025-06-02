@@ -18,7 +18,8 @@ function ErrorFallback({ error }: { error: Error }) {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Something went wrong</AlertTitle>
         <AlertDescription>
-          {error.message || "An unexpected error occurred. Please try refreshing the page."}
+          {error.message ||
+            "An unexpected error occurred. Please try refreshing the page."}
         </AlertDescription>
       </Alert>
     </div>
@@ -52,13 +53,15 @@ export default async function AdminLayout({
     }
 
     // Get the first product info for the upgrade plan
-    const productInfo = polarConfig.products[0] ? {
-      slug: polarConfig.products[0].slug,
-      name: polarConfig.products[0].name,
-      description: polarConfig.products[0].description,
-      features: polarConfig.products[0].features,
-      price: polarConfig.products[0].price,
-    } : undefined;
+    const productInfo = polarConfig.products[0]
+      ? {
+          slug: polarConfig.products[0].slug,
+          name: polarConfig.products[0].name,
+          description: polarConfig.products[0].description,
+          features: polarConfig.products[0].features,
+          price: polarConfig.products[0].price,
+        }
+      : undefined;
 
     // Validate required user fields
     const userName = session.user.name || "User";
@@ -82,12 +85,12 @@ export default async function AdminLayout({
     );
   } catch (error) {
     console.error("Admin layout error:", error);
-    
+
     // If it's a redirect error, re-throw it
     if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }
-    
+
     // Otherwise show error fallback
     return <ErrorFallback error={error as Error} />;
   }

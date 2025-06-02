@@ -1,7 +1,9 @@
+import { LenisProvider } from "@/components/providers/lenis-provider";
+
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <LenisProvider>{children}</LenisProvider>;
 }
