@@ -8,7 +8,7 @@ import {
   updateUserPolarCustomerId,
   logSubscriptionEvent,
 } from "@/lib/actions/subscription";
-import type { PolarWebhookEventType } from "@/lib/types/polar-webhook-types";
+import type { PolarWebhookEventType } from "@/types/polar-webhook-types";
 
 // Verify webhook signature
 async function verifyWebhookSignature(
