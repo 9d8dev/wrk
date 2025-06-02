@@ -3,10 +3,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, UserCircle, Hash } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/google";
+import { GitHubIcon } from "@/components/icons/github";
 import { Container } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Logo } from "@/components/logo";
 
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, Suspense } from "react";
@@ -42,8 +42,6 @@ function SignInPageContent() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0"
       >
-        <Logo className="text-background mb-8" />
-
         <Tabs
           value={activeTab}
           defaultValue="sign-in"
@@ -102,9 +100,6 @@ export default function SignInPage() {
     <Suspense
       fallback={
         <main className="h-screen w-screen relative overflow-hidden">
-          <div className="w-full max-w-md mx-auto sm:mt-[6rem] xl:mt-[12rem] p-4 sm:p-0">
-            <Logo className="text-background mb-8" />
-          </div>
           <Image
             src={Water}
             alt="Water"
@@ -234,7 +229,7 @@ const SignInForm = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.35 }}
-        className="space-y-4"
+        className="space-y-2"
       >
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -266,6 +261,27 @@ const SignInForm = () => {
         >
           <GoogleIcon className="mr-2 h-4 w-4" />
           Continue with Google
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={async () => {
+            try {
+              await authClient.signIn.social({
+                provider: "github",
+                callbackURL: "/admin",
+              });
+            } catch (error) {
+              console.error("GitHub sign in error:", error);
+              toast.error("Failed to sign in with GitHub");
+            }
+          }}
+          disabled={isLoading}
+        >
+          <GitHubIcon className="mr-2 h-4 w-4" />
+          Continue with GitHub
         </Button>
       </motion.div>
 
@@ -439,7 +455,7 @@ const SignUpForm = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.35 }}
-        className="space-y-4"
+        className="space-y-2"
       >
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -471,6 +487,27 @@ const SignUpForm = () => {
         >
           <GoogleIcon className="mr-2 h-4 w-4" />
           Continue with Google
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={async () => {
+            try {
+              await authClient.signIn.social({
+                provider: "github",
+                callbackURL: "/onboarding",
+              });
+            } catch (error) {
+              console.error("GitHub sign up error:", error);
+              toast.error("Failed to sign up with GitHub");
+            }
+          }}
+          disabled={isLoading}
+        >
+          <GitHubIcon className="mr-2 h-4 w-4" />
+          Continue with GitHub
         </Button>
       </motion.div>
 
