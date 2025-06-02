@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,10 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
-import { generateUsernameSuggestions } from "@/lib/utils/username";
+
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 
 interface UsernameSelectionProps {
   initialUsername: string;
