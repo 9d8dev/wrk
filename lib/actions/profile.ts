@@ -6,9 +6,12 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/actions/media";
 import { nanoid } from "nanoid";
+import { ActionResponse, REVALIDATION_PATHS } from "./utils";
+import { updateProfileSchema } from "./schemas";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 type UpdateProfileParams = {
-  userId: string;
   profileData: {
     bio: string | null;
     location: string | null;
@@ -25,115 +28,169 @@ type UpdateProfileParams = {
   profileImageFormData?: FormData | null;
 };
 
-export async function updateProfile({
-  userId,
-  profileData,
-  userData,
-  socialLinks = [],
-  profileImageFormData,
-}: UpdateProfileParams) {
+type ProfileResult = {
+  profileId: string;
+  username: string;
+};
+
+/**
+ * Update user profile with validation and transactions
+ */
+export async function updateProfile(
+  params: UpdateProfileParams
+): Promise<ActionResponse<ProfileResult>> {
   try {
-    // Update user data
-    await db
-      .update(user)
-      .set({
-        name: userData.name,
-        username: userData.username,
-        email: userData.email,
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, userId));
+    // Get session
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-    // Check if profile exists
-    const existingProfile = await db
-      .select()
-      .from(profile)
-      .where(eq(profile.userId, userId))
-      .limit(1);
-
-    let profileId: string;
-
-    if (existingProfile.length > 0) {
-      // Update existing profile
-      profileId = existingProfile[0].id;
-
-      await db
-        .update(profile)
-        .set({
-          bio: profileData.bio,
-          location: profileData.location,
-          updatedAt: new Date(),
-        })
-        .where(eq(profile.id, profileId));
-    } else {
-      // Create new profile
-      profileId = crypto.randomUUID();
-
-      await db.insert(profile).values({
-        id: profileId,
-        userId,
-        bio: profileData.bio,
-        location: profileData.location,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    // Handle profile image upload if provided
-    if (profileImageFormData) {
-      const imageResult = await uploadImage(profileImageFormData);
+    const userId = session.user.id;
 
-      if (imageResult.success && imageResult.mediaId) {
-        // Update profile with new image ID
-        await db
-          .update(profile)
-          .set({
-            profileImageId: imageResult.mediaId,
-            updatedAt: new Date(),
-          })
-          .where(eq(profile.id, profileId));
+    // Validate input
+    const validation = updateProfileSchema.safeParse({
+      name: params.userData.name,
+      username: params.userData.username,
+      bio: params.profileData.bio,
+      socialLinks: params.socialLinks?.map((link, index) => ({
+        ...link,
+        displayOrder: index,
+      })),
+    });
+
+    if (!validation.success) {
+      return { 
+        success: false, 
+        error: validation.error.errors[0]?.message || "Invalid input" 
+      };
+    }
+
+    // Check username availability if changed
+    if (params.userData.username !== session.user.username) {
+      const existingUser = await db
+        .select()
+        .from(user)
+        .where(eq(user.username, params.userData.username))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        return { success: false, error: "Username is already taken" };
       }
     }
 
-    // Handle social links
-    if (socialLinks && socialLinks.length > 0) {
-      // First, delete all existing social links for this profile
-      await db.delete(socialLink).where(eq(socialLink.profileId, profileId));
+    // Use transaction for atomic updates
+    const result = await db.transaction(async (tx) => {
+      // Update user data
+      await tx
+        .update(user)
+        .set({
+          name: params.userData.name,
+          username: params.userData.username,
+          email: params.userData.email,
+          displayUsername: params.userData.username,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
 
-      // Then insert new social links
-      const now = new Date();
+      // Check if profile exists
+      const existingProfile = await tx
+        .select()
+        .from(profile)
+        .where(eq(profile.userId, userId))
+        .limit(1);
 
-      for (let i = 0; i < socialLinks.length; i++) {
-        const link = socialLinks[i];
+      let profileId: string;
 
-        if (link.platform && link.url) {
-          await db.insert(socialLink).values({
-            id: crypto.randomUUID(),
+      if (existingProfile.length > 0) {
+        // Update existing profile
+        profileId = existingProfile[0].id;
+
+        await tx
+          .update(profile)
+          .set({
+            bio: params.profileData.bio,
+            location: params.profileData.location,
+            updatedAt: new Date(),
+          })
+          .where(eq(profile.id, profileId));
+      } else {
+        // Create new profile
+        profileId = nanoid();
+
+        await tx.insert(profile).values({
+          id: profileId,
+          userId,
+          bio: params.profileData.bio,
+          location: params.profileData.location,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
+      // Handle profile image upload if provided
+      if (params.profileImageFormData) {
+        const imageResult = await uploadImage(params.profileImageFormData);
+
+        if (imageResult.success && imageResult.mediaId) {
+          // Update profile with new image ID
+          await tx
+            .update(profile)
+            .set({
+              profileImageId: imageResult.mediaId,
+              updatedAt: new Date(),
+            })
+            .where(eq(profile.id, profileId));
+        }
+      }
+
+      // Handle social links
+      if (params.socialLinks && params.socialLinks.length > 0) {
+        // First, delete all existing social links for this profile
+        await tx.delete(socialLink).where(eq(socialLink.profileId, profileId));
+
+        // Then insert new social links
+        const now = new Date();
+        const socialLinkValues = params.socialLinks
+          .filter(link => link.platform && link.url)
+          .map((link, i) => ({
+            id: nanoid(),
             profileId,
             platform: link.platform,
             url: link.url,
             displayOrder: i,
             createdAt: now,
             updatedAt: now,
-          });
+          }));
+
+        if (socialLinkValues.length > 0) {
+          await tx.insert(socialLink).values(socialLinkValues);
         }
       }
+
+      return { profileId, username: params.userData.username };
+    });
+
+    // Revalidate paths
+    const paths = REVALIDATION_PATHS.profile(result.username);
+    for (const path of paths) {
+      revalidatePath(path);
     }
 
-    revalidatePath("/admin/profile");
-    revalidatePath("/admin");
-    revalidatePath("/(admin)/admin");
-    revalidatePath(`/${userData.username}`);
-    revalidatePath("/(public)/[username]");
-    return { success: true };
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error updating profile:", error);
-    throw new Error("Failed to update profile");
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to update profile" 
+    };
   }
 }
 
 type CreateProfileParams = {
-  userId: string;
   profileData: {
     title?: string;
     bio: string | null;
@@ -142,64 +199,114 @@ type CreateProfileParams = {
   profileImageFormData?: FormData | null;
 };
 
-export async function createProfile({
-  userId,
-  profileData,
-  profileImageFormData,
-}: CreateProfileParams) {
+/**
+ * Create a new profile for the authenticated user
+ */
+export async function createProfile(
+  params: CreateProfileParams
+): Promise<ActionResponse<ProfileResult>> {
   try {
-    // Check if profile already exists
-    const existingProfile = await db
-      .select()
-      .from(profile)
-      .where(eq(profile.userId, userId))
-      .limit(1);
-
-    if (existingProfile.length > 0) {
-      throw new Error("Profile already exists");
-    }
-
-    // Create profile ID
-    const profileId = nanoid();
-
-    // Handle profile image upload if provided
-    let profileImageId: string | null = null;
-    if (profileImageFormData) {
-      const imageResult = await uploadImage(profileImageFormData);
-      if (imageResult.success && imageResult.mediaId) {
-        profileImageId = imageResult.mediaId;
-      }
-    }
-
-    // Create new profile
-    await db.insert(profile).values({
-      id: profileId,
-      userId,
-      title: profileData.title || null,
-      bio: profileData.bio,
-      location: profileData.location,
-      profileImageId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    // Get session
+    const session = await auth.api.getSession({
+      headers: await headers(),
     });
 
-    revalidatePath("/admin");
-    revalidatePath("/(admin)/admin");
-    revalidatePath("/onboarding");
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
 
-    return { success: true, profileId };
+    const userId = session.user.id;
+    const username = session.user.username || session.user.email;
+
+    // Use transaction for atomic operation
+    const result = await db.transaction(async (tx) => {
+      // Check if profile already exists
+      const existingProfile = await tx
+        .select()
+        .from(profile)
+        .where(eq(profile.userId, userId))
+        .limit(1);
+
+      if (existingProfile.length > 0) {
+        throw new Error("Profile already exists");
+      }
+
+      // Create profile ID
+      const profileId = nanoid();
+
+      // Handle profile image upload if provided
+      let profileImageId: string | null = null;
+      if (params.profileImageFormData) {
+        const imageResult = await uploadImage(params.profileImageFormData);
+        if (imageResult.success && imageResult.mediaId) {
+          profileImageId = imageResult.mediaId;
+        }
+      }
+
+      // Create new profile
+      await tx.insert(profile).values({
+        id: profileId,
+        userId,
+        title: params.profileData.title || null,
+        bio: params.profileData.bio,
+        location: params.profileData.location,
+        profileImageId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      return { profileId, username };
+    });
+
+    // Revalidate paths
+    revalidatePath("/admin");
+    revalidatePath("/onboarding");
+    if (result.username) {
+      revalidatePath(`/${result.username}`);
+    }
+
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error creating profile:", error);
-    throw new Error("Failed to create profile");
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to create profile" 
+    };
   }
 }
 
-export async function updateUsername(userId: string, username: string) {
+/**
+ * Update username with validation
+ */
+export async function updateUsername(
+  newUsername: string
+): Promise<ActionResponse<{ username: string }>> {
   try {
-    // Validate username
+    // Get session
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+    const oldUsername = session.user.username;
+
+    // Validate username format
+    const validation = updateProfileSchema.shape.username.safeParse(newUsername);
+    if (!validation.success) {
+      return { 
+        success: false, 
+        error: validation.error.errors[0]?.message || "Invalid username" 
+      };
+    }
+
+    // Check reserved usernames
     const reservedUsernames = [
       "admin",
-      "posts",
+      "posts", 
       "privacy-policy",
       "terms-of-use",
       "about",
@@ -211,40 +318,46 @@ export async function updateUsername(userId: string, username: string) {
       "sign-out",
     ];
 
-    if (reservedUsernames.includes(username.toLowerCase())) {
-      throw new Error("This username is reserved");
+    if (reservedUsernames.includes(newUsername.toLowerCase())) {
+      return { success: false, error: "This username is reserved" };
     }
 
     // Check if username is already taken
     const existingUser = await db
       .select()
       .from(user)
-      .where(eq(user.username, username))
+      .where(eq(user.username, newUsername))
       .limit(1);
 
     if (existingUser.length > 0) {
-      throw new Error("Username is already taken");
+      return { success: false, error: "Username is already taken" };
     }
 
     // Update username
     await db
       .update(user)
       .set({
-        username,
-        displayUsername: username,
+        username: newUsername,
+        displayUsername: newUsername,
         updatedAt: new Date(),
       })
       .where(eq(user.id, userId));
 
-    // Revalidate paths since username change affects public profile URL
-    revalidatePath("/admin");
-    revalidatePath("/admin/profile");
-    revalidatePath(`/${username}`);
-    revalidatePath("/(public)/[username]");
+    // Revalidate paths
+    if (oldUsername) {
+      revalidatePath(`/${oldUsername}`);
+    }
+    const paths = REVALIDATION_PATHS.profile(newUsername);
+    for (const path of paths) {
+      revalidatePath(path);
+    }
 
-    return { success: true };
+    return { success: true, data: { username: newUsername } };
   } catch (error) {
     console.error("Error updating username:", error);
-    throw error;
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to update username" 
+    };
   }
 }

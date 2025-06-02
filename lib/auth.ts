@@ -2,7 +2,13 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
-import { polar, checkout, portal, usage, webhooks } from "@polar-sh/better-auth";
+import {
+  polar,
+  checkout,
+  portal,
+  usage,
+  webhooks,
+} from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { db } from "@/db/drizzle";
 import { polarConfig } from "@/lib/config/polar";
@@ -19,7 +25,7 @@ import * as schema from "@/db/schema";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
-  server: 'production', // Use 'sandbox' for testing
+  server: "production", // Use 'sandbox' for testing
 });
 
 export const auth = betterAuth({
@@ -87,7 +93,7 @@ export const auth = betterAuth({
       createCustomerOnSignUp: true,
       use: [
         checkout({
-          products: polarConfig.products.map(p => ({
+          products: polarConfig.products.map((p) => ({
             productId: p.productId,
             slug: p.slug,
           })),
@@ -100,7 +106,7 @@ export const auth = betterAuth({
           secret: process.env.POLAR_WEBHOOK_SECRET!,
           onCustomerCreated: async (payload) => {
             console.log("Customer created:", payload);
-            
+
             // Find user by email and update their Polar customer ID
             if (payload.data.email) {
               const existingUser = await getUserByEmail(payload.data.email);
@@ -114,22 +120,33 @@ export const auth = betterAuth({
           },
           onSubscriptionCreated: async (payload) => {
             console.log("Subscription created:", payload);
-            
+
             // Find user by Polar customer ID - safely access properties
-            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
-            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
+            const customerId =
+              payload.data.customerId ||
+              ((payload.data as Record<string, unknown>).customer_id as string);
+            const existingUser = customerId
+              ? await getUserByPolarCustomerId(customerId)
+              : null;
             if (existingUser) {
-              const productId = payload.data.productId || (payload.data as Record<string, unknown>).product_id as string;
-              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
-              
+              const productId =
+                payload.data.productId ||
+                ((payload.data as Record<string, unknown>)
+                  .product_id as string);
+              const currentPeriodEnd =
+                payload.data.currentPeriodEnd ||
+                (payload.data as Record<string, unknown>).current_period_end;
+
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
                 subscriptionStatus: payload.data.status,
                 subscriptionProductId: productId,
-                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
+                currentPeriodEnd: currentPeriodEnd
+                  ? new Date(currentPeriodEnd as string | Date)
+                  : undefined,
               });
-              
+
               await logSubscriptionEvent({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
@@ -140,22 +157,33 @@ export const auth = betterAuth({
           },
           onSubscriptionActive: async (payload) => {
             console.log("Subscription activated:", payload);
-            
+
             // Update user's subscription to active status - safely access properties
-            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
-            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
+            const customerId =
+              payload.data.customerId ||
+              ((payload.data as Record<string, unknown>).customer_id as string);
+            const existingUser = customerId
+              ? await getUserByPolarCustomerId(customerId)
+              : null;
             if (existingUser) {
-              const productId = payload.data.productId || (payload.data as Record<string, unknown>).product_id as string;
-              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
-              
+              const productId =
+                payload.data.productId ||
+                ((payload.data as Record<string, unknown>)
+                  .product_id as string);
+              const currentPeriodEnd =
+                payload.data.currentPeriodEnd ||
+                (payload.data as Record<string, unknown>).current_period_end;
+
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
                 subscriptionStatus: "active",
                 subscriptionProductId: productId,
-                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
+                currentPeriodEnd: currentPeriodEnd
+                  ? new Date(currentPeriodEnd as string | Date)
+                  : undefined,
               });
-              
+
               await logSubscriptionEvent({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
@@ -166,19 +194,27 @@ export const auth = betterAuth({
           },
           onSubscriptionCanceled: async (payload) => {
             console.log("Subscription canceled:", payload);
-            
+
             // Update subscription status to canceled - safely access properties
-            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
-            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
+            const customerId =
+              payload.data.customerId ||
+              ((payload.data as Record<string, unknown>).customer_id as string);
+            const existingUser = customerId
+              ? await getUserByPolarCustomerId(customerId)
+              : null;
             if (existingUser) {
-              const currentPeriodEnd = payload.data.currentPeriodEnd || (payload.data as Record<string, unknown>).current_period_end;
-              
+              const currentPeriodEnd =
+                payload.data.currentPeriodEnd ||
+                (payload.data as Record<string, unknown>).current_period_end;
+
               await updateUserSubscription({
                 userId: existingUser.id,
                 subscriptionStatus: "canceled",
-                currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd as string | Date) : undefined,
+                currentPeriodEnd: currentPeriodEnd
+                  ? new Date(currentPeriodEnd as string | Date)
+                  : undefined,
               });
-              
+
               await logSubscriptionEvent({
                 userId: existingUser.id,
                 subscriptionId: payload.data.id,
@@ -189,11 +225,18 @@ export const auth = betterAuth({
           },
           onOrderPaid: async (payload) => {
             console.log("Order paid:", payload);
-            
+
             // Log successful payment - safely access properties
-            const customerId = payload.data.customerId || (payload.data as Record<string, unknown>).customer_id as string;
-            const subscriptionId = payload.data.subscriptionId || (payload.data as Record<string, unknown>).subscription_id as string;
-            const existingUser = customerId ? await getUserByPolarCustomerId(customerId) : null;
+            const customerId =
+              payload.data.customerId ||
+              ((payload.data as Record<string, unknown>).customer_id as string);
+            const subscriptionId =
+              payload.data.subscriptionId ||
+              ((payload.data as Record<string, unknown>)
+                .subscription_id as string);
+            const existingUser = customerId
+              ? await getUserByPolarCustomerId(customerId)
+              : null;
             if (existingUser && subscriptionId) {
               await logSubscriptionEvent({
                 userId: existingUser.id,

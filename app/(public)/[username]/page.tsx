@@ -28,20 +28,33 @@ type Props = {
 
 // SSG
 export async function generateStaticParams() {
-  const users = await getAllUsers();
-  return users.map((user) => ({ username: user.username }));
+  const usersResult = await getAllUsers();
+  if (!usersResult.success) {
+    return [];
+  }
+  return usersResult.data.items.map((user) => ({ username: user.username }));
 }
 
 // Metadata Generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  const profile = await getProfileByUsername(username);
-  const user = await getUserByUsername(username);
+  const profileResult = await getProfileByUsername(username);
+  const userResult = await getUserByUsername(username);
+
+  if (!userResult.success || !userResult.data) {
+    return {
+      title: "Portfolio | Wrk.so",
+      description: "Portfolio created using Wrk.so.",
+    };
+  }
+
+  const user = userResult.data;
+  const profile = profileResult.success ? profileResult.data : null;
 
   return {
-    title: `${user.name} | ${profile?.title || "Wrk.so"}`,
+    title: `${user.name} | ${profile?.profile.title || "Wrk.so"}`,
     description:
-      profile?.bio ||
+      profile?.profile.bio ||
       `Collection of works created by ${user.name}. Portfolio created using Wrk.so.`,
   };
 }
@@ -50,9 +63,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PortfolioPage({ params }: Props) {
   const { username } = await params;
 
-  const allProjects = await getProjectsByUsername(username);
+  const projectsResult = await getProjectsByUsername(username);
 
-  if (!allProjects) {
+  if (!projectsResult.success || projectsResult.data.items.length === 0) {
     return notFound();
   }
 
@@ -61,9 +74,13 @@ export default async function PortfolioPage({ params }: Props) {
   const gridType = userTheme?.gridType || "masonry"; // Default to masonry
 
   const projects = await Promise.all(
-    allProjects.map(async (project) => {
-      const featuredImage = await getFeaturedImageByProjectId(project.id);
-      const allImages = await getAllProjectImages(project.id);
+    projectsResult.data.items.map(async (project) => {
+      const featuredImageResult = await getFeaturedImageByProjectId(project.id);
+      const allImagesResult = await getAllProjectImages(project.id);
+      
+      const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+      const allImages = allImagesResult.success ? allImagesResult.data : [];
+      
       return { project, featuredImage, allImages };
     })
   );

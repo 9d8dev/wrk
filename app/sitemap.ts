@@ -19,34 +19,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const users = await getAllUsers();
+  const usersResult = await getAllUsers();
   const allUrls: MetadataRoute.Sitemap = [...baseUrls];
 
-  for (const user of users) {
-    allUrls.push({
-      url: `https://wrk.so/${user.username}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.9,
-    });
+  if (usersResult.success) {
+    for (const user of usersResult.data.items) {
+      allUrls.push({
+        url: `https://wrk.so/${user.username}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.9,
+      });
 
-    allUrls.push({
-      url: `https://wrk.so/${user.username}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    });
+      allUrls.push({
+        url: `https://wrk.so/${user.username}/contact`,
+        lastModified: new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      });
 
-    const projects = await getProjectsByUsername(user.username);
+      const projectsResult = await getProjectsByUsername(user.username);
 
-    if (projects) {
-      for (const project of projects) {
-        allUrls.push({
-          url: `https://wrk.so/${user.username}/${project.slug}`,
-          lastModified: new Date(),
-          changeFrequency: "weekly" as const,
-          priority: 0.8,
-        });
+      if (projectsResult.success) {
+        for (const project of projectsResult.data.items) {
+          allUrls.push({
+            url: `https://wrk.so/${user.username}/${project.slug}`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.8,
+          });
+        }
       }
     }
   }

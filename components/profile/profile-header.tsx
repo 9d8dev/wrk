@@ -3,7 +3,6 @@ import { ProfileNav } from "@/components/profile/profile-nav";
 
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
-import { getMediaById } from "@/lib/data/media";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -11,20 +10,18 @@ import Link from "next/link";
 import type { Profile, User } from "@/db/schema";
 
 export const ProfileHeader = async ({ username }: { username: string }) => {
-  const profile = await getProfileByUsername(username);
-  const user = await getUserByUsername(username);
+  const profileResult = await getProfileByUsername(username);
+  const userResult = await getUserByUsername(username);
 
-  if (!profile || !user) {
+  if (!profileResult.success || !profileResult.data || !userResult.success || !userResult.data) {
     return null;
   }
 
-  let profileImage;
+  const profile = profileResult.data.profile;
+  const user = userResult.data;
+  const profileImage = profileResult.data.profileImage;
 
-  if (profile.profileImageId) {
-    profileImage = await getMediaById(profile.profileImageId);
-  }
-
-  const imageSrc = profileImage?.media?.url || null;
+  const imageSrc = profileImage?.url || null;
 
   return (
     <Section>

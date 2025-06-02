@@ -34,7 +34,6 @@ import {
 
 export function ProjectList({
   projectsWithImages,
-  userId,
   username,
 }: {
   username: string;
@@ -43,7 +42,6 @@ export function ProjectList({
     featuredImage: Media | null;
     additionalImages: Media[];
   }>;
-  userId: string;
 }) {
   const [items, setItems] = useState(projectsWithImages);
   const [isReordering, setIsReordering] = useState(false);
@@ -93,14 +91,11 @@ export function ProjectList({
         const newItems = arrayMove(items, oldIndex, newIndex);
         setItems(newItems);
 
-        const updatedProjects = newItems.map((item, index) => ({
-          id: item.project.id,
-          displayOrder: index,
-        }));
+        const projectIds = newItems.map((item) => item.project.id);
 
-        const result = await updateProjectOrder(updatedProjects, userId);
+        const result = await updateProjectOrder(projectIds);
 
-        if (result && result.error) {
+        if (!result.success) {
           throw new Error(result.error);
         }
 
