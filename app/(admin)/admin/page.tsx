@@ -4,6 +4,8 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 
+export const dynamic = "force-dynamic";
+
 import { getProfileByUserId } from "@/lib/data/profile";
 import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";

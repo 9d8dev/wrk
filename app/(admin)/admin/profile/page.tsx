@@ -3,6 +3,8 @@ import { PageWrapper } from "@/components/admin/page-wrapper";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 import {
   getProfileByUserId,
   getSocialLinksByProfileId,

@@ -7,6 +7,8 @@ import { getLeadsByUserId } from "@/lib/actions/leads";
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function LeadsPage() {
   const session = await getSession();
 

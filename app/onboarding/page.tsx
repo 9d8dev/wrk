@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { Logo } from "@/components/logo";
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
   const session = await getSession();
 

@@ -9,6 +9,8 @@ import { UpgradeButton } from "@/components/admin/upgrade-button";
 import { polarConfig } from "@/lib/config/polar";
 import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
