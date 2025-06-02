@@ -49,7 +49,6 @@ export const uploadImage = async (formData: FormData, projectId?: string) => {
     width = metadata.width;
     height = metadata.height;
   } else {
-    // For non-GIFs, optimize and convert to WebP
     const image = sharp(buffer);
     const metadata = await image.metadata();
 
@@ -60,18 +59,7 @@ export const uploadImage = async (formData: FormData, projectId?: string) => {
     width = metadata.width;
     height = metadata.height;
 
-    finalBuffer = await image
-      .resize({
-        width: 1920,
-        height: 1080,
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .webp({
-        quality: 85,
-        effort: 4,
-      })
-      .toBuffer();
+    finalBuffer = await image.toBuffer();
 
     contentType = "image/webp";
   }
