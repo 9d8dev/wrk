@@ -41,7 +41,7 @@ export const handlePostSignup = async (userData: {
       ...userData,
       createdAt: new Date(),
     });
-    
+
     return { success: true, data: undefined };
   } catch (error) {
     console.error("Failed to handle post-signup:", error);
