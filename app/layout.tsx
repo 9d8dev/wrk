@@ -17,7 +17,7 @@ const fontMono = FontMono({
 });
 
 export const metadata: Metadata = {
-  title: "Wrk.so",
+  title: "Wrk.so / Portfolios for Creatives",
   description: "A place for creatives to share their work.",
 };
 
