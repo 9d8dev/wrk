@@ -64,7 +64,6 @@ export default async function AdminPage() {
           <QuickCreateProject />
           <ProjectList
             projectsWithImages={projectsWithImages}
-            userId={session.user.id}
             username={session.user.username!}
           />
         </div>

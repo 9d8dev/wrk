@@ -206,19 +206,26 @@ export const ProjectForm = ({
         } else {
           // Default submission logic
           if (isEditing && project?.id) {
-            await editProject(project.id, {
+            const result = await editProject(project.id, {
               title: projectData.title,
-              slug: projectData.slug,
               externalLink: projectData.externalLink,
               about: projectData.about,
               featuredImageId: newFeaturedImageId,
               imageIds: projectData.imageIds,
               displayOrder: projectData.displayOrder,
             });
-            toast.success("Project updated successfully");
+            if (result.success) {
+              toast.success("Project updated successfully");
+            } else {
+              throw new Error(result.error);
+            }
           } else {
-            await createProject(projectData);
-            toast.success("Project created successfully");
+            const result = await createProject(projectData);
+            if (result.success) {
+              toast.success("Project created successfully");
+            } else {
+              throw new Error(result.error);
+            }
           }
         }
 

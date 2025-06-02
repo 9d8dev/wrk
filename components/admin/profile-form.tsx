@@ -117,8 +117,7 @@ export function ProfileForm({
         formData.append("file", profileImageFile[0]);
       }
 
-      await updateProfile({
-        userId: user.id,
+      const result = await updateProfile({
         profileData: {
           bio: values.bio || null,
           location: values.location || null,
@@ -134,8 +133,12 @@ export function ProfileForm({
           profileImageFile && profileImageFile.length > 0 ? formData : null,
       });
 
-      toast.success("Profile updated successfully");
-      setIsEditing(false); // Exit edit mode after successful save
+      if (result.success) {
+        toast.success("Profile updated successfully");
+        setIsEditing(false); // Exit edit mode after successful save
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
