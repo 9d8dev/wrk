@@ -8,11 +8,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm dev` - Start development server with Turbopack
 - `pnpm build` - Build for production
 - `pnpm lint` - Run ESLint
+- `pnpm clean` - Clean build artifacts (.next, .turbo, dist)
 
 **Database Operations:**
 - `pnpm db:generate` - Generate Drizzle migrations from schema changes
 - `pnpm db:migrate` - Apply pending migrations to database
 - `pnpm db:push` - Push schema changes directly (dev only)
+- `pnpm db:studio` - Open Drizzle Studio for database inspection
 
 **Initial Setup:**
 1. `pnpm install` - Install dependencies
@@ -53,6 +55,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Session-based authentication via `auth.api.getSession`
 - Public access allowed for `/sign-in`, `/`, and `/api/*`
 - Discord notifications sent for new email/password signups
+- Reserved usernames: admin, posts, privacy-policy, terms-of-use, about, contact, dashboard, login, sign-in, sign-up, sign-out
+- nanoid used for generating unique database IDs
+- Client auth dynamically uses `window.location.origin` in browser, `NEXT_PUBLIC_APP_URL` on server
 
 ### Database Architecture (Drizzle + PostgreSQL)
 Key entities and relationships:
@@ -88,14 +93,14 @@ Key entities and relationships:
 ### Media Management
 - R2 (S3 compatible) integration for file uploads
 - Sharp for image processing with automatic optimization
-- 10MB upload limit configured in Next.js server actions
-- Files served from `images.wrk.so` domain
+- 20MB upload limit configured in Next.js server actions
+- Files served from `images.wrk.so` domain (only allowed remote image source)
 - Media entities track dimensions, size, and MIME type
 
 ### Webhook Architecture
 - Comprehensive webhook type system in `/lib/polar-webhook-types.ts`
 - Handles events: customer creation/updates, orders, subscriptions, checkouts
-- Safe property access patterns for webhook data handling
+- Safe property access patterns for webhook data handling with fallbacks for different payload structures
 - Webhook endpoint at `/api/webhooks/polar`
 
 ### Key Features
@@ -123,6 +128,10 @@ Key entities and relationships:
 - Tailwind CSS v4 with CSS variables for theming
 - Component variants using class-variance-authority
 - Responsive design with mobile-first approach
+- Uses `@theme inline` directive with OKLCH color space
+- Custom variant for dark mode: `@custom-variant dark (&:is(.dark *))`
+- `tw-animate-css` plugin for animations
+- Custom utilities: `.no-scrollbar`, shimmer animation
 
 **Error Handling Patterns:**
 - All Server Actions return `{ error?: string, data?: T }` pattern
@@ -134,7 +143,7 @@ Key entities and relationships:
 Required environment variables (add to `.env.local`):
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Authentication secret
-- `BETTER_AUTH_URL` - Better Auth URL configuration
+- `BETTER_AUTH_URL` - Better Auth URL configuration (falls back to `NEXT_PUBLIC_APP_URL`)
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` - R2 storage credentials
@@ -164,6 +173,7 @@ The Polar plugin from @polar-sh/better-auth has been integrated with:
 - Customer portal for subscription management
 - Subscription status stored in database with statuses: `incomplete`, `incomplete_expired`, `trialing`, `active`, `past_due`, `canceled`, `unpaid`
 - Dynamic UI based on subscription status
+- Server set to 'production' (with 'sandbox' option for testing)
 
 ### Pro Plan Benefits
 - Custom Domain
@@ -171,3 +181,10 @@ The Polar plugin from @polar-sh/better-auth has been integrated with:
 - Priority Support
 - Advanced Analytics
 - Remove Wrk.so Branding
+
+## TypeScript Configuration
+
+- Strict mode enabled
+- Module resolution: bundler
+- Next.js plugin included
+- Path alias `@/*` maps to root directory
