@@ -34,7 +34,7 @@ type ProfileResult = {
 };
 
 /**
- * Update user profile with validation and transactions
+ * Update user profile with validation
  */
 export async function updateProfile(
   params: UpdateProfileParams
@@ -63,9 +63,9 @@ export async function updateProfile(
     });
 
     if (!validation.success) {
-      return { 
-        success: false, 
-        error: validation.error.errors[0]?.message || "Invalid input" 
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
       };
     }
 
@@ -82,10 +82,10 @@ export async function updateProfile(
       }
     }
 
-    // Use transaction for atomic updates
-    const result = await db.transaction(async (tx) => {
+    // Perform operations sequentially (no transactions with neon-http)
+    try {
       // Update user data
-      await tx
+      await db
         .update(user)
         .set({
           name: params.userData.name,
@@ -97,7 +97,7 @@ export async function updateProfile(
         .where(eq(user.id, userId));
 
       // Check if profile exists
-      const existingProfile = await tx
+      const existingProfile = await db
         .select()
         .from(profile)
         .where(eq(profile.userId, userId))
@@ -109,7 +109,7 @@ export async function updateProfile(
         // Update existing profile
         profileId = existingProfile[0].id;
 
-        await tx
+        await db
           .update(profile)
           .set({
             bio: params.profileData.bio,
@@ -121,7 +121,7 @@ export async function updateProfile(
         // Create new profile
         profileId = nanoid();
 
-        await tx.insert(profile).values({
+        await db.insert(profile).values({
           id: profileId,
           userId,
           bio: params.profileData.bio,
@@ -137,7 +137,7 @@ export async function updateProfile(
 
         if (imageResult.success && imageResult.mediaId) {
           // Update profile with new image ID
-          await tx
+          await db
             .update(profile)
             .set({
               profileImageId: imageResult.mediaId,
@@ -150,12 +150,12 @@ export async function updateProfile(
       // Handle social links
       if (params.socialLinks && params.socialLinks.length > 0) {
         // First, delete all existing social links for this profile
-        await tx.delete(socialLink).where(eq(socialLink.profileId, profileId));
+        await db.delete(socialLink).where(eq(socialLink.profileId, profileId));
 
         // Then insert new social links
         const now = new Date();
         const socialLinkValues = params.socialLinks
-          .filter(link => link.platform && link.url)
+          .filter((link) => link.platform && link.url)
           .map((link, i) => ({
             id: nanoid(),
             profileId,
@@ -167,25 +167,33 @@ export async function updateProfile(
           }));
 
         if (socialLinkValues.length > 0) {
-          await tx.insert(socialLink).values(socialLinkValues);
+          await db.insert(socialLink).values(socialLinkValues);
         }
       }
 
-      return { profileId, username: params.userData.username };
-    });
+      // Revalidate paths
+      const paths = REVALIDATION_PATHS.profile(params.userData.username);
+      for (const path of paths) {
+        revalidatePath(path);
+      }
 
-    // Revalidate paths
-    const paths = REVALIDATION_PATHS.profile(result.username);
-    for (const path of paths) {
-      revalidatePath(path);
+      return {
+        success: true,
+        data: { profileId, username: params.userData.username },
+      };
+    } catch (dbError) {
+      console.error("Database operation failed:", dbError);
+      return {
+        success: false,
+        error: "Failed to update profile. Please try again.",
+      };
     }
-
-    return { success: true, data: result };
   } catch (error) {
     console.error("Error updating profile:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to update profile" 
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to update profile",
     };
   }
 }
@@ -218,59 +226,55 @@ export async function createProfile(
     const userId = session.user.id;
     const username = session.user.username || session.user.email;
 
-    // Use transaction for atomic operation
-    const result = await db.transaction(async (tx) => {
-      // Check if profile already exists
-      const existingProfile = await tx
-        .select()
-        .from(profile)
-        .where(eq(profile.userId, userId))
-        .limit(1);
+    // Check if profile already exists
+    const existingProfile = await db
+      .select()
+      .from(profile)
+      .where(eq(profile.userId, userId))
+      .limit(1);
 
-      if (existingProfile.length > 0) {
-        throw new Error("Profile already exists");
+    if (existingProfile.length > 0) {
+      return { success: false, error: "Profile already exists" };
+    }
+
+    // Create profile ID
+    const profileId = nanoid();
+
+    // Handle profile image upload if provided
+    let profileImageId: string | null = null;
+    if (params.profileImageFormData) {
+      const imageResult = await uploadImage(params.profileImageFormData);
+      if (imageResult.success && imageResult.mediaId) {
+        profileImageId = imageResult.mediaId;
       }
+    }
 
-      // Create profile ID
-      const profileId = nanoid();
-
-      // Handle profile image upload if provided
-      let profileImageId: string | null = null;
-      if (params.profileImageFormData) {
-        const imageResult = await uploadImage(params.profileImageFormData);
-        if (imageResult.success && imageResult.mediaId) {
-          profileImageId = imageResult.mediaId;
-        }
-      }
-
-      // Create new profile
-      await tx.insert(profile).values({
-        id: profileId,
-        userId,
-        title: params.profileData.title || null,
-        bio: params.profileData.bio,
-        location: params.profileData.location,
-        profileImageId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      return { profileId, username };
+    // Create new profile
+    await db.insert(profile).values({
+      id: profileId,
+      userId,
+      title: params.profileData.title || null,
+      bio: params.profileData.bio,
+      location: params.profileData.location,
+      profileImageId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     // Revalidate paths
     revalidatePath("/admin");
     revalidatePath("/onboarding");
-    if (result.username) {
-      revalidatePath(`/${result.username}`);
+    if (username) {
+      revalidatePath(`/${username}`);
     }
 
-    return { success: true, data: result };
+    return { success: true, data: { profileId, username } };
   } catch (error) {
     console.error("Error creating profile:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to create profile" 
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to create profile",
     };
   }
 }
@@ -295,18 +299,19 @@ export async function updateUsername(
     const oldUsername = session.user.username;
 
     // Validate username format
-    const validation = updateProfileSchema.shape.username.safeParse(newUsername);
+    const validation =
+      updateProfileSchema.shape.username.safeParse(newUsername);
     if (!validation.success) {
-      return { 
-        success: false, 
-        error: validation.error.errors[0]?.message || "Invalid username" 
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid username",
       };
     }
 
     // Check reserved usernames
     const reservedUsernames = [
       "admin",
-      "posts", 
+      "posts",
       "privacy-policy",
       "terms-of-use",
       "about",
@@ -355,9 +360,10 @@ export async function updateUsername(
     return { success: true, data: { username: newUsername } };
   } catch (error) {
     console.error("Error updating username:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to update username" 
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to update username",
     };
   }
 }
