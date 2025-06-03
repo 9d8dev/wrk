@@ -33,7 +33,7 @@ export default async function Home() {
       <Section className="flex-1 flex items-center justify-center">
         <Container className="space-y-6 text-center">
           <h1 className="font-medium">Portfolios for Creatives</h1>
-          <div className="flex gap-9">
+          <div className="flex justify-between gap-2">
             <Link
               className="text-muted-foreground hover:text-primary"
               href="/sign-in?tab=signup"
