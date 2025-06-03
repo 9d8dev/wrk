@@ -3,6 +3,7 @@ import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { PageWrapper } from "@/components/admin/page-wrapper";
+import { FolderOpen } from "lucide-react";
 
 import { getProfileByUserId } from "@/lib/data/profile";
 import { getAllProjects } from "@/lib/data/project";
