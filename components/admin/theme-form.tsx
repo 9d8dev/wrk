@@ -56,9 +56,9 @@ const themeOptions = [
   },
   {
     id: "list-light",
-    label: "List Light",
+    label: "Minimal Light",
     description: "List layout with light theme",
-    gridType: "list" as const,
+    gridType: "minimal" as const,
     mode: "light" as const,
   },
   {
@@ -66,7 +66,7 @@ const themeOptions = [
     label: "Masonry Auto",
     description: "Dynamic masonry layout with auto theme",
     gridType: "masonry" as const,
-    mode: "auto" as const,
+    mode: "light" as const,
   },
 ];
 
@@ -354,7 +354,7 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
       themeOptions.find(
         (option) =>
           option.gridType === (theme?.gridType || "grid") &&
-          option.mode === (theme?.mode || "light")
+          option.mode === (theme?.mode || "light"),
       ) || themeOptions[0];
 
     return (
@@ -443,7 +443,7 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
                             "relative p-4 border-2 rounded-lg text-left transition-all hover:border-primary/50",
                             isSelected
                               ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted/50"
+                              : "border-border hover:bg-muted/50",
                           )}
                         >
                           {isSelected && (

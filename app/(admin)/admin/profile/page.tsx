@@ -12,6 +12,8 @@ import {
   getSocialLinksByProfileId,
 } from "@/lib/data/profile";
 
+import type { SocialLink } from "@/types";
+
 export const dynamic = "force-dynamic";
 
 async function getProfileData(userId: string) {
@@ -21,7 +23,8 @@ async function getProfileData(userId: string) {
     const profile = profileResult.success ? profileResult.data : null;
 
     // Get social links if profile exists
-    let socialLinks = [];
+    let socialLinks: SocialLink[] = [];
+
     if (profile) {
       const socialLinksResult = await getSocialLinksByProfileId(profile.id);
       socialLinks = socialLinksResult.success ? socialLinksResult.data : [];
