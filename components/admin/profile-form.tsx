@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { ShortcutButton } from "./shortcut-button";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile } from "@/lib/actions/profile";
 import { Profile, SocialLink } from "@/types";
-import { X, Plus, Trash2, ImageIcon } from "lucide-react";
+import { Edit, X, Plus, Trash2, Upload } from "lucide-react";
 import {
   FileUploader,
   FileInput,
@@ -86,7 +85,7 @@ export function ProfileForm({
               platform: link.platform,
               url: link.url,
             }))
-          : [{ platform: "", url: "" }],
+          : [],
       profileImage: undefined,
     },
   });
@@ -98,20 +97,28 @@ export function ProfileForm({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "e" && !isEditing) {
+      if (
+        e.key.toLowerCase() === "e" &&
+        !isEditing &&
+        e.target === document.body
+      ) {
+        e.preventDefault();
         setIsEditing(true);
+      }
+      if (e.key === "Escape" && isEditing) {
+        e.preventDefault();
+        setIsEditing(false);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isEditing]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
 
-      // Create FormData for image upload if there's a new profile image
       const formData = new FormData();
       if (profileImageFile && profileImageFile.length > 0) {
         formData.append("file", profileImageFile[0]);
@@ -135,7 +142,8 @@ export function ProfileForm({
 
       if (result.success) {
         toast.success("Profile updated successfully");
-        setIsEditing(false); // Exit edit mode after successful save
+        setIsEditing(false);
+        setProfileImageFile(null);
       } else {
         throw new Error(result.error);
       }
@@ -149,179 +157,217 @@ export function ProfileForm({
 
   if (!isEditing) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center mb-6 fixed top-2 right-4 z-50">
-          <ShortcutButton
-            letter="e"
-            label="Edit Profile"
-            onClick={() => setIsEditing(true)}
-          />
+      <div className="max-w-2xl">
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">Profile</h1>
+            <p className="text-muted-foreground">
+              Manage your public profile information
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit
+          </Button>
         </div>
 
-        {(profileImageUrl || user.image) && (
-          <div className="mb-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden">
+        <div className="space-y-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-muted">
               <Image
                 src={profileImageUrl || user.image || "/placeholder-avatar.png"}
                 alt={user.name || "Profile"}
-                width={96}
-                height={96}
+                width={80}
+                height={80}
                 className="object-cover w-full h-full"
               />
             </div>
-          </div>
-        )}
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Name
-            </h3>
-            <p className="mt-1 text-base">{user.name || "—"}</p>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Username
-            </h3>
-            <p className="mt-1 text-base">{user.username || "—"}</p>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Email
-          </h3>
-          <p className="mt-1 text-base">{user.email || "—"}</p>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Bio
-          </h3>
-          <p className="mt-1 text-base whitespace-pre-wrap">
-            {profile?.bio || "—"}
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Location
-            </h3>
-            <p className="mt-1 text-base">{profile?.location || "—"}</p>
-          </div>
-        </div>
-
-        {socialLinks && socialLinks.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Social Links
-            </h3>
-            <div className="space-y-2">
-              {socialLinks.map((link, index) => (
-                <div key={index} className="flex items-center">
-                  <span className="font-medium mr-2">{link.platform}:</span>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    {link.url}
-                  </a>
-                </div>
-              ))}
+            <div>
+              <h2 className="text-xl font-semibold">{user.name || "—"}</h2>
+              <p className="text-muted-foreground">@{user.username || "—"}</p>
             </div>
           </div>
-        )}
+
+          <div className="grid gap-6">
+            <div>
+              <h3 className="font-medium mb-2">Contact</h3>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p>{user.email}</p>
+              </div>
+            </div>
+
+            {(profile?.bio || profile?.location) && (
+              <div>
+                <h3 className="font-medium mb-2">About</h3>
+                <div className="space-y-4">
+                  {profile?.bio && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bio</p>
+                      <p className="whitespace-pre-wrap">{profile.bio}</p>
+                    </div>
+                  )}
+                  {profile?.location && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p>{profile.location}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {socialLinks.length > 0 && (
+              <div>
+                <h3 className="font-medium mb-2">Social Links</h3>
+                <div className="space-y-2">
+                  {socialLinks.map((link, index) => (
+                    <div key={index}>
+                      <p className="text-sm text-muted-foreground">
+                        {link.platform}
+                      </p>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        {link.url}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            Press <kbd className="px-1 py-0.5 bg-muted rounded">E</kbd> to edit
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <Form {...form}>
-      <div className="flex justify-between items-center mb-6 fixed top-2 right-4">
-        <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
-          <X size={12} />
+    <div className="max-w-2xl">
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-bold">Edit Profile</h1>
+          <p className="text-muted-foreground">
+            Update your profile information
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => setIsEditing(false)}>
+          <X className="w-4 h-4 mr-2" />
           Cancel
         </Button>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="profileImage"
-          render={() => (
-            <FormItem>
-              <FormLabel>Profile Image</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  {(profileImageUrl || user.image) && !profileImageFile && (
-                    <div className="w-24 h-24 rounded-full overflow-hidden mb-2">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="profileImage"
+            render={() => (
+              <FormItem>
+                <FormLabel>Profile Image</FormLabel>
+                <FormControl>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-muted">
                       <Image
                         src={
-                          profileImageUrl ||
-                          user.image ||
-                          "/placeholder-avatar.png"
+                          profileImageFile && profileImageFile.length > 0
+                            ? URL.createObjectURL(profileImageFile[0])
+                            : profileImageUrl ||
+                              user.image ||
+                              "/placeholder-avatar.png"
                         }
                         alt={user.name || "Profile"}
-                        width={96}
-                        height={96}
+                        width={80}
+                        height={80}
                         className="object-cover w-full h-full"
                       />
                     </div>
-                  )}
+                    <div className="flex-1">
+                      <FileUploader
+                        value={profileImageFile}
+                        onValueChange={setProfileImageFile}
+                        dropzoneOptions={{
+                          maxFiles: 1,
+                          maxSize: 1 * 1024 * 1024,
+                          accept: {
+                            "image/*": [".jpg", ".jpeg", ".png", ".webp"],
+                          },
+                        }}
+                      >
+                        <FileInput className="h-20">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Upload className="w-4 h-4" />
+                            <span>Upload new image</span>
+                          </div>
+                        </FileInput>
 
-                  <FileUploader
-                    value={profileImageFile}
-                    onValueChange={setProfileImageFile}
-                    dropzoneOptions={{
-                      maxFiles: 1,
-                      maxSize: 1 * 1024 * 1024, // 1MB
-                      accept: {
-                        "image/*": [".jpg", ".jpeg", ".png", ".webp"],
-                      },
-                    }}
-                  >
-                    <FileInput className="h-64 border-dashed flex flex-col items-center justify-center gap-1 text-sm text-muted-foreground">
-                      <ImageIcon size={24} className="mb-4" />
-                      <p>Drag & drop or click to upload profile image</p>
-                      <p className="text-xs">
-                        (Max file size: 1MB, Formats: JPG, PNG, WebP)
-                      </p>
-                    </FileInput>
-
-                    {profileImageFile && profileImageFile.length > 0 && (
-                      <FileUploaderContent>
-                        {profileImageFile.map((file, i) => (
-                          <FileUploaderItem key={i} index={i} file={file}>
-                            {file.name}
-                          </FileUploaderItem>
-                        ))}
-                      </FileUploaderContent>
-                    )}
-                  </FileUploader>
-                </div>
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                        {profileImageFile && profileImageFile.length > 0 && (
+                          <FileUploaderContent className="mt-2">
+                            {profileImageFile.map((file, i) => (
+                              <FileUploaderItem key={i} index={i} file={file}>
+                                {file.name}
+                              </FileUploaderItem>
+                            ))}
+                          </FileUploaderContent>
+                        )}
+                      </FileUploader>
+                    </div>
+                  </div>
                 </FormControl>
                 <FormDescription>
-                  This is your public display name.
+                  Upload a profile image (max 1MB, JPG/PNG/WebP)
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="your.email@example.com" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -329,61 +375,23 @@ export function ProfileForm({
 
           <FormField
             control={form.control}
-            name="username"
+            name="bio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Bio</FormLabel>
                 <FormControl>
-                  <Input placeholder="username" {...field} />
+                  <Textarea
+                    placeholder="Tell us about yourself..."
+                    className="resize-none"
+                    rows={3}
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription>
-                  Your unique username for your portfolio URL.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="your.email@example.com" {...field} />
-              </FormControl>
-              <FormDescription>
-                Your email address is used for account notifications.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="bio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Tell us a bit about yourself"
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Brief description that will appear on your portfolio.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="location"
@@ -397,74 +405,85 @@ export function ProfileForm({
               </FormItem>
             )}
           />
-        </div>
 
-        {/* Social Links */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-medium">Social Links</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <FormLabel>Social Links</FormLabel>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ platform: "", url: "" })}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Link
+              </Button>
+            </div>
+
+            {fields.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No social links added yet
+              </p>
+            )}
+
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex gap-3 items-start">
+                <div className="grid grid-cols-2 gap-3 flex-1">
+                  <FormField
+                    control={form.control}
+                    name={`socialLinks.${index}.platform`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Platform" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`socialLinks.${index}.url`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="https://..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => remove(index)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
             <Button
               type="button"
               variant="outline"
-              size="sm"
-              onClick={() => append({ platform: "", url: "" })}
+              onClick={() => setIsEditing(false)}
             >
-              <Plus size={16} className="mr-1" />
-              Add Link
+              Cancel
             </Button>
           </div>
+        </form>
+      </Form>
 
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-4 items-start mb-4">
-              <div className="grid grid-cols-2 gap-4 flex-1">
-                <FormField
-                  control={form.control}
-                  name={`socialLinks.${index}.platform`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="Platform (e.g. Instagram)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`socialLinks.${index}.url`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="https://instagram.com/username"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => remove(index)}
-                className="mt-1"
-              >
-                <Trash2 size={16} className="text-destructive" />
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </Button>
-      </form>
-    </Form>
+      <div className="mt-6 text-xs text-muted-foreground">
+        Press <kbd className="px-1 py-0.5 bg-muted rounded">Esc</kbd> to cancel
+      </div>
+    </div>
   );
 }
