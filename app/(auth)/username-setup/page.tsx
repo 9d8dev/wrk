@@ -1,6 +1,9 @@
+import { UsernameSetupForm } from "@/components/auth/username-setup-form";
+
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
-import { UsernameSetupForm } from "@/components/auth/username-setup-form";
+
+export const dynamic = "force-dynamic";
 
 export default async function UsernameSetupPage() {
   const session = await getSession();
