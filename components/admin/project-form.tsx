@@ -408,7 +408,6 @@ export const ProjectForm = ({
                       </div>
                     </div>
                   </FileInput>
-                  <FileUploaderContent />
                 </FileUploader>
               ) : (
                 <div className="space-y-4">
@@ -434,18 +433,8 @@ export const ProjectForm = ({
                         }}
                       >
                         <FileInput>
-                          <div className="aspect-square border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-muted/50 group">
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="p-3 bg-muted rounded-full group-hover:bg-primary/10 transition-colors">
-                                <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                              </div>
-                              <span className="text-xs text-muted-foreground font-medium">
-                                Add Image
-                              </span>
-                            </div>
-                          </div>
+                          <Plus />
                         </FileInput>
-                        <FileUploaderContent />
                       </FileUploader>
                     )}
                   </div>
