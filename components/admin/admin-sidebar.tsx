@@ -38,7 +38,7 @@ export function AdminSidebar({
   return (
     <Sidebar className="border-dashed bg-accent/30">
       <SidebarHeader className="h-12 flex justify-center border-b border-dashed bg-muted/50">
-        <Logo className="text-2xl" />
+        <Logo width={24} />
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-8 justify-between">
         <SidebarGroup>
@@ -46,7 +46,9 @@ export function AdminSidebar({
           <AdminNav />
         </SidebarGroup>
         <SidebarGroup>
-          {!isPro && productInfo && <UpgradePlanCard productInfo={productInfo} />}
+          {!isPro && productInfo && (
+            <UpgradePlanCard productInfo={productInfo} />
+          )}
           {isPro && <ProPlanCard />}
         </SidebarGroup>
       </SidebarContent>
