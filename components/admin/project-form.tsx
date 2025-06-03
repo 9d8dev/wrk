@@ -16,10 +16,13 @@ import {
   ChevronUp,
   Image as ImageIcon,
   X,
+  Plus,
+  Star,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 import {
   Form,
@@ -38,6 +41,7 @@ import {
 } from "@/components/ui/file-upload";
 
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 import type { Media, Project } from "@/db/schema";
 
@@ -286,187 +290,227 @@ export const ProjectForm = ({
   }, [form, handleFormSubmit, isSubmitting]);
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-4 max-w-2xl"
-      >
-        {/* Image Upload Section - Always visible */}
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="featuredImageId"
-            render={({ field }) => (
-              <ProjectImagesField
-                field={field}
-                existingFeaturedMedia={existingFeaturedMedia}
-                existingAdditionalMedia={existingAdditionalMedia}
-                projectImages={projectImages}
-                setProjectImages={setProjectImages}
-                featuredImageId={featuredImageId}
-                setFeaturedImageId={setFeaturedImageId}
-                uploadedMedia={uploadedMedia}
-              />
-            )}
-          />
-        </div>
+    <div className="max-w-3xl mx-auto">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+          className="space-y-8"
+        >
+          {/* Image Upload Section */}
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" />
+                Project Images
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Upload up to 5 images for your project. Click on an image to set
+                it as featured.
+              </p>
+            </div>
 
-        {/* Basic Fields - Always visible */}
-        <div className="space-y-3">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Project Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter project title"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      if (!isEditing && e.target.value) {
-                        const currentSlug = form.getValues("slug");
-                        if (
-                          !currentSlug ||
-                          currentSlug === generateSlugFromTitle(field.value)
-                        ) {
-                          form.setValue(
-                            "slug",
-                            generateSlugFromTitle(e.target.value)
-                          );
-                        }
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL Slug</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="project-slug"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .toLowerCase()
-                        .replace(/[^\w\s-]/g, "")
-                        .replace(/\s+/g, "-")
-                        .replace(/-+/g, "-");
-                      field.onChange(value);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  This will be used in the URL: wrk.so/username/slug
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="about"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>About</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Describe your project..."
-                    className="min-h-[100px] resize-vertical"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Advanced Fields Toggle */}
-        <div className="border-t pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-2"
-          >
-            {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-            Advanced Options
-          </Button>
-        </div>
-
-        {/* Advanced Fields - Collapsible */}
-        {showAdvanced && (
-          <div className="space-y-3 pt-2">
             <FormField
               control={form.control}
-              name="externalLink"
+              name="featuredImageId"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>External Link</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com"
-                      type="url"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Add a link to the live project or related resource
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+                <ProjectImagesField
+                  field={field}
+                  existingFeaturedMedia={existingFeaturedMedia}
+                  existingAdditionalMedia={existingAdditionalMedia}
+                  projectImages={projectImages}
+                  setProjectImages={setProjectImages}
+                  featuredImageId={featuredImageId}
+                  setFeaturedImageId={setFeaturedImageId}
+                  uploadedMedia={uploadedMedia}
+                />
               )}
             />
           </div>
-        )}
 
-        <MediaGrid media={uploadedMedia} title="Additional Media" />
+          {/* Basic Details Section */}
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">Project Details</h3>
+              <p className="text-sm text-muted-foreground">
+                Basic information about your project.
+              </p>
+            </div>
 
-        {/* Actions */}
-        <div className="flex justify-end space-x-2 pt-4 border-t">
-          <div className="flex items-center text-xs text-muted-foreground mr-auto">
-            <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
-              {typeof window !== "undefined" &&
-              /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent)
-                ? "⌘"
-                : "Ctrl"}
-              +S
-            </kbd>{" "}
-            to save
+            <div className="grid gap-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">Project Title</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter project title"
+                        className="text-base"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          if (!isEditing && e.target.value) {
+                            const currentSlug = form.getValues("slug");
+                            if (
+                              !currentSlug ||
+                              currentSlug === generateSlugFromTitle(field.value)
+                            ) {
+                              form.setValue(
+                                "slug",
+                                generateSlugFromTitle(e.target.value)
+                              );
+                            }
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">URL Slug</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          placeholder="project-slug"
+                          className="text-base font-mono"
+                          {...field}
+                          onChange={(e) => {
+                            const value = e.target.value
+                              .toLowerCase()
+                              .replace(/[^\w\s-]/g, "")
+                              .replace(/\s+/g, "-")
+                              .replace(/-+/g, "-");
+                            field.onChange(value);
+                          }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      This will be used in the URL: wrk.so/username/
+                      {field.value || "slug"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="about"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">About</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe your project..."
+                        className="min-h-[120px] resize-vertical text-base"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Tell visitors about this project, the technology used, or
+                      the story behind it.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-          {onCancel && (
+
+          {/* Advanced Options Section */}
+          <div className="space-y-4">
             <Button
               type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
+              variant="ghost"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 p-0 h-auto text-base font-medium hover:bg-transparent"
             >
-              Cancel
+              {showAdvanced ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+              Advanced Options
             </Button>
-          )}
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Update Project" : "Create Project"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+
+            {showAdvanced && (
+              <div className="space-y-6 pt-4 border-t">
+                <FormField
+                  control={form.control}
+                  name="externalLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">External Link</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com"
+                          type="url"
+                          className="text-base"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Add a link to the live project, GitHub repository, or
+                        related resource.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+          </div>
+
+          <MediaGrid media={uploadedMedia} title="Additional Media" />
+
+          {/* Actions Section */}
+          <div className="flex items-center justify-between pt-6 border-t">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">
+                {typeof window !== "undefined" &&
+                /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent)
+                  ? "⌘"
+                  : "Ctrl"}
+                +S
+              </kbd>
+              <span>to save</span>
+            </div>
+
+            <div className="flex gap-3">
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="min-w-[140px]"
+              >
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {isEditing ? "Update Project" : "Create Project"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 
@@ -474,17 +518,20 @@ const MediaGrid = ({ media, title }: { media: Media[]; title: string }) => {
   if (media.length === 0) return null;
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {media.map((item) => (
-          <div key={item.id} className="relative group h-56 overflow-hidden">
+          <div
+            key={item.id}
+            className="relative group h-56 overflow-hidden rounded-lg border"
+          >
             <Image
               src={item.url}
               alt={item.alt || "Project media"}
               width={400}
               height={300}
-              className="w-full h-auto rounded aspect-square object-cover"
+              className="w-full h-full object-cover"
             />
           </div>
         ))}
@@ -542,6 +589,12 @@ const ProjectImagesField = ({
     setFeaturedImageId(id);
   };
 
+  const handleSelectNewImageAsFeatured = (index: number) => {
+    // Use a special ID format for new images
+    const newImageId = `new-${index}`;
+    setFeaturedImageId(newImageId);
+  };
+
   // Memoize the combined media array to prevent unnecessary re-calculations
   const allExistingMedia = useMemo(
     () => [
@@ -556,79 +609,107 @@ const ProjectImagesField = ({
 
   return (
     <FormItem>
-      <FormLabel className="flex items-center gap-2">
-        <ImageIcon className="h-4 w-4" />
-        Project Images
-        <span className="text-sm font-normal text-muted-foreground">
-          ({totalImages}/5)
-        </span>
-      </FormLabel>
+      <div className="space-y-6">
+        {/* Image Count and Status */}
+        <div className="flex items-center justify-between">
+          <Badge variant="outline" className="text-sm">
+            {totalImages}/5 images
+          </Badge>
+          {totalImages > 0 &&
+            !featuredImageId &&
+            allExistingMedia.length === 0 && (
+              <div className="flex items-center gap-2 text-sm text-amber-600">
+                <Star className="w-4 h-4" />
+                <span>First image will be featured</span>
+              </div>
+            )}
+        </div>
 
-      {/* Combined Grid View */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {/* Images Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {/* Existing Images */}
           {allExistingMedia.map((media) => (
             <div
               key={media.id}
-              className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all ${
+              className={cn(
+                "relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square",
                 featuredImageId === media.id
-                  ? "border-primary ring-2 ring-primary/20"
-                  : "border-muted hover:border-muted-foreground/50"
-              }`}
+                  ? "border-primary ring-2 ring-primary/20 shadow-lg"
+                  : "border-border hover:border-primary/50"
+              )}
               onClick={() => handleSelectAsFeatured(media.id)}
             >
-              <div className="aspect-square relative">
-                <Image
-                  src={media.url}
-                  alt={media.alt || "Project image"}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <Image
+                src={media.url}
+                alt={media.alt || "Project image"}
+                fill
+                className="object-cover"
+              />
               {featuredImageId === media.id && (
-                <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+                <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1">
+                  <Star className="w-3 h-3 fill-current" />
                   Featured
                 </div>
               )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
             </div>
           ))}
 
           {/* New Images */}
-          {projectImages.map((file, index) => (
-            <div
-              key={`new-${index}`}
-              className="relative group border-2 border-muted hover:border-muted-foreground/50 rounded-lg overflow-hidden transition-all"
-            >
-              <div className="aspect-square relative">
-                {previewUrls[`new-${index}`] && (
+          {projectImages.map((file, index) => {
+            const newImageId = `new-${index}`;
+            const isNewImageFeatured = featuredImageId === newImageId;
+
+            return (
+              <div
+                key={newImageId}
+                className={cn(
+                  "relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square",
+                  isNewImageFeatured
+                    ? "border-primary ring-2 ring-primary/20 shadow-lg bg-primary/5"
+                    : "border-dashed border-primary/50 hover:border-primary bg-primary/5"
+                )}
+                onClick={() => handleSelectNewImageAsFeatured(index)}
+              >
+                {previewUrls[newImageId] && (
                   <Image
-                    src={previewUrls[`new-${index}`]}
+                    src={previewUrls[newImageId]}
                     alt={`New image ${index + 1}`}
                     fill
                     className="object-cover"
                   />
                 )}
+                <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                  New
+                </div>
+                {isNewImageFeatured && (
+                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-current" />
+                    Featured
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newImages = [...projectImages];
+                    newImages.splice(index, 1);
+                    setProjectImages(newImages);
+                    // If this was the featured image, clear the featured selection
+                    if (featuredImageId === newImageId) {
+                      setFeaturedImageId(null);
+                    }
+                  }}
+                  size="icon"
+                  variant="destructive"
+                  className="absolute bottom-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
               </div>
-              <div className="absolute top-1 left-1 bg-yellow-500 text-yellow-900 text-xs px-1.5 py-0.5 rounded">
-                New
-              </div>
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newImages = [...projectImages];
-                  newImages.splice(index, 1);
-                  setProjectImages(newImages);
-                }}
-                size="icon"
-                variant="destructive"
-                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Add More Button */}
           {totalImages < 5 && (
@@ -649,11 +730,15 @@ const ProjectImagesField = ({
               }}
             >
               <FileInput>
-                <div className="aspect-square border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-muted/5">
-                  <UploadCloud className="h-6 w-6 text-muted-foreground mb-2" />
-                  <span className="text-xs text-muted-foreground">
-                    Add Image
-                  </span>
+                <div className="aspect-square border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-muted/50 group">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="p-3 bg-muted rounded-full group-hover:bg-primary/10 transition-colors">
+                      <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Add Image
+                    </span>
+                  </div>
                 </div>
               </FileInput>
               <FileUploaderContent />
@@ -661,19 +746,24 @@ const ProjectImagesField = ({
           )}
         </div>
 
+        {/* Helper Text */}
         {totalImages === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-2">
-            Add at least one image to your project
-          </p>
+          <div className="text-center py-8 border-2 border-dashed border-muted-foreground/20 rounded-lg">
+            <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground font-medium">
+              No images added yet
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Add at least one image to showcase your project
+            </p>
+          </div>
         )}
 
-        {totalImages > 0 &&
-          !featuredImageId &&
-          allExistingMedia.length === 0 && (
-            <p className="text-sm text-yellow-600 text-center py-2">
-              The first image will be set as featured
-            </p>
-          )}
+        {totalImages > 0 && (
+          <p className="text-sm text-muted-foreground">
+            Click on any image to set it as the featured image for your project.
+          </p>
+        )}
       </div>
 
       <FormMessage />
