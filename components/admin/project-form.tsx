@@ -6,6 +6,7 @@ import { uploadImage } from "@/lib/actions/media";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { z } from "zod";
 
 import {
@@ -17,6 +18,7 @@ import {
   Star,
   X,
 } from "lucide-react";
+import { FileUploader, FileInput } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,14 +34,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import {
-  FileUploader,
-  FileInput,
-  FileUploaderContent,
-} from "@/components/ui/file-upload";
-
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 import type { Media, Project } from "@/db/schema";
 
