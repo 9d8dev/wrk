@@ -1,8 +1,8 @@
-import { getSession } from "@/lib/actions/auth";
-import { getProfileByUserId } from "@/lib/data/profile";
-import { redirect } from "next/navigation";
 import { SimpleOnboarding } from "@/components/onboarding/simple-onboarding";
-import { Logo } from "@/components/logo";
+
+import { getProfileByUserId } from "@/lib/data/profile";
+import { getSession } from "@/lib/actions/auth";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
