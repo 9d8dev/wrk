@@ -104,7 +104,7 @@ export default async function AdminPage() {
         {projects.length === 0 ? (
           <EmptyProjectsState />
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-8 max-w-3xl mx-auto">
             <QuickCreateProject />
             <ProjectList
               projectsWithImages={projects}
