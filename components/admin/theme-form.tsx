@@ -5,28 +5,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { ShortcutButton } from "./shortcut-button";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { updateTheme } from "@/lib/actions/theme";
 import { Theme, gridTypes, modes } from "@/db/schema";
-import { X } from "lucide-react";
+import { Edit, X, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   gridType: z.enum(gridTypes),
@@ -46,6 +38,255 @@ type ThemeFormProps = {
   theme: Theme | null;
 };
 
+// Define theme combinations
+const themeOptions = [
+  {
+    id: "grid-light",
+    label: "Grid Light",
+    description: "Clean grid layout with light theme",
+    gridType: "grid" as const,
+    mode: "light" as const,
+  },
+  {
+    id: "grid-dark",
+    label: "Grid Dark",
+    description: "Clean grid layout with dark theme",
+    gridType: "grid" as const,
+    mode: "dark" as const,
+  },
+  {
+    id: "list-light",
+    label: "List Light",
+    description: "List layout with light theme",
+    gridType: "list" as const,
+    mode: "light" as const,
+  },
+  {
+    id: "masonry-auto",
+    label: "Masonry Auto",
+    description: "Dynamic masonry layout with auto theme",
+    gridType: "masonry" as const,
+    mode: "auto" as const,
+  },
+];
+
+// Placeholder SVG component - you can replace these with your custom SVGs
+function ThemePreviewSVG({ themeId }: { themeId: string }) {
+  return (
+    <div className="w-full h-24 bg-muted rounded-md flex items-center justify-center border">
+      <svg
+        width="80"
+        height="60"
+        viewBox="0 0 80 60"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="text-muted-foreground"
+      >
+        {themeId === "grid-light" && (
+          <>
+            <rect
+              x="5"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="30"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="55"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="5"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="30"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="55"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.3"
+            />
+          </>
+        )}
+        {themeId === "grid-dark" && (
+          <>
+            <rect
+              x="5"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+            <rect
+              x="30"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+            <rect
+              x="55"
+              y="5"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+            <rect
+              x="5"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+            <rect
+              x="30"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+            <rect
+              x="55"
+              y="25"
+              width="20"
+              height="15"
+              fill="currentColor"
+              opacity="0.8"
+            />
+          </>
+        )}
+        {themeId === "list-light" && (
+          <>
+            <rect
+              x="5"
+              y="8"
+              width="70"
+              height="8"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="5"
+              y="20"
+              width="70"
+              height="8"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="5"
+              y="32"
+              width="70"
+              height="8"
+              fill="currentColor"
+              opacity="0.3"
+            />
+            <rect
+              x="5"
+              y="44"
+              width="70"
+              height="8"
+              fill="currentColor"
+              opacity="0.3"
+            />
+          </>
+        )}
+        {themeId === "masonry-auto" && (
+          <>
+            <rect
+              x="5"
+              y="5"
+              width="15"
+              height="20"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="25"
+              y="5"
+              width="15"
+              height="12"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="45"
+              y="5"
+              width="15"
+              height="25"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="65"
+              y="5"
+              width="15"
+              height="15"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="5"
+              y="30"
+              width="15"
+              height="15"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="25"
+              y="22"
+              width="15"
+              height="18"
+              fill="currentColor"
+              opacity="0.5"
+            />
+            <rect
+              x="45"
+              y="35"
+              width="15"
+              height="12"
+              fill="currentColor"
+              opacity="0.5"
+            />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+}
+
 export function ThemeForm({ user, theme }: ThemeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -58,15 +299,27 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
     },
   });
 
+  const currentValues = form.watch();
+  const currentThemeId = `${currentValues.gridType}-${currentValues.mode}`;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "e" && !isEditing) {
+      if (
+        e.key.toLowerCase() === "e" &&
+        !isEditing &&
+        e.target === document.body
+      ) {
+        e.preventDefault();
         setIsEditing(true);
+      }
+      if (e.key === "Escape" && isEditing) {
+        e.preventDefault();
+        setIsEditing(false);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isEditing]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -82,7 +335,7 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
       });
 
       toast.success("Theme updated successfully");
-      setIsEditing(false); // Exit edit mode after successful save
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating theme:", error);
       toast.error("Failed to update theme");
@@ -91,128 +344,164 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
     }
   }
 
-  // Render a read-only view when not in edit mode
-  if (!isEditing) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center mb-6 fixed top-2 right-4 z-50">
-          <ShortcutButton
-            letter="e"
-            label="Edit Theme"
-            onClick={() => setIsEditing(true)}
-          />
-        </div>
+  function selectTheme(option: (typeof themeOptions)[0]) {
+    form.setValue("gridType", option.gridType);
+    form.setValue("mode", option.mode);
+  }
 
-        <div className="grid gap-6 md:grid-cols-2">
+  if (!isEditing) {
+    const currentOption =
+      themeOptions.find(
+        (option) =>
+          option.gridType === (theme?.gridType || "grid") &&
+          option.mode === (theme?.mode || "light")
+      ) || themeOptions[0];
+
+    return (
+      <div className="max-w-4xl">
+        <div className="flex justify-between items-start mb-8">
           <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Grid Type
-            </h3>
-            <p className="mt-1 text-base capitalize">
-              {theme?.gridType || "Grid"}
+            <h1 className="text-2xl font-bold">Theme Settings</h1>
+            <p className="text-muted-foreground">
+              Customize your portfolio appearance
             </p>
           </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Mode
-            </h3>
-            <p className="mt-1 text-base capitalize">
-              {theme?.mode || "Light"}
-            </p>
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit
+          </Button>
+        </div>
+
+        <div className="space-y-8">
+          <div className="p-6 border rounded-lg">
+            <div className="flex items-start gap-6">
+              <div className="w-48 flex-shrink-0">
+                <ThemePreviewSVG themeId={currentOption.id} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold mb-2">
+                  {currentOption.label}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {currentOption.description}
+                </p>
+                <div className="flex gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Layout:</span>{" "}
+                    {currentOption.gridType}
+                  </div>
+                  <div>
+                    <span className="font-medium">Theme:</span>{" "}
+                    {currentOption.mode}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            Press <kbd className="px-1 py-0.5 bg-muted rounded">E</kbd> to edit
           </div>
         </div>
       </div>
     );
   }
 
-  // Render the editable form when in edit mode
   return (
-    <Form {...form}>
-      <div className="flex justify-between items-center mb-6 fixed top-2 right-4">
-        <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
-          <X size={12} />
+    <div className="max-w-4xl">
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-bold">Choose Theme</h1>
+          <p className="text-muted-foreground">
+            Select a theme for your portfolio
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => setIsEditing(false)}>
+          <X className="w-4 h-4 mr-2" />
           Cancel
         </Button>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-6 md:grid-cols-2">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="gridType"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
-                <FormLabel>Grid Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a grid type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {gridTypes.map((type) => (
-                      <SelectItem
-                        key={type}
-                        value={type}
-                        className="capitalize"
-                      >
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Choose how your projects are displayed on your portfolio.
-                </FormDescription>
+                <FormLabel className="text-base">Theme Options</FormLabel>
+                <FormControl>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {themeOptions.map((option) => {
+                      const isSelected = currentThemeId === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => selectTheme(option)}
+                          className={cn(
+                            "relative p-4 border-2 rounded-lg text-left transition-all hover:border-primary/50",
+                            isSelected
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-3 right-3">
+                              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-primary-foreground" />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="mb-4">
+                            <ThemePreviewSVG themeId={option.id} />
+                          </div>
+
+                          <div>
+                            <h3 className="font-semibold mb-1">
+                              {option.label}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {option.description}
+                            </p>
+                            <div className="flex gap-3 text-xs">
+                              <span className="px-2 py-1 bg-muted rounded-md">
+                                {option.gridType}
+                              </span>
+                              <span className="px-2 py-1 bg-muted rounded-md">
+                                {option.mode}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="mode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Light / Dark Mode</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a mode" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {modes.map((mode) => (
-                      <SelectItem
-                        key={mode}
-                        value={mode}
-                        className="capitalize"
-                      >
-                        {mode}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Set the appearance mode for your portfolio, default will match
-                  the visitor&apos;s system preference.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          <div className="flex gap-3 pt-4">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Theme"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Form>
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </Button>
-      </form>
-    </Form>
+      <div className="mt-6 text-xs text-muted-foreground">
+        Press <kbd className="px-1 py-0.5 bg-muted rounded">Esc</kbd> to cancel
+      </div>
+    </div>
   );
 }
