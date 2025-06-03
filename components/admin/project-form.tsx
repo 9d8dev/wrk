@@ -9,14 +9,13 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import {
-  Loader2,
-  UploadCloud,
+  Image as ImageIcon,
   ChevronDown,
   ChevronUp,
-  Image as ImageIcon,
-  X,
+  Loader2,
   Plus,
   Star,
+  X,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -192,7 +191,7 @@ export const ProjectForm = ({
 
       setImages((prev) => [...prev, ...newImages]);
     },
-    [images.length]
+    [images.length],
   );
 
   // Handle removing an image
@@ -228,7 +227,7 @@ export const ProjectForm = ({
       prev.map((img) => ({
         ...img,
         isFeatured: img.id === imageId,
-      }))
+      })),
     );
   }, []);
 
@@ -276,7 +275,7 @@ export const ProjectForm = ({
           } else {
             // Find the corresponding uploaded ID
             const newImageIndex = newImages.findIndex(
-              (img) => img.id === featuredImage.id
+              (img) => img.id === featuredImage.id,
             );
             featuredImageId = uploadedImageIds[newImageIndex];
           }
@@ -313,7 +312,7 @@ export const ProjectForm = ({
             toast.success(
               isEditing
                 ? "Project updated successfully"
-                : "Project created successfully"
+                : "Project created successfully",
             );
             if (onSuccess) {
               onSuccess();
@@ -331,13 +330,13 @@ export const ProjectForm = ({
         toast.error(
           error instanceof Error
             ? error.message
-            : "An error occurred. Please try again."
+            : "An error occurred. Please try again.",
         );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [images, project, isEditing, onSubmit, onSuccess, form]
+    [images, project, isEditing, onSubmit, onSuccess, form],
   );
 
   // Keyboard shortcut for save
@@ -479,7 +478,7 @@ export const ProjectForm = ({
                             ) {
                               form.setValue(
                                 "slug",
-                                generateSlugFromTitle(e.target.value)
+                                generateSlugFromTitle(e.target.value),
                               );
                             }
                           }
@@ -652,7 +651,7 @@ const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
         "relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square",
         image.isFeatured
           ? "border-primary ring-2 ring-primary/20 shadow-lg"
-          : "border-border hover:border-primary/50"
+          : "border-border hover:border-primary/50",
       )}
       onClick={() => onSetFeatured(image.id)}
     >
