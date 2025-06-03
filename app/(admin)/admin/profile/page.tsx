@@ -1,17 +1,16 @@
 import { ProfileForm } from "@/components/admin/profile-form";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
-import { redirect } from "next/navigation";
+
 import { getSession } from "@/lib/actions/auth";
+import { redirect } from "next/navigation";
+import { media } from "@/db/schema";
+import { db } from "@/db/drizzle";
+import { eq } from "drizzle-orm";
 import {
   getProfileByUserId,
   getSocialLinksByProfileId,
 } from "@/lib/data/profile";
-import { db } from "@/db/drizzle";
-import { media } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +62,7 @@ export default async function ProfilePage() {
   }
 
   const { profile, socialLinks, profileImageUrl } = await getProfileData(
-    session.user.id
+    session.user.id,
   );
 
   return (
