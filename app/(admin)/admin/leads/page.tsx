@@ -1,8 +1,7 @@
 import { AdminHeader } from "@/components/admin/admin-header";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { LeadsList } from "@/components/admin/leads-list";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+
 import { redirect } from "next/navigation";
 import { getLeadsByUserId } from "@/lib/actions/leads";
 import { getSession } from "@/lib/actions/auth";

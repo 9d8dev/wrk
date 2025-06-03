@@ -3,12 +3,11 @@ import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { PageWrapper } from "@/components/admin/page-wrapper";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, FolderOpen } from "lucide-react";
-import { redirect } from "next/navigation";
+
 import { getProfileByUserId } from "@/lib/data/profile";
 import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";
+import { redirect } from "next/navigation";
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
@@ -57,7 +56,7 @@ async function getAdminData(userId: string) {
         } catch (error) {
           console.error(
             `Failed to load images for project ${project.id}:`,
-            error
+            error,
           );
           return {
             project,
@@ -65,7 +64,7 @@ async function getAdminData(userId: string) {
             additionalImages: [],
           };
         }
-      })
+      }),
     );
 
     return { projects: projectsWithImages };
