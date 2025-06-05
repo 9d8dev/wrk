@@ -7,14 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Core Development:**
 - `pnpm dev` - Start development server with Turbopack
 - `pnpm build` - Build for production
+- `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm clean` - Clean build artifacts (.next, .turbo, dist)
 
 **Database Operations:**
 - `pnpm db:generate` - Generate Drizzle migrations from schema changes
 - `pnpm db:migrate` - Apply pending migrations to database
 - `pnpm db:push` - Push schema changes directly (dev only)
-- `pnpm db:studio` - Open Drizzle Studio for database inspection
 
 **Initial Setup:**
 1. `pnpm install` - Install dependencies
@@ -94,7 +93,8 @@ Key entities and relationships:
 - R2 (S3 compatible) integration for file uploads
 - Sharp for image processing with automatic optimization
 - 20MB upload limit configured in Next.js server actions
-- Files served from `images.wrk.so` domain (only allowed remote image source)
+- Files served from `images.wrk.so` domain
+- Allowed remote image sources: `images.wrk.so`, `*.googleusercontent.com`, `avatars.githubusercontent.com`
 - Media entities track dimensions, size, and MIME type
 
 ### Webhook Architecture
