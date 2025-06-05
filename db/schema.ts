@@ -53,12 +53,15 @@ export const subscriptionHistory = pgTable("subscription_history", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const subscriptionHistoryRelations = relations(subscriptionHistory, ({ one }) => ({
-  user: one(user, {
-    fields: [subscriptionHistory.userId],
-    references: [user.id],
-  }),
-}));
+export const subscriptionHistoryRelations = relations(
+  subscriptionHistory,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [subscriptionHistory.userId],
+      references: [user.id],
+    }),
+  })
+);
 
 // MEDIA TABLE
 
@@ -91,7 +94,6 @@ export const mediaRelations = relations(media, ({ one }) => ({
 // THEME TABLE
 
 export const gridTypes = ["masonry", "grid", "minimal", "square"] as const;
-export const modes = ["light", "dark", "system"] as const;
 
 export const theme = pgTable("theme", {
   id: text("id").primaryKey(),
@@ -99,7 +101,6 @@ export const theme = pgTable("theme", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   gridType: text("grid_type", { enum: gridTypes }).notNull().default("masonry"),
-  mode: text("mode", { enum: modes }).notNull().default("system"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -113,23 +114,27 @@ export const themeRelations = relations(theme, ({ one }) => ({
 
 // PROJECT TABLE
 
-export const project = pgTable("project", {
-  id: text("id").primaryKey(),
-  title: text("title").notNull(),
-  about: text("about"),
-  slug: text("slug").notNull(),
-  externalLink: text("external_link"),
-  featuredImageId: text("featured_image_id"),
-  imageIds: json("image_ids").$type<string[]>().default([]),
-  displayOrder: integer("display_order").default(0),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-}, (table) => ({
-  uniqueSlugPerUser: unique().on(table.slug, table.userId),
-}));
+export const project = pgTable(
+  "project",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    about: text("about"),
+    slug: text("slug").notNull(),
+    externalLink: text("external_link"),
+    featuredImageId: text("featured_image_id"),
+    imageIds: json("image_ids").$type<string[]>().default([]),
+    displayOrder: integer("display_order").default(0),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    uniqueSlugPerUser: unique().on(table.slug, table.userId),
+  })
+);
 
 export const projectRelations = relations(project, ({ one, many }) => ({
   user: one(user, {

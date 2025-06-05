@@ -157,7 +157,7 @@ export function ProfileForm({
 
   if (!isEditing) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-2xl font-bold">Profile</h1>

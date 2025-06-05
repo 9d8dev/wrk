@@ -65,7 +65,7 @@ export default async function ProfilePage() {
   }
 
   const { profile, socialLinks, profileImageUrl } = await getProfileData(
-    session.user.id,
+    session.user.id
   );
 
   return (
