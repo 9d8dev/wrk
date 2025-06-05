@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { nanoid } from "nanoid";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/project";
 import { uploadImage } from "@/lib/actions/media";
@@ -200,20 +199,18 @@ export function QuickCreateProject() {
 
       // Create project with featured image being the selected one
       const projectData = {
-        id: nanoid(),
         title,
-        slug,
         externalLink: externalLink || null,
         about: about || null,
         featuredImageId: uploadedImageIds[featuredImageIndex] || null,
         imageIds: uploadedImageIds,
-        displayOrder: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userId: "", // Will be set by server action
       };
 
-      await createProject(projectData);
+      const result = await createProject(projectData);
+      
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       toast.success("Project created successfully!");
 
       // Clear form
