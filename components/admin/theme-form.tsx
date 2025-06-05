@@ -57,6 +57,12 @@ const themeOptions = [
     description: "Dynamic masonry layout with varying heights",
     gridType: "masonry" as const,
   },
+  {
+    id: "square",
+    label: "Square Layout",
+    description: "Uniform square grid layout",
+    gridType: "square" as const,
+  },
 ];
 
 // Placeholder SVG component - you can replace these with your custom SVGs
@@ -72,59 +78,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
         className="text-muted-foreground"
       >
         {themeId === "grid" && (
-          <>
-            <rect
-              x="5"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="30"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="55"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="5"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="30"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="55"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </>
-        )}
-        {themeId === "minimal" && (
-          <>
+          <div>
             <rect
               x="5"
               y="8"
@@ -133,89 +87,81 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
               fill="currentColor"
               opacity="0.3"
             />
+          </div>
+        )}
+        {themeId === "minimal" && (
+          <div>
             <rect
               x="5"
-              y="20"
+              y="5"
               width="70"
-              height="8"
+              height="70"
               fill="currentColor"
               opacity="0.3"
             />
-            <rect
-              x="5"
-              y="32"
-              width="70"
-              height="8"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="5"
-              y="44"
-              width="70"
-              height="8"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </>
+          </div>
         )}
         {themeId === "masonry" && (
+          <div>
+            <rect
+              x="5"
+              y="5"
+              width="70"
+              height="70"
+              fill="currentColor"
+              opacity="0.3"
+            />
+          </div>
+        )}
+        {themeId === "square" && (
           <>
             <rect
               x="5"
               y="5"
-              width="15"
+              width="20"
               height="20"
               fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
             <rect
-              x="25"
+              x="30"
               y="5"
-              width="15"
-              height="12"
+              width="20"
+              height="20"
               fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
             <rect
-              x="45"
+              x="55"
               y="5"
-              width="15"
-              height="25"
+              width="20"
+              height="20"
               fill="currentColor"
-              opacity="0.5"
-            />
-            <rect
-              x="65"
-              y="5"
-              width="15"
-              height="15"
-              fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
             <rect
               x="5"
               y="30"
-              width="15"
-              height="15"
+              width="20"
+              height="20"
               fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
             <rect
-              x="25"
-              y="22"
-              width="15"
-              height="18"
+              x="30"
+              y="30"
+              width="20"
+              height="20"
               fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
             <rect
-              x="45"
-              y="35"
-              width="15"
-              height="12"
+              x="55"
+              y="30"
+              width="20"
+              height="20"
               fill="currentColor"
-              opacity="0.5"
+              opacity="0.3"
             />
           </>
         )}
