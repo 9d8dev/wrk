@@ -19,7 +19,7 @@ type ProjectData = {
   title: string;
   about?: string | null;
   externalLink?: string | null;
-  imageIds?: string[] | null;
+  imageIds?: string[];
   featuredImageId?: string | null;
   displayOrder?: number | null;
 };
@@ -81,12 +81,14 @@ export async function createProject(
     // Ensure slug uniqueness within user's projects
     let slug = baseSlug;
     let counter = 1;
-    
+
     while (true) {
       const existingProject = await db
         .select({ id: projectTable.id })
         .from(projectTable)
-        .where(and(eq(projectTable.userId, userId), eq(projectTable.slug, slug)))
+        .where(
+          and(eq(projectTable.userId, userId), eq(projectTable.slug, slug))
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -107,7 +109,7 @@ export async function createProject(
         slug,
         about: data.about || null,
         externalLink: data.externalLink || null,
-        imageIds: data.imageIds || null,
+        imageIds: data.imageIds || [],
         featuredImageId: data.featuredImageId || null,
         displayOrder: newDisplayOrder,
         createdAt: new Date(),
@@ -193,14 +195,14 @@ export async function updateProject(
       // Ensure slug uniqueness within user's projects (excluding current project)
       slug = baseSlug;
       let counter = 1;
-      
+
       while (true) {
         const existingProject = await db
           .select({ id: projectTable.id })
           .from(projectTable)
           .where(
             and(
-              eq(projectTable.userId, userId), 
+              eq(projectTable.userId, userId),
               eq(projectTable.slug, slug),
               // Exclude current project from check
               sql`${projectTable.id} != ${id}`
@@ -222,6 +224,8 @@ export async function updateProject(
       .update(projectTable)
       .set({
         ...data,
+        // Ensure imageIds defaults to empty array if not provided
+        imageIds: data.imageIds ?? undefined,
         slug,
         updatedAt: new Date(),
       })
