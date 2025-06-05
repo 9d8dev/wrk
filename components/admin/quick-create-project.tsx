@@ -200,16 +200,16 @@ export function QuickCreateProject() {
       // Create project with featured image being the selected one
       const projectData = {
         title,
-        externalLink: externalLink || null,
-        about: about || null,
-        featuredImageId: uploadedImageIds[featuredImageIndex] || null,
+        externalLink: externalLink || "",
+        about: about || undefined,
+        featuredImageId: uploadedImageIds[featuredImageIndex] || undefined,
         imageIds: uploadedImageIds,
       };
 
       const result = await createProject(projectData);
-      
+
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || "Failed to create project");
       }
       toast.success("Project created successfully!");
 

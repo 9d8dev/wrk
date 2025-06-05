@@ -3,7 +3,6 @@ import { CreateProject } from "@/components/admin/create-project";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { ProjectList } from "@/components/admin/project-list";
 import { PageWrapper } from "@/components/admin/page-wrapper";
-import { FolderOpen } from "lucide-react";
 
 import { getProfileByUserId } from "@/lib/data/profile";
 import { getAllProjects } from "@/lib/data/project";
@@ -57,7 +56,7 @@ async function getAdminData(userId: string) {
         } catch (error) {
           console.error(
             `Failed to load images for project ${project.id}:`,
-            error,
+            error
           );
           return {
             project,
@@ -65,7 +64,7 @@ async function getAdminData(userId: string) {
             additionalImages: [],
           };
         }
-      }),
+      })
     );
 
     return { projects: projectsWithImages };
@@ -101,45 +100,18 @@ export default async function AdminPage() {
       </AdminHeader>
 
       <PageWrapper>
-        {projects.length === 0 ? (
-          <EmptyProjectsState />
-        ) : (
-          <div className="space-y-8 max-w-3xl mx-auto">
-            <QuickCreateProject />
+        <div className="space-y-8 max-w-3xl mx-auto">
+          <QuickCreateProject />
+          {projects.length > 0 ? (
             <ProjectList
               projectsWithImages={projects}
               username={session.user.username}
             />
-          </div>
-        )}
+          ) : (
+            <div>No projects found.</div>
+          )}
+        </div>
       </PageWrapper>
     </>
-  );
-}
-
-function EmptyProjectsState() {
-  return (
-    <div className="text-center py-16">
-      <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
-      <h2 className="text-2xl font-semibold mb-4">No projects yet</h2>
-      <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-        Get started by creating your first project. You can drag and drop images
-        or use the create button above.
-      </p>
-      <div className="space-y-6">
-        <QuickCreateProject />
-        <div className="text-sm text-muted-foreground">
-          <p className="mb-2">Quick tips:</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center text-xs">
-            <span>
-              Press <kbd className="px-1.5 py-0.5 bg-muted rounded">C</kbd> to
-              create project
-            </span>
-            <span>Drag images anywhere to start</span>
-            <span>Auto-generates title from filename</span>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
