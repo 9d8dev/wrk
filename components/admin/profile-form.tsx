@@ -20,7 +20,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile } from "@/lib/actions/profile";
 import { Profile, SocialLink } from "@/types";
-import { Edit, X, Plus, Trash2, Upload } from "lucide-react";
+import {
+  Edit,
+  X,
+  Plus,
+  Trash2,
+  Upload,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import {
   FileUploader,
   FileInput,
@@ -28,11 +37,11 @@ import {
   FileUploaderItem,
 } from "@/components/ui/file-upload";
 import Image from "next/image";
+import { useUsernameAvailability } from "@/hooks/use-username-availability";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   username: z.string().min(1, { message: "Username is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
   bio: z.string().optional(),
   location: z.string().optional(),
   socialLinks: z
@@ -76,7 +85,6 @@ export function ProfileForm({
     defaultValues: {
       name: user.name || "",
       username: user.username || "",
-      email: user.email || "",
       bio: profile?.bio || "",
       location: profile?.location || "",
       socialLinks:
@@ -94,6 +102,17 @@ export function ProfileForm({
     control: form.control,
     name: "socialLinks",
   });
+
+  // Watch username for availability checking
+  const currentUsername = form.watch("username");
+  const originalUsername = user.username || "";
+
+  // Only check availability if username has changed from original
+  const shouldCheckAvailability =
+    currentUsername !== originalUsername && currentUsername.length >= 3;
+  const usernameAvailability = useUsernameAvailability(
+    shouldCheckAvailability ? currentUsername : ""
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -117,6 +136,15 @@ export function ProfileForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // Validate username availability if it has changed
+      if (
+        shouldCheckAvailability &&
+        usernameAvailability.isAvailable !== true
+      ) {
+        toast.error("Please choose an available username");
+        return;
+      }
+
       setIsSubmitting(true);
 
       const formData = new FormData();
@@ -132,7 +160,7 @@ export function ProfileForm({
         userData: {
           name: values.name,
           username: values.username,
-          email: values.email,
+          email: user.email,
         },
         socialLinks:
           values.socialLinks?.filter((link) => link.platform && link.url) || [],
@@ -351,27 +379,39 @@ export function ProfileForm({
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="username" {...field} />
+                    <div className="relative">
+                      <Input placeholder="username" {...field} />
+                      {shouldCheckAvailability && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          {usernameAvailability.isChecking ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : usernameAvailability.isAvailable === true ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : usernameAvailability.isAvailable === false ? (
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
+                  {shouldCheckAvailability && usernameAvailability.message && (
+                    <p
+                      className={`text-xs ${
+                        usernameAvailability.isAvailable === true
+                          ? "text-green-600"
+                          : usernameAvailability.isAvailable === false
+                          ? "text-red-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {usernameAvailability.message}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="your.email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}
@@ -467,7 +507,14 @@ export function ProfileForm({
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                (shouldCheckAvailability &&
+                  usernameAvailability.isAvailable !== true)
+              }
+            >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
             <Button
