@@ -16,13 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { updateTheme } from "@/lib/actions/theme";
-import { Theme, gridTypes, modes } from "@/db/schema";
+import { Theme, gridTypes } from "@/db/schema";
 import { Edit, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   gridType: z.enum(gridTypes),
-  mode: z.enum(modes),
 });
 
 type SessionUser = {
@@ -41,32 +40,22 @@ type ThemeFormProps = {
 // Define theme combinations
 const themeOptions = [
   {
-    id: "grid-light",
-    label: "Grid Light",
-    description: "Clean grid layout with light theme",
+    id: "grid",
+    label: "Grid Layout",
+    description: "Clean grid layout for your projects",
     gridType: "grid" as const,
-    mode: "light" as const,
   },
   {
-    id: "grid-dark",
-    label: "Grid Dark",
-    description: "Clean grid layout with dark theme",
-    gridType: "grid" as const,
-    mode: "dark" as const,
-  },
-  {
-    id: "list-light",
-    label: "Minimal Light",
-    description: "List layout with light theme",
+    id: "minimal",
+    label: "Minimal Layout",
+    description: "Simple list layout with minimal styling",
     gridType: "minimal" as const,
-    mode: "light" as const,
   },
   {
-    id: "masonry-auto",
-    label: "Masonry Auto",
-    description: "Dynamic masonry layout with auto theme",
+    id: "masonry",
+    label: "Masonry Layout",
+    description: "Dynamic masonry layout with varying heights",
     gridType: "masonry" as const,
-    mode: "light" as const,
   },
 ];
 
@@ -82,7 +71,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
         xmlns="http://www.w3.org/2000/svg"
         className="text-muted-foreground"
       >
-        {themeId === "grid-light" && (
+        {themeId === "grid" && (
           <>
             <rect
               x="5"
@@ -134,59 +123,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
             />
           </>
         )}
-        {themeId === "grid-dark" && (
-          <>
-            <rect
-              x="5"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-            <rect
-              x="30"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-            <rect
-              x="55"
-              y="5"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-            <rect
-              x="5"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-            <rect
-              x="30"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-            <rect
-              x="55"
-              y="25"
-              width="20"
-              height="15"
-              fill="currentColor"
-              opacity="0.8"
-            />
-          </>
-        )}
-        {themeId === "list-light" && (
+        {themeId === "minimal" && (
           <>
             <rect
               x="5"
@@ -222,7 +159,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
             />
           </>
         )}
-        {themeId === "masonry-auto" && (
+        {themeId === "masonry" && (
           <>
             <rect
               x="5"
@@ -295,12 +232,11 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       gridType: (theme?.gridType as (typeof gridTypes)[number]) || "grid",
-      mode: (theme?.mode as (typeof modes)[number]) || "light",
     },
   });
 
   const currentValues = form.watch();
-  const currentThemeId = `${currentValues.gridType}-${currentValues.mode}`;
+  const currentThemeId = currentValues.gridType;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -330,7 +266,6 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
         userId: user.id,
         themeData: {
           gridType: values.gridType,
-          mode: values.mode,
         },
       });
 
@@ -346,15 +281,12 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
 
   function selectTheme(option: (typeof themeOptions)[0]) {
     form.setValue("gridType", option.gridType);
-    form.setValue("mode", option.mode);
   }
 
   if (!isEditing) {
     const currentOption =
       themeOptions.find(
-        (option) =>
-          option.gridType === (theme?.gridType || "grid") &&
-          option.mode === (theme?.mode || "light"),
+        (option) => option.gridType === (theme?.gridType || "grid")
       ) || themeOptions[0];
 
     return (
@@ -389,10 +321,6 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
                   <div>
                     <span className="font-medium">Layout:</span>{" "}
                     {currentOption.gridType}
-                  </div>
-                  <div>
-                    <span className="font-medium">Theme:</span>{" "}
-                    {currentOption.mode}
                   </div>
                 </div>
               </div>
@@ -443,7 +371,7 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
                             "relative p-4 border-2 rounded-lg text-left transition-all hover:border-primary/50",
                             isSelected
                               ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted/50",
+                              : "border-border hover:bg-muted/50"
                           )}
                         >
                           {isSelected && (
@@ -468,9 +396,6 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
                             <div className="flex gap-3 text-xs">
                               <span className="px-2 py-1 bg-muted rounded-md">
                                 {option.gridType}
-                              </span>
-                              <span className="px-2 py-1 bg-muted rounded-md">
-                                {option.mode}
                               </span>
                             </div>
                           </div>

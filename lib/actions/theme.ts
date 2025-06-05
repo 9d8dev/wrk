@@ -1,19 +1,17 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { theme, gridTypes, modes } from "@/db/schema";
+import { theme, gridTypes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 
-type GridType = typeof gridTypes[number];
-type Mode = typeof modes[number];
+type GridType = (typeof gridTypes)[number];
 
 type UpdateThemeParams = {
   userId: string;
   themeData: {
     gridType: GridType;
-    mode: Mode;
   };
 };
 
@@ -36,7 +34,6 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
         .update(theme)
         .set({
           gridType: themeData.gridType as GridType,
-          mode: themeData.mode as Mode,
           updatedAt: new Date(),
         })
         .where(eq(theme.id, themeId));
@@ -48,7 +45,6 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
         id: themeId,
         userId,
         gridType: themeData.gridType as GridType,
-        mode: themeData.mode as Mode,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -61,11 +57,11 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
       .from(user)
       .where(eq(user.id, userId))
       .limit(1);
-    
+
     if (userResult.length > 0 && userResult[0].username) {
       revalidatePath(`/${userResult[0].username}`);
     }
-    
+
     revalidatePath("/admin/theme");
     return { success: true };
   } catch (error) {
@@ -94,7 +90,7 @@ export async function getThemeByUsername(username: string) {
     // First get the user to get their ID
     const { getUserByUsername } = await import("@/lib/data/user");
     const userResult = await getUserByUsername(username);
-    
+
     if (!userResult.success || !userResult.data) {
       return null;
     }
