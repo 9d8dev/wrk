@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { profile, user, socialLink } from "@/db/schema";
+import { profile, user, socialLink, account } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/actions/media";
@@ -10,6 +10,7 @@ import { ActionResponse, REVALIDATION_PATHS } from "./utils";
 import { updateProfileSchema } from "./schemas";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { notifyNewUserSignup } from "@/lib/utils/discord";
 
 type UpdateProfileParams = {
   profileData: {
@@ -260,6 +261,31 @@ export async function createProfile(
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    // Check if this is an OAuth user and send Discord notification
+    const userAccounts = await db
+      .select()
+      .from(account)
+      .where(eq(account.userId, userId))
+      .limit(1);
+
+    // If user has OAuth accounts (GitHub, Google), send Discord notification
+    if (
+      userAccounts.length > 0 &&
+      userAccounts[0].providerId !== "credential"
+    ) {
+      try {
+        await notifyNewUserSignup({
+          name: session.user.name || "Unknown",
+          email: session.user.email,
+          username: username || "unknown",
+          createdAt: new Date(),
+        });
+      } catch (error) {
+        console.error("Failed to send Discord notification:", error);
+        // Don't fail profile creation if Discord notification fails
+      }
+    }
 
     // Revalidate paths
     revalidatePath("/admin");
