@@ -40,6 +40,12 @@ type ThemeFormProps = {
 // Define theme combinations
 const themeOptions = [
   {
+    id: "masonry",
+    label: "Masonry Layout",
+    description: "Dynamic masonry layout with varying heights",
+    gridType: "masonry" as const,
+  },
+  {
     id: "grid",
     label: "Grid Layout",
     description: "Clean grid layout for your projects",
@@ -50,12 +56,6 @@ const themeOptions = [
     label: "Minimal Layout",
     description: "Simple list layout with minimal styling",
     gridType: "minimal" as const,
-  },
-  {
-    id: "masonry",
-    label: "Masonry Layout",
-    description: "Dynamic masonry layout with varying heights",
-    gridType: "masonry" as const,
   },
   {
     id: "square",
@@ -114,7 +114,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
           </div>
         )}
         {themeId === "square" && (
-          <>
+          <div>
             <rect
               x="5"
               y="5"
@@ -123,47 +123,7 @@ function ThemePreviewSVG({ themeId }: { themeId: string }) {
               fill="currentColor"
               opacity="0.3"
             />
-            <rect
-              x="30"
-              y="5"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="55"
-              y="5"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="5"
-              y="30"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="30"
-              y="30"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-            <rect
-              x="55"
-              y="30"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </>
+          </div>
         )}
       </svg>
     </div>
