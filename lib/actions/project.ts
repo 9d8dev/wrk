@@ -72,11 +72,30 @@ export async function createProject(
         ? highestOrderProjects[0].displayOrder + 1
         : 0;
 
-    // Generate slug from title
-    const slug = data.title
+    // Generate unique slug from title
+    const baseSlug = data.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+    // Ensure slug uniqueness within user's projects
+    let slug = baseSlug;
+    let counter = 1;
+    
+    while (true) {
+      const existingProject = await db
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(and(eq(projectTable.userId, userId), eq(projectTable.slug, slug)))
+        .limit(1);
+
+      if (existingProject.length === 0) {
+        break; // Slug is unique
+      }
+
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
     // Create project
     const newProject = await db
@@ -166,10 +185,36 @@ export async function updateProject(
     // Generate new slug if title changed
     let slug = existing[0].slug;
     if (data.title && data.title !== existing[0].title) {
-      slug = data.title
+      const baseSlug = data.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
+
+      // Ensure slug uniqueness within user's projects (excluding current project)
+      slug = baseSlug;
+      let counter = 1;
+      
+      while (true) {
+        const existingProject = await db
+          .select({ id: projectTable.id })
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.userId, userId), 
+              eq(projectTable.slug, slug),
+              // Exclude current project from check
+              sql`${projectTable.id} != ${id}`
+            )
+          )
+          .limit(1);
+
+        if (existingProject.length === 0) {
+          break; // Slug is unique
+        }
+
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
     }
 
     // Update project

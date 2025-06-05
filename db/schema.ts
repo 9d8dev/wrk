@@ -6,6 +6,7 @@ import {
   boolean,
   json,
   integer,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // USER TABLE
@@ -116,7 +117,7 @@ export const project = pgTable("project", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   about: text("about"),
-  slug: text("slug").notNull().unique(),
+  slug: text("slug").notNull(),
   externalLink: text("external_link"),
   featuredImageId: text("featured_image_id"),
   imageIds: json("image_ids").$type<string[]>().default([]),
@@ -126,7 +127,9 @@ export const project = pgTable("project", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-});
+}, (table) => ({
+  uniqueSlugPerUser: unique().on(table.slug, table.userId),
+}));
 
 export const projectRelations = relations(project, ({ one, many }) => ({
   user: one(user, {

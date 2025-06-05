@@ -75,6 +75,7 @@ Key entities and relationships:
 - Each migration has an associated snapshot in `/db/migrations/meta/`
 - Use `pnpm db:generate` to create new migrations from schema changes
 - Use `pnpm db:migrate` to apply pending migrations
+- **Note:** There's a pending migration (0004_warm_brother_voodoo.sql) that changes project slugs from globally unique to unique per user. Apply with `pnpm db:push` or `pnpm db:migrate` when ready.
 
 ### Server Actions Pattern
 - All data mutations use Next.js Server Actions in `/lib/actions/`
