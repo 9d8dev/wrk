@@ -78,6 +78,17 @@ export async function createProject(
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
+    // Check for existing slug for this user
+    const existingSlug = await db
+      .select({ id: projectTable.id })
+      .from(projectTable)
+      .where(and(eq(projectTable.userId, userId), eq(projectTable.slug, slug)))
+      .limit(1);
+
+    if (existingSlug.length > 0) {
+      return { success: false, error: "A project with this slug already exists" };
+    }
+
     // Create project
     const newProject = await db
       .insert(projectTable)
@@ -170,6 +181,22 @@ export async function updateProject(
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
+    }
+
+    // Check for slug conflicts
+    const slugConflict = await db
+      .select({ id: projectTable.id })
+      .from(projectTable)
+      .where(
+        and(
+          eq(projectTable.userId, userId),
+          eq(projectTable.slug, slug),
+        )
+      )
+      .limit(1);
+
+    if (slugConflict[0] && slugConflict[0].id !== id) {
+      return { success: false, error: "A project with this slug already exists" };
     }
 
     // Update project

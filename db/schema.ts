@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   pgTable,
+  uniqueIndex,
   text,
   timestamp,
   boolean,
@@ -116,7 +117,7 @@ export const project = pgTable("project", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   about: text("about"),
-  slug: text("slug").notNull().unique(),
+  slug: text("slug").notNull(),
   externalLink: text("external_link"),
   featuredImageId: text("featured_image_id"),
   imageIds: json("image_ids").$type<string[]>().default([]),
@@ -127,6 +128,10 @@ export const project = pgTable("project", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 });
+
+export const projectSlugUserIdIdx = uniqueIndex(
+  "project_slug_user_id_unique",
+).on(project.slug, project.userId);
 
 export const projectRelations = relations(project, ({ one, many }) => ({
   user: one(user, {
