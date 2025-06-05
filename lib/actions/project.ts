@@ -115,16 +115,16 @@ export async function createProject(
       .insert(projectTable)
       .values({
         id: nanoid(),
-        userId,
         title: cleanedData.title,
-        slug,
         about: cleanedData.about,
+        slug,
         externalLink: cleanedData.externalLink,
-        imageIds: cleanedData.imageIds,
         featuredImageId: cleanedData.featuredImageId,
+        imageIds: cleanedData.imageIds,
         displayOrder: cleanedData.displayOrder,
         createdAt: new Date(),
         updatedAt: new Date(),
+        userId,
       })
       .returning();
 
