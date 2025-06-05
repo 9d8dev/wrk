@@ -99,19 +99,30 @@ export async function createProject(
       counter++;
     }
 
+    // Validate and clean the data before insertion
+    const cleanedData = {
+      title: data.title,
+      about: data.about || null,
+      externalLink: data.externalLink || null,
+      // Ensure imageIds is always an array, never null or undefined
+      imageIds: Array.isArray(data.imageIds) ? data.imageIds : [],
+      featuredImageId: data.featuredImageId || null,
+      displayOrder: data.displayOrder || newDisplayOrder,
+    };
+
     // Create project
     const newProject = await db
       .insert(projectTable)
       .values({
         id: nanoid(),
         userId,
-        title: data.title,
+        title: cleanedData.title,
         slug,
-        about: data.about || null,
-        externalLink: data.externalLink || null,
-        imageIds: data.imageIds || [],
-        featuredImageId: data.featuredImageId || null,
-        displayOrder: newDisplayOrder,
+        about: cleanedData.about,
+        externalLink: cleanedData.externalLink,
+        imageIds: cleanedData.imageIds,
+        featuredImageId: cleanedData.featuredImageId,
+        displayOrder: cleanedData.displayOrder,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -219,13 +230,22 @@ export async function updateProject(
       }
     }
 
+    // Validate and clean the data before update
+    const cleanedData = {
+      ...data,
+      // Ensure imageIds is always an array if provided
+      imageIds: data.imageIds
+        ? Array.isArray(data.imageIds)
+          ? data.imageIds
+          : []
+        : undefined,
+    };
+
     // Update project
     const updated = await db
       .update(projectTable)
       .set({
-        ...data,
-        // Ensure imageIds defaults to empty array if not provided
-        imageIds: data.imageIds ?? undefined,
+        ...cleanedData,
         slug,
         updatedAt: new Date(),
       })
