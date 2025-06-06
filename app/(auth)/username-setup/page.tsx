@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     from?: string;
-  };
+  }>;
 }
 
 export default async function UsernameSetupPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
   const session = await getSession();
 
   if (!session?.user) {
@@ -19,7 +20,7 @@ export default async function UsernameSetupPage({ searchParams }: PageProps) {
   }
 
   // Allow users to change their username if they came from OAuth
-  const isFromOAuth = searchParams.from === "oauth";
+  const isFromOAuth = resolvedSearchParams.from === "oauth";
 
   // If user already has a username and didn't come from OAuth flow, redirect to admin
   if (session.user.username && !isFromOAuth) {
@@ -30,7 +31,7 @@ export default async function UsernameSetupPage({ searchParams }: PageProps) {
     <main className="min-h-screen flex items-center justify-center p-4">
       <UsernameSetupForm
         user={session.user}
-        isEdit={session.user.username && isFromOAuth}
+        isEdit={Boolean(session.user.username) && isFromOAuth}
       />
     </main>
   );
