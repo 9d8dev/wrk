@@ -1,29 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const sessionCookie = getSessionCookie(request, {
-    cookiePrefix: "better-auth", // Match the prefix in auth.ts
-  });
   const pathname = request.nextUrl.pathname;
+
+  // Get session using the same method as server components
+  let session;
+  try {
+    session = await auth.api.getSession({
+      headers: request.headers,
+    });
+  } catch (error) {
+    console.error("Middleware session check failed:", error);
+    session = null;
+  }
 
   // Handle upload API route separately
   if (pathname === "/api/upload") {
     // For upload routes, just check authentication
-    if (!sessionCookie) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.next();
   }
 
   // Redirect authenticated users from homepage to admin
-  if (pathname === "/" && sessionCookie) {
+  if (pathname === "/" && session?.user) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   // Public routes that don't require authentication
   if (
     pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/username-setup") ||
     pathname === "/" ||
     pathname.startsWith("/api")
   ) {
@@ -31,7 +40,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if user is authenticated
-  if (!sessionCookie) {
+  if (!session?.user) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
@@ -42,5 +51,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/admin/:path*", "/onboarding", "/api/upload"],
+  matcher: ["/", "/admin/:path*", "/onboarding", "/username-setup", "/api/upload"],
 };

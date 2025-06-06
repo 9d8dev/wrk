@@ -9,7 +9,8 @@
       "WebFetch(domain:docs.polar.sh)",
       "Bash(pnpm build:*)",
       "WebFetch(domain:nextjs.org)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(pnpm list:*)"
     ],
     "deny": []
   },
