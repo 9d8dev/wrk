@@ -15,7 +15,6 @@ import {
   theme,
   lead,
   subscriptionHistory,
-  session,
   account,
   socialLink,
 } from "@/db/schema";
