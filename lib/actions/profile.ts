@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { profile, user, socialLink, account } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { uploadImage } from "@/lib/actions/media";
 import { nanoid } from "nanoid";
 import { ActionResponse, REVALIDATION_PATHS } from "./utils";
@@ -52,6 +52,7 @@ export async function updateProfile(
     }
 
     const userId = session.user.id;
+    const oldUsername = session.user.username; // Store old username for revalidation
 
     // Validate input
     const validation = updateProfileSchema.safeParse({
@@ -176,10 +177,33 @@ export async function updateProfile(
         }
       }
 
-      // Revalidate paths
+      // Enhanced revalidation for username changes
+      const usernameChanged = oldUsername !== params.userData.username;
+
+      if (usernameChanged && oldUsername) {
+        // Revalidate old username paths
+        const oldPaths = REVALIDATION_PATHS.profile(oldUsername);
+        for (const path of oldPaths) {
+          revalidatePath(path);
+        }
+        // Force revalidation of old username page
+        revalidatePath(`/${oldUsername}`, "layout");
+        revalidatePath(`/${oldUsername}`, "page");
+      }
+
+      // Revalidate new/current username paths
       const paths = REVALIDATION_PATHS.profile(params.userData.username);
       for (const path of paths) {
         revalidatePath(path);
+      }
+
+      if (usernameChanged) {
+        // Force revalidation of new username page
+        revalidatePath(`/${params.userData.username}`, "layout");
+        revalidatePath(`/${params.userData.username}`, "page");
+        // Invalidate user cache tags
+        revalidateTag(`user:${userId}`);
+        revalidateTag(`profile:${profileId}`);
       }
 
       return {

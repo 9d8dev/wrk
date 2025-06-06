@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/file-upload";
 import Image from "next/image";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -80,6 +81,7 @@ export function ProfileForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState<File[] | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -148,6 +150,7 @@ export function ProfileForm({
       }
 
       setIsSubmitting(true);
+      const usernameChanged = values.username !== originalUsername;
 
       const formData = new FormData();
       if (profileImageFile && profileImageFile.length > 0) {
@@ -175,6 +178,13 @@ export function ProfileForm({
         toast.success("Profile updated successfully");
         setIsEditing(false);
         setProfileImageFile(null);
+
+        // If username changed, refresh the page to update session data
+        if (usernameChanged) {
+          setTimeout(() => {
+            router.refresh();
+          }, 500); // Small delay to ensure toast is visible
+        }
       } else {
         throw new Error(result.error);
       }
