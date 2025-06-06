@@ -14,6 +14,8 @@ import {
   deleteProjectSchema,
   reorderProjectsSchema,
 } from "./schemas";
+import { deleteMediaBatchWithCleanup } from "@/lib/actions/media";
+import { getAllMediaByProjectId } from "@/lib/data/media";
 
 type ProjectData = {
   title: string;
@@ -314,6 +316,24 @@ export async function deleteProject(id: string): Promise<ActionResponse<void>> {
 
     if (!existing || existing.length === 0) {
       return { success: false, error: "Project not found or unauthorized" };
+    }
+
+    // Get all media associated with this project before deletion
+    const mediaResult = await getAllMediaByProjectId(id);
+    const mediaIds = mediaResult.success
+      ? mediaResult.data.map((m) => m.id)
+      : [];
+
+    // Delete associated media files from both database and R2 storage
+    if (mediaIds.length > 0) {
+      const mediaDeleteResult = await deleteMediaBatchWithCleanup(mediaIds);
+      if (!mediaDeleteResult.success) {
+        console.warn(
+          `Failed to delete some media for project ${id}:`,
+          mediaDeleteResult.error
+        );
+        // Continue with project deletion even if media cleanup partially fails
+      }
     }
 
     // Delete project

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createMedia } from "@/lib/data/media";
+import { deleteMediaWithCleanup } from "@/lib/actions/media";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import sharp from "sharp";
@@ -68,9 +69,50 @@ export async function POST(request: NextRequest) {
       height,
     });
   } catch (error) {
-    console.error("Media creation error:", error);
+    console.error("Create media error:", error);
     return NextResponse.json(
-      { error: "Failed to create media record" },
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Check authentication
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const mediaId = searchParams.get("id");
+
+    if (!mediaId) {
+      return NextResponse.json(
+        { error: "Media ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Delete media from both database and R2 storage
+    const result = await deleteMediaWithCleanup(mediaId);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || "Failed to delete media" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete media error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

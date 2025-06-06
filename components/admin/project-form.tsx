@@ -38,6 +38,7 @@ import {
 import Image from "next/image";
 
 import type { Media, Project } from "@/db/schema";
+import { deleteMediaWithCleanup } from "@/lib/actions/media";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -217,12 +218,30 @@ export const ProjectForm = ({
   );
 
   // Handle removing an image
-  const handleRemoveImage = useCallback((imageId: string) => {
+  const handleRemoveImage = useCallback(async (imageId: string) => {
     setImages((prev) => {
+      const removedImage = prev.find((img) => img.id === imageId);
+
+      // If it's an existing image, delete it from database and R2 storage
+      if (removedImage?.type === "existing" && removedImage.media?.id) {
+        deleteMediaWithCleanup(removedImage.media.id)
+          .then((result) => {
+            if (!result.success) {
+              console.error("Failed to delete media:", result.error);
+              toast.error(`Failed to delete image: ${result.error}`);
+            } else {
+              toast.success("Image deleted successfully");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting media:", error);
+            toast.error("Failed to delete image");
+          });
+      }
+
       const updatedImages = prev.filter((img) => img.id !== imageId);
 
-      // Clean up preview URL if it exists
-      const removedImage = prev.find((img) => img.id === imageId);
+      // Clean up preview URL if it exists (for new images)
       if (removedImage?.previewUrl) {
         URL.revokeObjectURL(removedImage.previewUrl);
       }
