@@ -42,6 +42,7 @@ export function QuickCreateProject() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [featuredImageIndex, setFeaturedImageIndex] = useState(0);
+  const [hasManuallyEditedTitle, setHasManuallyEditedTitle] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generate preview URLs
@@ -56,12 +57,12 @@ export function QuickCreateProject() {
 
   // Auto-generate title and slug from first image
   useEffect(() => {
-    if (projectImages.length > 0 && !title) {
+    if (projectImages.length > 0 && !title && !hasManuallyEditedTitle) {
       const generatedTitle = generateTitleFromFilename(projectImages[0].name);
       setTitle(generatedTitle);
       setSlug(generateSlugFromTitle(generatedTitle));
     }
-  }, [projectImages, title]);
+  }, [projectImages, title, hasManuallyEditedTitle]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -160,7 +161,14 @@ export function QuickCreateProject() {
   };
 
   const handleRemoveImage = (index: number) => {
-    setProjectImages((prev) => prev.filter((_, i) => i !== index));
+    setProjectImages((prev) => {
+      const newImages = prev.filter((_, i) => i !== index);
+      // If all images are removed, reset the manual edit flag
+      if (newImages.length === 0) {
+        setHasManuallyEditedTitle(false);
+      }
+      return newImages;
+    });
     if (featuredImageIndex >= index && featuredImageIndex > 0) {
       setFeaturedImageIndex(featuredImageIndex - 1);
     }
@@ -174,6 +182,7 @@ export function QuickCreateProject() {
     setExternalLink("");
     setShowAdvanced(false);
     setFeaturedImageIndex(0);
+    setHasManuallyEditedTitle(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -353,6 +362,7 @@ export function QuickCreateProject() {
               onChange={(e) => {
                 setTitle(e.target.value);
                 setSlug(generateSlugFromTitle(e.target.value));
+                setHasManuallyEditedTitle(true);
               }}
             />
             <Input
