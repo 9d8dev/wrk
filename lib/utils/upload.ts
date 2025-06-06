@@ -71,7 +71,18 @@ export async function uploadImageDirectly(
     });
 
     if (!uploadResponse.ok) {
-      throw new Error(`Direct upload failed: ${uploadResponse.status}`);
+      // More detailed error for debugging
+      const errorText = await uploadResponse
+        .text()
+        .catch(() => "Unknown error");
+      console.error("Direct upload failed:", {
+        status: uploadResponse.status,
+        statusText: uploadResponse.statusText,
+        error: errorText,
+      });
+      throw new Error(
+        `Direct upload failed: ${uploadResponse.status} - ${uploadResponse.statusText}`
+      );
     }
 
     if (onProgress) {
@@ -213,17 +224,23 @@ export async function uploadImage(
   projectId?: string,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-  // Use direct upload for files larger than 4MB or always for better reliability
-  if (file.size > 4 * 1024 * 1024) {
-    return uploadImageDirectly(file, projectId, onProgress);
-  }
-
-  // Try direct upload first, fallback to API route if it fails
+  // Always try direct upload first for better performance
   try {
-    return await uploadImageDirectly(file, projectId, onProgress);
+    console.log("Attempting direct upload for:", file.name);
+    const result = await uploadImageDirectly(file, projectId, onProgress);
+    console.log("Direct upload successful for:", file.name);
+    return result;
   } catch (error) {
     console.warn("Direct upload failed, falling back to API route:", error);
-    return uploadImageViaAPI(file, projectId, onProgress);
+
+    // Only try API route if file is small enough (under 4MB after compression)
+    if (file.size <= 4 * 1024 * 1024) {
+      console.log("Trying API route fallback for:", file.name);
+      return uploadImageViaAPI(file, projectId, onProgress);
+    } else {
+      // For large files, we can't use API route, so return the error
+      throw error;
+    }
   }
 }
 
