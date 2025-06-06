@@ -20,6 +20,7 @@ interface UsernameSelectionProps {
   onUsernameSelected: (username: string) => void;
   onSkip?: () => void;
   isLoading?: boolean;
+  skipButtonText?: string;
 }
 
 export function UsernameSelection({
@@ -27,6 +28,7 @@ export function UsernameSelection({
   onUsernameSelected,
   onSkip,
   isLoading = false,
+  skipButtonText,
 }: UsernameSelectionProps) {
   const [customUsername, setCustomUsername] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -206,7 +208,7 @@ export function UsernameSelection({
 
           {onSkip && (
             <Button variant="outline" onClick={onSkip} disabled={isLoading}>
-              Skip for now
+              {skipButtonText || "Skip for now"}
             </Button>
           )}
         </div>

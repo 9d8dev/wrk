@@ -261,7 +261,7 @@ const SignInForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/username-setup",
+                callbackURL: "/username-setup?from=oauth",
               });
             } catch (error) {
               console.error("Google sign in error:", error);
@@ -282,7 +282,7 @@ const SignInForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "github",
-                callbackURL: "/username-setup",
+                callbackURL: "/username-setup?from=oauth",
               });
             } catch (error) {
               console.error("GitHub sign in error:", error);
@@ -630,7 +630,7 @@ const SignUpForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/username-setup",
+                callbackURL: "/username-setup?from=oauth",
               });
             } catch (error) {
               console.error("Google sign up error:", error);
@@ -651,7 +651,7 @@ const SignUpForm = () => {
             try {
               await authClient.signIn.social({
                 provider: "github",
-                callbackURL: "/username-setup",
+                callbackURL: "/username-setup?from=oauth",
               });
             } catch (error) {
               console.error("GitHub sign up error:", error);

@@ -15,14 +15,24 @@ interface User {
 
 interface UsernameSetupFormProps {
   user: User;
+  isEdit?: boolean;
 }
 
-export function UsernameSetupForm({ user }: UsernameSetupFormProps) {
+export function UsernameSetupForm({
+  user,
+  isEdit = false,
+}: UsernameSetupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Generate initial username from user data
+  // Generate initial username from user data or use existing username
   const generateInitialUsername = () => {
+    // If editing, use the existing username
+    if (isEdit && user.username) {
+      return user.username;
+    }
+
+    // Otherwise generate from name or email
     if (user.name) {
       return user.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "_");
     }
@@ -58,8 +68,16 @@ export function UsernameSetupForm({ user }: UsernameSetupFormProps) {
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold">Welcome, {user.name || "there"}!</h1>
         <p className="text-muted-foreground">
-          Let&apos;s set up your username for your portfolio URL
+          {isEdit
+            ? "You can customize your username for your portfolio URL"
+            : "Let's set up your username for your portfolio URL"}
         </p>
+        {isEdit && (
+          <p className="text-sm text-muted-foreground">
+            Your current portfolio URL:{" "}
+            <span className="font-mono">wrk.so/{user.username}</span>
+          </p>
+        )}
       </div>
 
       <UsernameSelection
@@ -67,6 +85,7 @@ export function UsernameSetupForm({ user }: UsernameSetupFormProps) {
         onUsernameSelected={handleUsernameSelected}
         onSkip={handleSkip}
         isLoading={isLoading}
+        skipButtonText={isEdit ? "Keep Current Username" : "Skip"}
       />
     </div>
   );
