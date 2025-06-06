@@ -173,6 +173,16 @@ export const ProjectForm = ({
       const availableSlots = 5 - currentImageCount;
       const filesToAdd = files.slice(0, availableSlots);
 
+      // Validate file sizes before adding
+      const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+      const oversizedFiles = filesToAdd.filter(file => file.size > MAX_FILE_SIZE);
+      
+      if (oversizedFiles.length > 0) {
+        const fileNames = oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ');
+        toast.error(`The following files exceed the 15MB limit: ${fileNames}`);
+        return;
+      }
+
       const newImages: ProjectImage[] = filesToAdd.map((file, index) => {
         const id = `new-${Date.now()}-${index}`;
         return {
@@ -243,16 +253,31 @@ export const ProjectForm = ({
 
         if (newImages.length > 0) {
           const uploadPromises = newImages.map(async (img) => {
-            const formData = new FormData();
-            formData.append("file", img.file!);
-            return uploadImage(formData);
+            try {
+              const formData = new FormData();
+              formData.append("file", img.file!);
+              const result = await uploadImage(formData);
+              return { success: true, result, fileName: img.file!.name };
+            } catch (error) {
+              return { 
+                success: false, 
+                error: error instanceof Error ? error.message : 'Upload failed', 
+                fileName: img.file!.name 
+              };
+            }
           });
 
           const uploadResults = await Promise.all(uploadPromises);
+          
+          const failedUploads = uploadResults.filter(r => !r.success);
+          if (failedUploads.length > 0) {
+            const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+            throw new Error(`Failed to upload some images:\n${errorMessages}`);
+          }
 
           uploadResults.forEach((result) => {
-            if (result.success && result.mediaId) {
-              uploadedImageIds.push(result.mediaId);
+            if (result.success && result.result?.mediaId) {
+              uploadedImageIds.push(result.result.mediaId);
             }
           });
         }

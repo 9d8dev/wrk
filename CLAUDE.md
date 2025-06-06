@@ -93,10 +93,19 @@ Key entities and relationships:
 ### Media Management
 - R2 (S3 compatible) integration for file uploads
 - Sharp for image processing with automatic optimization
-- 20MB upload limit configured in Next.js server actions
+- **Upload Limits:**
+  - Client-side validation: 15MB per file
+  - Server-side validation: 15MB per file  
+  - Next.js server action body limit: 50MB total request size
+  - Profile images: 1MB limit
 - Files served from `images.wrk.so` domain
 - Allowed remote image sources: `images.wrk.so`, `*.googleusercontent.com`, `avatars.githubusercontent.com`
 - Media entities track dimensions, size, and MIME type
+- Supported formats: JPEG, PNG, WebP, GIF
+- GIFs are preserved in original format, other images converted to WebP
+- Client-side file size validation prevents oversized uploads
+- Server-side validation with detailed error messages
+- Batch upload error handling reports individual file failures
 
 ### Webhook Architecture
 - Comprehensive webhook type system in `/lib/polar-webhook-types.ts`

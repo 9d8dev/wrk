@@ -22,6 +22,18 @@ export const uploadImage = async (formData: FormData, projectId?: string) => {
     throw new Error("Missing file");
   }
 
+  // Validate file size (15MB max)
+  const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`File size exceeds 15MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+  }
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF images are allowed');
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
   const key = `uploads/${randomUUID()}-${file.name}`;
 

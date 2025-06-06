@@ -120,6 +120,16 @@ export function QuickCreateProject() {
         return;
       }
 
+      // Validate file sizes
+      const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+      const oversizedFiles = imageFiles.filter(file => file.size > MAX_FILE_SIZE);
+      
+      if (oversizedFiles.length > 0) {
+        const fileNames = oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ');
+        toast.error(`The following files exceed the 15MB limit: ${fileNames}`);
+        return;
+      }
+
       const totalImages = projectImages.length + imageFiles.length;
       if (totalImages > 5) {
         toast.error("Maximum 5 images per project");
@@ -183,17 +193,33 @@ export function QuickCreateProject() {
 
       // Upload all images in parallel for better performance
       const uploadPromises = projectImages.map(async (imageFile) => {
-        const formData = new FormData();
-        formData.append("file", imageFile);
-        return uploadImage(formData);
+        try {
+          const formData = new FormData();
+          formData.append("file", imageFile);
+          const result = await uploadImage(formData);
+          return { success: true, result, fileName: imageFile.name };
+        } catch (error) {
+          return { 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Upload failed', 
+            fileName: imageFile.name 
+          };
+        }
       });
 
       const uploadResults = await Promise.all(uploadPromises);
 
+      // Check for failed uploads
+      const failedUploads = uploadResults.filter(r => !r.success);
+      if (failedUploads.length > 0) {
+        const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+        throw new Error(`Failed to upload some images:\n${errorMessages}`);
+      }
+
       // Process results and collect successful uploads
       uploadResults.forEach((result) => {
-        if (result.success && result.mediaId) {
-          uploadedImageIds.push(result.mediaId);
+        if (result.success && result.result?.mediaId) {
+          uploadedImageIds.push(result.result.mediaId);
         }
       });
 
