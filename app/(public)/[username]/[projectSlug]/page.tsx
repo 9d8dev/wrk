@@ -3,10 +3,12 @@ import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { AsyncImage } from "@/components/ui/async-image";
 
-import { getProjectByUsernameAndSlug } from "@/lib/data/project";
+import { getProjectByUsernameAndSlug, getProjectsByUsername } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
-import { getAllUsers } from "@/lib/data/user";
+import { db } from "@/db/drizzle";
+import { user } from "@/db/schema";
+import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import {
   getFeaturedImageByProjectId,
@@ -23,11 +25,35 @@ type Props = {
 
 // SSG
 export async function generateStaticParams() {
-  const usersResult = await getAllUsers();
-  if (!usersResult.success) {
+  try {
+    // Get all users with usernames
+    const users = await db
+      .select({ username: user.username })
+      .from(user)
+      .where(isNotNull(user.username));
+    
+    // For each user, get their projects
+    const params = [];
+    for (const u of users) {
+      if (!u.username) continue;
+      
+      const projectsResult = await getProjectsByUsername(u.username);
+      if (projectsResult.success && projectsResult.data.items.length > 0) {
+        for (const project of projectsResult.data.items) {
+          params.push({
+            username: u.username,
+            projectSlug: project.slug,
+          });
+        }
+      }
+    }
+    
+    return params;
+  } catch (error) {
+    console.error("Error generating static params for project pages:", error);
+    // Return empty array on error to fallback to on-demand generation
     return [];
   }
-  return usersResult.data.items.map((user) => ({ username: user.username }));
 }
 
 // Metadata Generation

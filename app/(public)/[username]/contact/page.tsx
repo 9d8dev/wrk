@@ -1,6 +1,9 @@
 import { getUserByUsername } from "@/lib/data/user";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { notFound } from "next/navigation";
+import { db } from "@/db/drizzle";
+import { user } from "@/db/schema";
+import { isNotNull } from "drizzle-orm";
 
 import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
@@ -12,6 +15,28 @@ import type { Metadata } from "next";
 type Props = {
   params: Promise<{ username: string }>;
 };
+
+// Generate static params for all usernames
+export async function generateStaticParams() {
+  try {
+    // Get all users with usernames
+    const users = await db
+      .select({ username: user.username })
+      .from(user)
+      .where(isNotNull(user.username));
+    
+    // Return params for each username
+    return users
+      .filter(u => u.username) // Extra safety check
+      .map((u) => ({
+        username: u.username!,
+      }));
+  } catch (error) {
+    console.error("Error generating static params for contact pages:", error);
+    // Return empty array on error to fallback to on-demand generation
+    return [];
+  }
+}
 
 // Metadata Generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

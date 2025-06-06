@@ -11,8 +11,10 @@ import {
 import { getProjectsByUsername } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
-import { getAllUsers } from "@/lib/data/user";
 import { getThemeByUsername } from "@/lib/actions/theme";
+import { db } from "@/db/drizzle";
+import { user } from "@/db/schema";
+import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
@@ -28,11 +30,24 @@ type Props = {
 
 // SSG
 export async function generateStaticParams() {
-  const usersResult = await getAllUsers();
-  if (!usersResult.success) {
+  try {
+    // Get all users with usernames
+    const users = await db
+      .select({ username: user.username })
+      .from(user)
+      .where(isNotNull(user.username));
+    
+    // Return params for each username
+    return users
+      .filter(u => u.username) // Extra safety check
+      .map((u) => ({
+        username: u.username!,
+      }));
+  } catch (error) {
+    console.error("Error generating static params for username pages:", error);
+    // Return empty array on error to fallback to on-demand generation
     return [];
   }
-  return usersResult.data.items.map((user) => ({ username: user.username }));
 }
 
 // Metadata Generation
