@@ -42,6 +42,7 @@ import { useUsernameAvailability } from "@/hooks/use-username-availability";
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   username: z.string().min(1, { message: "Username is required" }),
+  title: z.string().optional(),
   bio: z.string().optional(),
   location: z.string().optional(),
   socialLinks: z
@@ -85,6 +86,7 @@ export function ProfileForm({
     defaultValues: {
       name: user.name || "",
       username: user.username || "",
+      title: profile?.title || "",
       bio: profile?.bio || "",
       location: profile?.location || "",
       socialLinks:
@@ -154,6 +156,7 @@ export function ProfileForm({
 
       const result = await updateProfile({
         profileData: {
+          title: values.title || null,
           bio: values.bio || null,
           location: values.location || null,
         },
@@ -212,6 +215,9 @@ export function ProfileForm({
             </div>
             <div>
               <h2 className="text-xl font-semibold">{user.name || "—"}</h2>
+              {profile?.title && (
+                <p className="text-sm text-muted-foreground">{profile.title}</p>
+              )}
               <p className="text-muted-foreground">@{user.username || "—"}</p>
             </div>
           </div>
@@ -412,6 +418,26 @@ export function ProfileForm({
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. Frontend Developer, Designer, Product Manager"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  A short professional title or role description
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

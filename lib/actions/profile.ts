@@ -14,6 +14,7 @@ import { notifyNewUserSignup } from "@/lib/utils/discord";
 
 type UpdateProfileParams = {
   profileData: {
+    title: string | null;
     bio: string | null;
     location: string | null;
   };
@@ -56,6 +57,7 @@ export async function updateProfile(
     const validation = updateProfileSchema.safeParse({
       name: params.userData.name,
       username: params.userData.username,
+      title: params.profileData.title,
       bio: params.profileData.bio,
       socialLinks: params.socialLinks?.map((link, index) => ({
         ...link,
@@ -113,6 +115,7 @@ export async function updateProfile(
         await db
           .update(profile)
           .set({
+            title: params.profileData.title,
             bio: params.profileData.bio,
             location: params.profileData.location,
             updatedAt: new Date(),
@@ -125,6 +128,7 @@ export async function updateProfile(
         await db.insert(profile).values({
           id: profileId,
           userId,
+          title: params.profileData.title,
           bio: params.profileData.bio,
           location: params.profileData.location,
           createdAt: new Date(),
