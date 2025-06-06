@@ -93,6 +93,10 @@ Key entities and relationships:
 ### Media Management
 - R2 (S3 compatible) integration for file uploads
 - Sharp for image processing with automatic optimization
+- **Upload System:**
+  - API route at `/api/upload` for direct file uploads (avoids server action size limits)
+  - Client utilities in `/lib/utils/upload.ts` for handling uploads
+  - Bypasses base64 encoding overhead of server actions
 - **Upload Limits:**
   - Client-side validation: 15MB per file
   - Server-side validation: 15MB per file  
@@ -102,10 +106,11 @@ Key entities and relationships:
 - Allowed remote image sources: `images.wrk.so`, `*.googleusercontent.com`, `avatars.githubusercontent.com`
 - Media entities track dimensions, size, and MIME type
 - Supported formats: JPEG, PNG, WebP, GIF
-- GIFs are preserved in original format, other images converted to WebP
+- GIFs are preserved in original format, other images converted to WebP with 85% quality
 - Client-side file size validation prevents oversized uploads
 - Server-side validation with detailed error messages
 - Batch upload error handling reports individual file failures
+- Authentication required for all uploads via session cookie
 
 ### Webhook Architecture
 - Comprehensive webhook type system in `/lib/polar-webhook-types.ts`

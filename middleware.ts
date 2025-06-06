@@ -7,6 +7,15 @@ export async function middleware(request: NextRequest) {
   });
   const pathname = request.nextUrl.pathname;
 
+  // Handle upload API route separately
+  if (pathname === "/api/upload") {
+    // For upload routes, just check authentication
+    if (!sessionCookie) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
   // Public routes that don't require authentication
   if (
     pathname.startsWith("/sign-in") ||
@@ -28,5 +37,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/onboarding"],
+  matcher: ["/admin/:path*", "/onboarding", "/api/upload"],
 };

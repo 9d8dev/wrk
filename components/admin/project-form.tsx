@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createProject, editProject } from "@/lib/actions/project";
-import { uploadImage } from "@/lib/actions/media";
+import { uploadImageViaAPI } from "@/lib/utils/upload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -252,19 +252,12 @@ export const ProjectForm = ({
         const uploadedImageIds: string[] = [];
 
         if (newImages.length > 0) {
+          // Show upload progress
+          toast.info(`Uploading ${newImages.length} image${newImages.length > 1 ? 's' : ''}...`);
+          
           const uploadPromises = newImages.map(async (img) => {
-            try {
-              const formData = new FormData();
-              formData.append("file", img.file!);
-              const result = await uploadImage(formData);
-              return { success: true, result, fileName: img.file!.name };
-            } catch (error) {
-              return { 
-                success: false, 
-                error: error instanceof Error ? error.message : 'Upload failed', 
-                fileName: img.file!.name 
-              };
-            }
+            const result = await uploadImageViaAPI(img.file!);
+            return { ...result, fileName: img.file!.name };
           });
 
           const uploadResults = await Promise.all(uploadPromises);
@@ -276,8 +269,8 @@ export const ProjectForm = ({
           }
 
           uploadResults.forEach((result) => {
-            if (result.success && result.result?.mediaId) {
-              uploadedImageIds.push(result.result.mediaId);
+            if (result.success && result.mediaId) {
+              uploadedImageIds.push(result.mediaId);
             }
           });
         }

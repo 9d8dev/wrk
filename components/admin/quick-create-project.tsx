@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/project";
-import { uploadImage } from "@/lib/actions/media";
+import { uploadImageViaAPI } from "@/lib/utils/upload";
 import { Upload, X, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -200,20 +200,13 @@ export function QuickCreateProject() {
       // Upload all images
       const uploadedImageIds: string[] = [];
 
-      // Upload all images in parallel for better performance
+      // Show upload progress
+      toast.info(`Uploading ${projectImages.length} image${projectImages.length > 1 ? 's' : ''}...`);
+      
+      // Upload all images
       const uploadPromises = projectImages.map(async (imageFile) => {
-        try {
-          const formData = new FormData();
-          formData.append("file", imageFile);
-          const result = await uploadImage(formData);
-          return { success: true, result, fileName: imageFile.name };
-        } catch (error) {
-          return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Upload failed', 
-            fileName: imageFile.name 
-          };
-        }
+        const result = await uploadImageViaAPI(imageFile);
+        return { ...result, fileName: imageFile.name };
       });
 
       const uploadResults = await Promise.all(uploadPromises);
@@ -227,8 +220,8 @@ export function QuickCreateProject() {
 
       // Process results and collect successful uploads
       uploadResults.forEach((result) => {
-        if (result.success && result.result?.mediaId) {
-          uploadedImageIds.push(result.result.mediaId);
+        if (result.success && result.mediaId) {
+          uploadedImageIds.push(result.mediaId);
         }
       });
 
