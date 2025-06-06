@@ -20,6 +20,7 @@ import { revalidateTag } from "next/cache";
 
 type ProjectData = {
   title: string;
+  slug?: string;
   about?: string | null;
   externalLink?: string | null;
   imageIds?: string[];
@@ -75,14 +76,22 @@ export async function createProject(
         ? highestOrderProjects[0].displayOrder + 1
         : 0;
 
-    // Generate unique slug from title
-    const baseSlug = data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    // Generate unique slug - use provided slug or generate from title
+    let slug: string;
+
+    if (data.slug) {
+      // User provided a custom slug
+      slug = data.slug;
+    } else {
+      // Generate slug from title
+      slug = data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
 
     // Ensure slug uniqueness within user's projects
-    let slug = baseSlug;
+    const originalSlug = slug;
     let counter = 1;
 
     while (true) {
@@ -98,7 +107,7 @@ export async function createProject(
         break; // Slug is unique
       }
 
-      slug = `${baseSlug}-${counter}`;
+      slug = `${originalSlug}-${counter}`;
       counter++;
     }
 
@@ -204,15 +213,20 @@ export async function updateProject(
       return { success: false, error: "Project not found or unauthorized" };
     }
 
-    // Generate new slug if title changed
+    // Handle slug changes - respect user-provided slug, or generate from title
     let slug = existing[0].slug;
-    if (data.title && data.title !== existing[0].title) {
+
+    // If user provided a custom slug, use it
+    if (data.slug && data.slug !== existing[0].slug) {
+      slug = data.slug;
+    }
+    // Otherwise, if title changed and no custom slug provided, generate from title
+    else if (data.title && data.title !== existing[0].title && !data.slug) {
       const baseSlug = data.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
 
-      // Ensure slug uniqueness within user's projects (excluding current project)
       slug = baseSlug;
       let counter = 1;
 
@@ -235,6 +249,34 @@ export async function updateProject(
         }
 
         slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+    }
+
+    // Ensure slug uniqueness if user provided a custom slug
+    if (data.slug && data.slug !== existing[0].slug) {
+      let counter = 1;
+      const originalSlug = slug;
+
+      while (true) {
+        const existingProject = await db
+          .select({ id: projectTable.id })
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.userId, userId),
+              eq(projectTable.slug, slug),
+              // Exclude current project from check
+              sql`${projectTable.id} != ${id}`
+            )
+          )
+          .limit(1);
+
+        if (existingProject.length === 0) {
+          break; // Slug is unique
+        }
+
+        slug = `${originalSlug}-${counter}`;
         counter++;
       }
     }

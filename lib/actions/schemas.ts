@@ -57,6 +57,15 @@ export const createProjectSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(100, "Title must be at most 100 characters"),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(100, "Slug must be at most 100 characters")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens"
+    )
+    .optional(),
   about: z
     .string()
     .max(1000, "About must be at most 1000 characters")
