@@ -3,7 +3,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/project";
-import { uploadImageViaAPI } from "@/lib/utils/upload";
+import { uploadMultipleImages } from "@/lib/utils/upload";
+import { UploadProgress } from "@/components/ui/upload-progress";
 import { Upload, X, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,14 @@ export function QuickCreateProject() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [featuredImageIndex, setFeaturedImageIndex] = useState(0);
   const [hasManuallyEditedTitle, setHasManuallyEditedTitle] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    phase: 'compressing' | 'uploading' | 'complete' | 'error';
+    current: number;
+    total: number;
+    percent: number;
+    currentFile?: string;
+    error?: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generate preview URLs
@@ -200,21 +209,43 @@ export function QuickCreateProject() {
       // Upload all images
       const uploadedImageIds: string[] = [];
 
-      // Show upload progress
-      toast.info(`Uploading ${projectImages.length} image${projectImages.length > 1 ? 's' : ''}...`);
-      
-      // Upload all images
-      const uploadPromises = projectImages.map(async (imageFile) => {
-        const result = await uploadImageViaAPI(imageFile);
-        return { ...result, fileName: imageFile.name };
+      // Initialize upload progress
+      setUploadProgress({
+        phase: 'compressing',
+        current: 0,
+        total: projectImages.length,
+        percent: 0,
       });
 
-      const uploadResults = await Promise.all(uploadPromises);
+      // Upload all images
+      const uploadResults = await uploadMultipleImages(
+        projectImages,
+        (completed, total, currentFile) => {
+          const percent = (completed / total) * 100;
+          setUploadProgress({
+            phase: completed === total ? 'complete' : 'uploading',
+            current: completed,
+            total,
+            percent,
+            currentFile,
+          });
+        }
+      );
 
       // Check for failed uploads
-      const failedUploads = uploadResults.filter(r => !r.success);
+      const failedUploads = uploadResults
+        .map((result, index) => ({ ...result, fileName: projectImages[index].name }))
+        .filter(r => !r.success);
+        
       if (failedUploads.length > 0) {
         const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+        setUploadProgress({
+          phase: 'error',
+          current: uploadResults.length,
+          total: uploadResults.length,
+          percent: 100,
+          error: errorMessages,
+        });
         throw new Error(`Failed to upload some images:\n${errorMessages}`);
       }
 
@@ -224,6 +255,9 @@ export function QuickCreateProject() {
           uploadedImageIds.push(result.mediaId);
         }
       });
+      
+      // Clear progress after a short delay
+      setTimeout(() => setUploadProgress(null), 1500);
 
       // Create project with featured image being the selected one
       const projectData = {
@@ -431,6 +465,12 @@ export function QuickCreateProject() {
           </div>
         </div>
       )}
+      
+      {/* Upload Progress Dialog */}
+      <UploadProgress 
+        open={uploadProgress !== null} 
+        progress={uploadProgress} 
+      />
     </div>
   );
 }

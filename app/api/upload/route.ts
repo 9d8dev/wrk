@@ -70,50 +70,24 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const key = `uploads/${randomUUID()}-${file.name}`;
 
-    // Check if the file is a GIF
-    const isGif = file.type === "image/gif";
+    // Get image dimensions using sharp
+    const metadata = await sharp(buffer, { 
+      animated: file.type === "image/gif" 
+    }).metadata();
 
-    // Process the image based on its type
-    let finalBuffer: Buffer;
-    let contentType: string;
-    let width: number;
-    let height: number;
-
-    if (isGif) {
-      // For GIFs, preserve the original format
-      finalBuffer = buffer;
-      contentType = "image/gif";
-
-      // Still need to get dimensions
-      const metadata = await sharp(buffer, { animated: true }).metadata();
-
-      if (!metadata.width || !metadata.height) {
-        return NextResponse.json(
-          { error: "Could not get image dimensions" },
-          { status: 400 }
-        );
-      }
-
-      width = metadata.width;
-      height = metadata.height;
-    } else {
-      const image = sharp(buffer);
-      const metadata = await image.metadata();
-
-      if (!metadata.width || !metadata.height) {
-        return NextResponse.json(
-          { error: "Could not get image dimensions" },
-          { status: 400 }
-        );
-      }
-
-      width = metadata.width;
-      height = metadata.height;
-
-      // Convert to WebP for better compression
-      finalBuffer = await image.webp({ quality: 85 }).toBuffer();
-      contentType = "image/webp";
+    if (!metadata.width || !metadata.height) {
+      return NextResponse.json(
+        { error: "Could not get image dimensions" },
+        { status: 400 }
+      );
     }
+
+    const width = metadata.width;
+    const height = metadata.height;
+    
+    // Use the original buffer since client already compressed
+    const finalBuffer = buffer;
+    const contentType = file.type;
 
     await s3.send(
       new PutObjectCommand({

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createProject, editProject } from "@/lib/actions/project";
-import { uploadImageViaAPI } from "@/lib/utils/upload";
+import { uploadMultipleImages } from "@/lib/utils/upload";
+import { UploadProgress } from "@/components/ui/upload-progress";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -96,6 +97,14 @@ export const ProjectForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ProjectImage[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    phase: 'compressing' | 'uploading' | 'complete' | 'error';
+    current: number;
+    total: number;
+    percent: number;
+    currentFile?: string;
+    error?: string;
+  } | null>(null);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(formSchema),
@@ -150,9 +159,9 @@ export const ProjectForm = ({
     initializeImages();
   }, [
     project?.id,
-    existingFeaturedImage?.id,
-    existingAdditionalImages?.length,
-    initialImages.length,
+    existingFeaturedImage,
+    existingAdditionalImages,
+    initialImages,
   ]);
 
   // Cleanup preview URLs when images change
@@ -252,19 +261,42 @@ export const ProjectForm = ({
         const uploadedImageIds: string[] = [];
 
         if (newImages.length > 0) {
-          // Show upload progress
-          toast.info(`Uploading ${newImages.length} image${newImages.length > 1 ? 's' : ''}...`);
-          
-          const uploadPromises = newImages.map(async (img) => {
-            const result = await uploadImageViaAPI(img.file!);
-            return { ...result, fileName: img.file!.name };
+          // Initialize upload progress
+          setUploadProgress({
+            phase: 'compressing',
+            current: 0,
+            total: newImages.length,
+            percent: 0,
           });
 
-          const uploadResults = await Promise.all(uploadPromises);
+          const files = newImages.map(img => img.file!);
+          const uploadResults = await uploadMultipleImages(
+            files,
+            (completed, total, currentFile) => {
+              const percent = (completed / total) * 100;
+              setUploadProgress({
+                phase: completed === total ? 'complete' : 'uploading',
+                current: completed,
+                total,
+                percent,
+                currentFile,
+              });
+            }
+          );
           
-          const failedUploads = uploadResults.filter(r => !r.success);
+          const failedUploads = uploadResults
+            .map((result, index) => ({ ...result, fileName: files[index].name }))
+            .filter(r => !r.success);
+            
           if (failedUploads.length > 0) {
             const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+            setUploadProgress({
+              phase: 'error',
+              current: uploadResults.length,
+              total: uploadResults.length,
+              percent: 100,
+              error: errorMessages,
+            });
             throw new Error(`Failed to upload some images:\n${errorMessages}`);
           }
 
@@ -273,6 +305,9 @@ export const ProjectForm = ({
               uploadedImageIds.push(result.mediaId);
             }
           });
+          
+          // Clear progress after a short delay
+          setTimeout(() => setUploadProgress(null), 1500);
         }
 
         // Combine all image IDs
@@ -639,6 +674,12 @@ export const ProjectForm = ({
           </div>
         </form>
       </Form>
+      
+      {/* Upload Progress Dialog */}
+      <UploadProgress 
+        open={uploadProgress !== null} 
+        progress={uploadProgress} 
+      />
     </div>
   );
 };

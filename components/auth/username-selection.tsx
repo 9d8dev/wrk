@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "motion/react";
 
 interface UsernameSelectionProps {
@@ -35,11 +35,7 @@ export function UsernameSelection({
 
   const usernameAvailability = useUsernameAvailability(customUsername);
 
-  useEffect(() => {
-    loadSuggestions();
-  }, [initialUsername]);
-
-  const loadSuggestions = async () => {
+  const loadSuggestions = useCallback(async () => {
     setIsLoadingSuggestions(true);
     try {
       const response = await fetch(
@@ -61,7 +57,11 @@ export function UsernameSelection({
     } finally {
       setIsLoadingSuggestions(false);
     }
-  };
+  }, [initialUsername]);
+
+  useEffect(() => {
+    loadSuggestions();
+  }, [loadSuggestions]);
 
   const handleCustomUsernameChange = (
     e: React.ChangeEvent<HTMLInputElement>
