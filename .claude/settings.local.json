@@ -7,7 +7,9 @@
       "WebFetch(domain:www.better-auth.com)",
       "Bash(npm run lint)",
       "WebFetch(domain:docs.polar.sh)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "WebFetch(domain:nextjs.org)",
+      "Bash(rm:*)"
     ],
     "deny": []
   },

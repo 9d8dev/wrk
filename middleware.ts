@@ -16,6 +16,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect authenticated users from homepage to admin
+  if (pathname === "/" && sessionCookie) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
   // Public routes that don't require authentication
   if (
     pathname.startsWith("/sign-in") ||
@@ -37,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/onboarding", "/api/upload"],
+  matcher: ["/", "/admin/:path*", "/onboarding", "/api/upload"],
 };

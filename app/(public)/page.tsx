@@ -1,20 +1,12 @@
 import { Section, Container } from "@/components/ds";
 import { Logo } from "@/components/logo";
 
-import { getSession } from "@/lib/actions/auth";
-import { redirect } from "next/navigation";
-
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+// Force static generation for the homepage
+export const dynamic = "force-static";
 
-export default async function Home() {
-  const session = await getSession();
-
-  if (session?.user) {
-    redirect("/admin");
-  }
-
+export default function Home() {
   return (
     <main className="h-screen overflow-hidden flex flex-col bg-accent font-mono">
       <nav>
