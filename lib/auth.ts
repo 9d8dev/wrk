@@ -48,7 +48,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       mapProfileToUser: async (profile) => {
         // GitHub provides a login field which is their username
-        // Generate a default username that they can change in username-setup
+        // Generate a default username that they can change during onboarding
         const baseUsername = profile.login;
         const uniqueUsername = await generateUniqueUsername(baseUsername);
 
@@ -63,7 +63,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       mapProfileToUser: async (profile) => {
         // Google doesn't have usernames, so we generate from email and name
-        // Generate a default username that they can change in username-setup
+        // Generate a default username that they can change during onboarding
         const emailUsername = generateUsernameFromEmail(profile.email);
         const nameUsername = profile.name
           ? generateUsernameFromName(profile.name)

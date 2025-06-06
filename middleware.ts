@@ -32,7 +32,6 @@ export async function middleware(request: NextRequest) {
   // Public routes that don't require authentication
   if (
     pathname.startsWith("/sign-in") ||
-    pathname.startsWith("/username-setup") ||
     pathname === "/" ||
     pathname.startsWith("/api")
   ) {
@@ -51,12 +50,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/admin/:path*",
-    "/onboarding",
-    "/username-setup",
-    "/api/upload",
-  ],
+  matcher: ["/", "/admin/:path*", "/onboarding", "/api/upload"],
   runtime: "nodejs",
 };

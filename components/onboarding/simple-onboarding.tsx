@@ -69,8 +69,18 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
   });
 
   const currentUsername = form.watch("username") || "";
-  const usernameAvailability = useUsernameAvailability(currentUsername);
+  const originalUsername = user.username;
+
+  // Check availability only if username has changed from original or if user needs a username
+  const shouldCheckAvailability =
+    currentUsername !== originalUsername && currentUsername.length >= 3;
+  const usernameAvailability = useUsernameAvailability(
+    shouldCheckAvailability ? currentUsername : ""
+  );
+
+  // Show username field if user doesn't have one, or if they want to change it
   const needsUsername = !user.username;
+  const [showUsernameEdit, setShowUsernameEdit] = useState(needsUsername);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,8 +100,12 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
   };
 
   async function onSubmit(values: FormValues) {
-    // Validate username availability if needed
-    if (needsUsername && values.username) {
+    // Validate username availability if it's being changed
+    if (
+      (needsUsername || showUsernameEdit) &&
+      values.username &&
+      shouldCheckAvailability
+    ) {
       if (usernameAvailability.isAvailable !== true) {
         toast.error("Please choose an available username");
         return;
@@ -107,8 +121,12 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
         formData.append("file", profileImage);
       }
 
-      // If user needs username, update it first
-      if (needsUsername && values.username) {
+      // If user needs username or is changing it, update it first
+      if (
+        (needsUsername || showUsernameEdit) &&
+        values.username &&
+        values.username !== originalUsername
+      ) {
         const usernameResult = await updateUsername(values.username);
         if (!usernameResult.success) {
           throw new Error(usernameResult.error);
@@ -181,14 +199,54 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
             </div>
           </div>
 
+          {/* Username option for OAuth users */}
+          {!needsUsername && !showUsernameEdit && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Your username:{" "}
+                  <span className="font-medium">@{user.username}</span>
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowUsernameEdit(true)}
+                  className="text-xs"
+                >
+                  Change username
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Your portfolio will be available at wrk.so/{user.username}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Username - only show if needed */}
-            {needsUsername && (
+            {/* Username - show if needed or if user wants to edit */}
+            {(needsUsername || showUsernameEdit) && (
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Hash className="h-4 w-4" />
-                  Username
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Hash className="h-4 w-4" />
+                    Username
+                  </label>
+                  {!needsUsername && showUsernameEdit && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowUsernameEdit(false);
+                        form.setValue("username", originalUsername || "");
+                      }}
+                      className="text-xs"
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
                 <div className="relative">
                   <Input
                     {...form.register("username")}
@@ -286,7 +344,8 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
               type="submit"
               disabled={
                 isSubmitting ||
-                (needsUsername && usernameAvailability.isAvailable !== true)
+                (shouldCheckAvailability &&
+                  usernameAvailability.isAvailable !== true)
               }
               size="lg"
             >
