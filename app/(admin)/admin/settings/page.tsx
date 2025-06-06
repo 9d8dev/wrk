@@ -10,6 +10,7 @@ import { ManageSubscriptionButton } from "@/components/admin/manage-subscription
 import { UpgradeButton } from "@/components/admin/upgrade-button";
 import { polarConfig } from "@/lib/config/polar";
 import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
+import { DeleteAccountButton } from "@/components/admin/delete-account-button";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,11 @@ type SubscriptionDetails = {
   subscriptionCurrentPeriodEnd: Date | null;
 } | null;
 
-function SubscriptionSection({ subscriptionDetails }: { subscriptionDetails: SubscriptionDetails }) {
+function SubscriptionSection({
+  subscriptionDetails,
+}: {
+  subscriptionDetails: SubscriptionDetails;
+}) {
   const hasActiveSubscription =
     subscriptionDetails?.subscriptionStatus === "active" &&
     subscriptionDetails?.subscriptionCurrentPeriodEnd &&
@@ -147,12 +152,28 @@ export default async function SettingsPage() {
         <AdminHeader pageTitle="Settings" />
         <PageWrapper>
           <SubscriptionSection subscriptionDetails={subscriptionDetails} />
+
+          {/* Account Deletion Section */}
+          <div className="mt-12 pt-8 border-t border-destructive/20">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold text-destructive">
+                  Danger Zone
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Once you delete your account, there is no going back. Please
+                  be certain.
+                </p>
+              </div>
+              <DeleteAccountButton />
+            </div>
+          </div>
         </PageWrapper>
       </>
     );
   } catch (error) {
     // Re-throw redirect errors
-    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }
 
