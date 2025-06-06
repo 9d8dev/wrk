@@ -3,6 +3,7 @@ interface CompressionOptions {
   maxHeight?: number;
   quality?: number;
   type?: string;
+  maxFileSize?: number;
 }
 
 export async function compressImage(
@@ -13,11 +14,19 @@ export async function compressImage(
     maxWidth = 2048,
     maxHeight = 2048,
     quality = 0.85,
-    type = 'image/webp'
+    type = "image/webp",
+    maxFileSize = 15 * 1024 * 1024,
   } = options;
 
-  // Don't compress GIFs
-  if (file.type === 'image/gif') {
+  // Don't compress GIFs - but validate size
+  if (file.type === "image/gif") {
+    if (file.size > maxFileSize) {
+      throw new Error(
+        `GIF file is too large (${(file.size / 1024 / 1024).toFixed(
+          2
+        )}MB). Maximum allowed: ${maxFileSize / 1024 / 1024}MB`
+      );
+    }
     return file;
   }
 
@@ -28,7 +37,7 @@ export async function compressImage(
       const img = new Image();
       img.src = event.target?.result as string;
       img.onload = () => {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         let { width, height } = img;
 
         // Calculate new dimensions while maintaining aspect ratio
@@ -46,9 +55,9 @@ export async function compressImage(
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
+          reject(new Error("Failed to get canvas context"));
           return;
         }
 
@@ -57,7 +66,7 @@ export async function compressImage(
         canvas.toBlob(
           (blob) => {
             if (!blob) {
-              reject(new Error('Failed to compress image'));
+              reject(new Error("Failed to compress image"));
               return;
             }
 
@@ -77,9 +86,9 @@ export async function compressImage(
           quality
         );
       };
-      img.onerror = () => reject(new Error('Failed to load image'));
+      img.onerror = () => reject(new Error("Failed to load image"));
     };
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error("Failed to read file"));
   });
 }
 
@@ -89,7 +98,7 @@ export async function compressImages(
   onProgress?: (current: number, total: number) => void
 ): Promise<File[]> {
   const compressed: File[] = [];
-  
+
   for (let i = 0; i < files.length; i++) {
     try {
       const compressedFile = await compressImage(files[i], options);
@@ -105,6 +114,6 @@ export async function compressImages(
       }
     }
   }
-  
+
   return compressed;
 }

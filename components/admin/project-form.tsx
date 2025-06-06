@@ -70,7 +70,7 @@ interface ProjectImage {
 
 const IMAGE_CONFIG = {
   maxFiles: 5,
-  maxSize: 15 * 1024 * 1024, // 15MB
+  maxSize: 15 * 1024 * 1024, // Back to 15MB
   accept: {
     "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif"],
   },
@@ -98,7 +98,7 @@ export const ProjectForm = ({
   const [images, setImages] = useState<ProjectImage[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
-    phase: 'compressing' | 'uploading' | 'complete' | 'error';
+    phase: "compressing" | "uploading" | "complete" | "error";
     current: number;
     total: number;
     percent: number;
@@ -183,12 +183,20 @@ export const ProjectForm = ({
       const filesToAdd = files.slice(0, availableSlots);
 
       // Validate file sizes before adding
-      const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
-      const oversizedFiles = filesToAdd.filter(file => file.size > MAX_FILE_SIZE);
-      
+      const MAX_FILE_SIZE = 15 * 1024 * 1024; // Back to 15MB
+      const oversizedFiles = filesToAdd.filter(
+        (file) => file.size > MAX_FILE_SIZE
+      );
+
       if (oversizedFiles.length > 0) {
-        const fileNames = oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ');
-        toast.error(`The following files exceed the 15MB limit: ${fileNames}`);
+        const fileNames = oversizedFiles
+          .map((f) => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`)
+          .join(", ");
+        toast.error(
+          `The following files exceed the ${
+            MAX_FILE_SIZE / 1024 / 1024
+          }MB limit: ${fileNames}`
+        );
         return;
       }
 
@@ -205,7 +213,7 @@ export const ProjectForm = ({
 
       setImages((prev) => [...prev, ...newImages]);
     },
-    [images.length],
+    [images.length]
   );
 
   // Handle removing an image
@@ -241,7 +249,7 @@ export const ProjectForm = ({
       prev.map((img) => ({
         ...img,
         isFeatured: img.id === imageId,
-      })),
+      }))
     );
   }, []);
 
@@ -263,19 +271,19 @@ export const ProjectForm = ({
         if (newImages.length > 0) {
           // Initialize upload progress
           setUploadProgress({
-            phase: 'compressing',
+            phase: "compressing",
             current: 0,
             total: newImages.length,
             percent: 0,
           });
 
-          const files = newImages.map(img => img.file!);
+          const files = newImages.map((img) => img.file!);
           const uploadResults = await uploadMultipleImages(
             files,
             (completed, total, currentFile) => {
               const percent = (completed / total) * 100;
               setUploadProgress({
-                phase: completed === total ? 'complete' : 'uploading',
+                phase: completed === total ? "complete" : "uploading",
                 current: completed,
                 total,
                 percent,
@@ -283,15 +291,20 @@ export const ProjectForm = ({
               });
             }
           );
-          
+
           const failedUploads = uploadResults
-            .map((result, index) => ({ ...result, fileName: files[index].name }))
-            .filter(r => !r.success);
-            
+            .map((result, index) => ({
+              ...result,
+              fileName: files[index].name,
+            }))
+            .filter((r) => !r.success);
+
           if (failedUploads.length > 0) {
-            const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+            const errorMessages = failedUploads
+              .map((f) => `${f.fileName}: ${f.error}`)
+              .join("\n");
             setUploadProgress({
-              phase: 'error',
+              phase: "error",
               current: uploadResults.length,
               total: uploadResults.length,
               percent: 100,
@@ -305,7 +318,7 @@ export const ProjectForm = ({
               uploadedImageIds.push(result.mediaId);
             }
           });
-          
+
           // Clear progress after a short delay
           setTimeout(() => setUploadProgress(null), 1500);
         }
@@ -323,7 +336,7 @@ export const ProjectForm = ({
           } else {
             // Find the corresponding uploaded ID
             const newImageIndex = newImages.findIndex(
-              (img) => img.id === featuredImage.id,
+              (img) => img.id === featuredImage.id
             );
             featuredImageId = uploadedImageIds[newImageIndex];
           }
@@ -360,7 +373,7 @@ export const ProjectForm = ({
             toast.success(
               isEditing
                 ? "Project updated successfully"
-                : "Project created successfully",
+                : "Project created successfully"
             );
             if (onSuccess) {
               onSuccess();
@@ -378,13 +391,13 @@ export const ProjectForm = ({
         toast.error(
           error instanceof Error
             ? error.message
-            : "An error occurred. Please try again.",
+            : "An error occurred. Please try again."
         );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [images, project, isEditing, onSubmit, onSuccess, form],
+    [images, project, isEditing, onSubmit, onSuccess, form]
   );
 
   // Keyboard shortcut for save
@@ -526,7 +539,7 @@ export const ProjectForm = ({
                             ) {
                               form.setValue(
                                 "slug",
-                                generateSlugFromTitle(e.target.value),
+                                generateSlugFromTitle(e.target.value)
                               );
                             }
                           }
@@ -674,11 +687,11 @@ export const ProjectForm = ({
           </div>
         </form>
       </Form>
-      
+
       {/* Upload Progress Dialog */}
-      <UploadProgress 
-        open={uploadProgress !== null} 
-        progress={uploadProgress} 
+      <UploadProgress
+        open={uploadProgress !== null}
+        progress={uploadProgress}
       />
     </div>
   );
@@ -705,7 +718,7 @@ const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
         "relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square",
         image.isFeatured
           ? "border-primary ring-2 ring-primary/20 shadow-lg"
-          : "border-border hover:border-primary/50",
+          : "border-border hover:border-primary/50"
       )}
       onClick={() => onSetFeatured(image.id)}
     >

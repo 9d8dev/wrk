@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing file" }, { status: 400 });
     }
 
-    // Validate file size (15MB max)
-    const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+    // Validate file size (15MB max for API route, direct upload handles larger files)
+    const MAX_FILE_SIZE = 15 * 1024 * 1024; // Back to 15MB
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         {
@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
     const key = `uploads/${randomUUID()}-${file.name}`;
 
     // Get image dimensions using sharp
-    const metadata = await sharp(buffer, { 
-      animated: file.type === "image/gif" 
+    const metadata = await sharp(buffer, {
+      animated: file.type === "image/gif",
     }).metadata();
 
     if (!metadata.width || !metadata.height) {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     const width = metadata.width;
     const height = metadata.height;
-    
+
     // Use the original buffer since client already compressed
     const finalBuffer = buffer;
     const contentType = file.type;
@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
         Key: key,
         Body: finalBuffer,
         ContentType: contentType,
-        ACL: "public-read",
       })
     );
 
@@ -135,6 +134,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Configure route segment to allow larger payloads
+// Configure route segment to allow larger payloads (though limited by Vercel)
 export const runtime = "nodejs";
-export const maxDuration = 60; // 60 seconds timeout
+export const maxDuration = 60;

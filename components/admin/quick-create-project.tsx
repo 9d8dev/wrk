@@ -45,7 +45,7 @@ export function QuickCreateProject() {
   const [featuredImageIndex, setFeaturedImageIndex] = useState(0);
   const [hasManuallyEditedTitle, setHasManuallyEditedTitle] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
-    phase: 'compressing' | 'uploading' | 'complete' | 'error';
+    phase: "compressing" | "uploading" | "complete" | "error";
     current: number;
     total: number;
     percent: number;
@@ -131,12 +131,20 @@ export function QuickCreateProject() {
       }
 
       // Validate file sizes
-      const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
-      const oversizedFiles = imageFiles.filter(file => file.size > MAX_FILE_SIZE);
-      
+      const MAX_FILE_SIZE = 15 * 1024 * 1024; // Back to 15MB
+      const oversizedFiles = imageFiles.filter(
+        (file) => file.size > MAX_FILE_SIZE
+      );
+
       if (oversizedFiles.length > 0) {
-        const fileNames = oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ');
-        toast.error(`The following files exceed the 15MB limit: ${fileNames}`);
+        const fileNames = oversizedFiles
+          .map((f) => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`)
+          .join(", ");
+        toast.error(
+          `The following files exceed the ${
+            MAX_FILE_SIZE / 1024 / 1024
+          }MB limit: ${fileNames}`
+        );
         return;
       }
 
@@ -211,7 +219,7 @@ export function QuickCreateProject() {
 
       // Initialize upload progress
       setUploadProgress({
-        phase: 'compressing',
+        phase: "compressing",
         current: 0,
         total: projectImages.length,
         percent: 0,
@@ -223,7 +231,7 @@ export function QuickCreateProject() {
         (completed, total, currentFile) => {
           const percent = (completed / total) * 100;
           setUploadProgress({
-            phase: completed === total ? 'complete' : 'uploading',
+            phase: completed === total ? "complete" : "uploading",
             current: completed,
             total,
             percent,
@@ -234,13 +242,18 @@ export function QuickCreateProject() {
 
       // Check for failed uploads
       const failedUploads = uploadResults
-        .map((result, index) => ({ ...result, fileName: projectImages[index].name }))
-        .filter(r => !r.success);
-        
+        .map((result, index) => ({
+          ...result,
+          fileName: projectImages[index].name,
+        }))
+        .filter((r) => !r.success);
+
       if (failedUploads.length > 0) {
-        const errorMessages = failedUploads.map(f => `${f.fileName}: ${f.error}`).join('\n');
+        const errorMessages = failedUploads
+          .map((f) => `${f.fileName}: ${f.error}`)
+          .join("\n");
         setUploadProgress({
-          phase: 'error',
+          phase: "error",
           current: uploadResults.length,
           total: uploadResults.length,
           percent: 100,
@@ -255,7 +268,7 @@ export function QuickCreateProject() {
           uploadedImageIds.push(result.mediaId);
         }
       });
-      
+
       // Clear progress after a short delay
       setTimeout(() => setUploadProgress(null), 1500);
 
@@ -465,11 +478,11 @@ export function QuickCreateProject() {
           </div>
         </div>
       )}
-      
+
       {/* Upload Progress Dialog */}
-      <UploadProgress 
-        open={uploadProgress !== null} 
-        progress={uploadProgress} 
+      <UploadProgress
+        open={uploadProgress !== null}
+        progress={uploadProgress}
       />
     </div>
   );
