@@ -3,6 +3,25 @@ import { Logo } from "@/components/logo";
 
 import Link from "next/link";
 
+const examples = [
+  {
+    title: "Masonry",
+    href: "/masonry",
+  },
+  {
+    title: "Grid",
+    href: "/grid",
+  },
+  {
+    title: "Square",
+    href: "/square",
+  },
+  {
+    title: "Minimal",
+    href: "/minimal",
+  },
+];
+
 // Force static generation for the homepage
 export const dynamic = "force-static";
 
@@ -38,6 +57,19 @@ export default function Home() {
             >
               Login -{">"}
             </Link>
+          </div>
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <h3 className="sr-only">Examples</h3>
+          <div className="flex justify-center gap-2">
+            {examples.map((example) => (
+              <Link key={example.href} href={example.href}>
+                [ {example.title}↗ ]
+              </Link>
+            ))}
           </div>
         </Container>
       </Section>

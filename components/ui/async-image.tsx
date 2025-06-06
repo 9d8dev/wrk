@@ -127,7 +127,7 @@ export function AsyncImage({
     >
       {/* Loading states */}
       {isLoading && effectivePlaceholder === "shimmer" && (
-        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-muted" />
+        <div className="absolute inset-0 -translate-x-full bg-muted" />
       )}
 
       {isLoading && effectivePlaceholder === "empty" && (
