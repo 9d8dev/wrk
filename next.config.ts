@@ -1,12 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Remove the aggressive server actions limit since we're using direct uploads
-  // experimental: {
-  //   serverActions: {
-  //     bodySizeLimit: "50mb",
-  //   },
-  // },
   images: {
     remotePatterns: [
       {

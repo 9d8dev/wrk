@@ -99,6 +99,17 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
 
     const userId = session.user.id;
 
+    // Get user data from database to access subscription info
+    const userData = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (!userData[0]) {
+      return { success: false, error: "User not found" };
+    }
+
     // Get all media associated with this user's projects
     const projectMedia = await db
       .select({ id: media.id })
@@ -115,7 +126,9 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
     // Collect all media IDs for deletion
     const allMediaIds = [
       ...projectMedia.map((item) => item.id),
-      ...profileMedia.map((item) => item.mediaId).filter(Boolean),
+      ...profileMedia
+        .map((item) => item.mediaId)
+        .filter((id): id is string => id !== null),
     ].filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
 
     // Delete all media files from both database and R2 storage
@@ -131,7 +144,7 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
     }
 
     // Cancel Polar subscription if user has one
-    if (session.user.subscriptionId) {
+    if (userData[0].subscriptionId) {
       try {
         // Use the Polar SDK to cancel subscription
         const polarClient = new Polar({
@@ -139,12 +152,15 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
           server: "production",
         });
 
-        await polarClient.subscriptions.update(session.user.subscriptionId, {
-          cancelAtPeriodEnd: true,
+        await polarClient.subscriptions.update({
+          id: userData[0].subscriptionId,
+          subscriptionUpdate: {
+            cancelAtPeriodEnd: true,
+          },
         });
 
         console.log(
-          `Subscription ${session.user.subscriptionId} marked for cancellation`
+          `Subscription ${userData[0].subscriptionId} marked for cancellation`
         );
       } catch (error) {
         console.warn(
@@ -189,9 +205,6 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
 
     // Delete profile
     await db.delete(profile).where(eq(profile.userId, userId));
-
-    // Delete sessions
-    await db.delete(session).where(eq(session.userId, userId));
 
     // Delete accounts (OAuth connections)
     await db.delete(account).where(eq(account.userId, userId));
