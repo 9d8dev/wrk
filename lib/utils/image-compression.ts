@@ -4,7 +4,34 @@ interface CompressionOptions {
   quality?: number;
   type?: string;
   maxFileSize?: number;
+  smartFormat?: boolean;
 }
+
+// Helper function to detect if browser supports WebP
+const supportsWebP = (): boolean => {
+  if (typeof window === "undefined") return true; // Assume support on server
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
+  return canvas.toDataURL("image/webp").indexOf("data:image/webp") === 0;
+};
+
+// Helper function to choose optimal format
+const getOptimalFormat = (
+  originalType: string,
+  smartFormat: boolean
+): string => {
+  if (!smartFormat) return "image/webp"; // Default behavior
+
+  // Keep GIFs as GIFs (they might be animated)
+  if (originalType === "image/gif") return originalType;
+
+  // Use AVIF if supported (best compression)
+  // Note: You'd need to check browser support for AVIF too
+  // For now, stick with WebP as it has broad support
+
+  return supportsWebP() ? "image/webp" : "image/jpeg";
+};
 
 export async function compressImage(
   file: File,
@@ -14,9 +41,13 @@ export async function compressImage(
     maxWidth = 2048,
     maxHeight = 2048,
     quality = 0.85,
-    type = "image/webp",
+    type, // Allow override
     maxFileSize = 15 * 1024 * 1024,
+    smartFormat = true,
   } = options;
+
+  // Determine optimal format
+  const optimalType = type || getOptimalFormat(file.type, smartFormat);
 
   // Don't compress GIFs - but validate size
   if (file.type === "image/gif") {
@@ -82,7 +113,7 @@ export async function compressImage(
               resolve(compressedFile);
             }
           },
-          type,
+          optimalType,
           quality
         );
       };

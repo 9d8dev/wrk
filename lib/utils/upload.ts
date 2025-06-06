@@ -262,3 +262,145 @@ export async function uploadMultipleImages(
 
   return results;
 }
+
+// New parallel upload function for better performance
+export async function uploadMultipleImagesParallel(
+  files: File[],
+  onProgress?: (completed: number, total: number, currentFile: string) => void,
+  maxConcurrent: number = 3 // Limit concurrent uploads
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = new Array(files.length);
+  let completed = 0;
+
+  // Function to upload a single file with index tracking
+  const uploadWithIndex = async (file: File, index: number): Promise<void> => {
+    try {
+      if (onProgress) {
+        onProgress(completed, files.length, file.name);
+      }
+
+      const result = await uploadImage(file);
+      results[index] = result;
+    } catch (error) {
+      results[index] = {
+        success: false,
+        error: error instanceof Error ? error.message : "Upload failed",
+      };
+    } finally {
+      completed++;
+      if (onProgress) {
+        onProgress(completed, files.length, "");
+      }
+    }
+  };
+
+  // Create chunks of files to upload concurrently
+  const chunks: File[][] = [];
+  for (let i = 0; i < files.length; i += maxConcurrent) {
+    chunks.push(files.slice(i, i + maxConcurrent));
+  }
+
+  // Process each chunk
+  for (const chunk of chunks) {
+    const promises = chunk.map((file, chunkIndex) => {
+      const globalIndex = chunks.indexOf(chunk) * maxConcurrent + chunkIndex;
+      return uploadWithIndex(file, globalIndex);
+    });
+
+    await Promise.all(promises);
+  }
+
+  return results;
+}
+
+// Upload queue with retry logic
+interface QueuedUpload {
+  file: File;
+  projectId?: string;
+  retries: number;
+  maxRetries: number;
+  resolve: (result: UploadResult) => void;
+  reject: (error: Error) => void;
+}
+
+class UploadQueue {
+  private queue: QueuedUpload[] = [];
+  private processing = false;
+  private maxConcurrent = 3;
+  private activeUploads = 0;
+
+  async add(
+    file: File,
+    projectId?: string,
+    maxRetries = 3
+  ): Promise<UploadResult> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({
+        file,
+        projectId,
+        retries: 0,
+        maxRetries,
+        resolve,
+        reject,
+      });
+      this.process();
+    });
+  }
+
+  private async process() {
+    if (this.processing || this.activeUploads >= this.maxConcurrent) return;
+
+    const upload = this.queue.shift();
+    if (!upload) return;
+
+    this.processing = true;
+    this.activeUploads++;
+
+    try {
+      const result = await uploadImage(upload.file, upload.projectId);
+
+      if (result.success) {
+        upload.resolve(result);
+      } else {
+        throw new Error(result.error || "Upload failed");
+      }
+    } catch (error) {
+      upload.retries++;
+
+      if (upload.retries < upload.maxRetries) {
+        // Exponential backoff: wait 2^retries seconds
+        const delay = Math.pow(2, upload.retries) * 1000;
+        setTimeout(() => {
+          this.queue.unshift(upload); // Add back to front of queue
+          this.process();
+        }, delay);
+      } else {
+        upload.reject(
+          error instanceof Error
+            ? error
+            : new Error("Upload failed after retries")
+        );
+      }
+    } finally {
+      this.activeUploads--;
+      this.processing = false;
+
+      // Process next item in queue
+      if (this.queue.length > 0) {
+        setTimeout(() => this.process(), 100);
+      }
+    }
+  }
+}
+
+// Global upload queue instance
+const uploadQueue = new UploadQueue();
+
+// Enhanced upload function with queue and retry
+export async function uploadImageWithRetry(
+  file: File,
+  projectId?: string,
+  maxRetries = 3
+): Promise<UploadResult> {
+  return uploadQueue.add(file, projectId, maxRetries);
+}
