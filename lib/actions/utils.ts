@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 /**
  * Standard response types for all server actions
  */
-export type ActionResponse<T = void> = 
+export type ActionResponse<T = void> =
   | { success: true; data: T }
   | { success: false; error: string };
 
@@ -20,7 +20,10 @@ export type AuthContext = {
  * Wraps server actions with standard error handling and authentication
  */
 export async function authenticatedAction<TInput, TOutput>(
-  handler: (input: TInput, context: AuthContext) => Promise<ActionResponse<TOutput>>
+  handler: (
+    input: TInput,
+    context: AuthContext
+  ) => Promise<ActionResponse<TOutput>>
 ): Promise<(input: TInput) => Promise<ActionResponse<TOutput>>> {
   return async (input: TInput): Promise<ActionResponse<TOutput>> => {
     try {
@@ -43,7 +46,10 @@ export async function authenticatedAction<TInput, TOutput>(
       console.error("Server action error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       };
     }
   };
@@ -62,7 +68,10 @@ export async function publicAction<TInput, TOutput>(
       console.error("Server action error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       };
     }
   };
@@ -74,7 +83,7 @@ export async function publicAction<TInput, TOutput>(
 export const REVALIDATION_PATHS = {
   profile: (username: string) => [`/${username}`, `/admin/profile`],
   project: (username: string, slug?: string) => {
-    const paths = [`/${username}`, `/admin`];
+    const paths = [`/${username}`, `/admin`, `/admin/projects`];
     if (slug) {
       paths.push(`/${username}/${slug}`);
     }

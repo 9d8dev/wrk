@@ -16,6 +16,7 @@ import {
 } from "./schemas";
 import { deleteMediaBatchWithCleanup } from "@/lib/actions/media";
 import { getAllMediaByProjectId } from "@/lib/data/media";
+import { revalidateTag } from "next/cache";
 
 type ProjectData = {
   title: string;
@@ -132,12 +133,18 @@ export async function createProject(
 
     const result = newProject[0];
 
-    // Revalidate paths
+    // Revalidate paths and cache tags
     if (username) {
       const paths = REVALIDATION_PATHS.project(username);
       for (const path of paths) {
         revalidatePath(path);
       }
+      // Force revalidation of the layout as well
+      revalidatePath(`/${username}`, "layout");
+      revalidatePath(`/${username}`, "page");
+      // Also revalidate cache tags for better SSG revalidation
+      revalidateTag(`projects:${userId}`);
+      revalidateTag(`user:${userId}`);
     }
 
     return {
@@ -256,12 +263,18 @@ export async function updateProject(
 
     const result = updated[0];
 
-    // Revalidate paths
+    // Revalidate paths and cache tags
     if (username) {
       const paths = REVALIDATION_PATHS.project(username, result.slug);
       for (const path of paths) {
         revalidatePath(path);
       }
+      // Force revalidation of the layout as well
+      revalidatePath(`/${username}`, "layout");
+      revalidatePath(`/${username}`, "page");
+      // Also revalidate cache tags for better SSG revalidation
+      revalidateTag(`projects:${userId}`);
+      revalidateTag(`user:${userId}`);
     }
 
     return {
