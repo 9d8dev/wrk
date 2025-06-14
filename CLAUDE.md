@@ -10,17 +10,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
+- `pnpm typecheck` - Run TypeScript type checking
 
 **Database Operations:**
 
 - `pnpm db:generate` - Generate Drizzle migrations from schema changes
 - `pnpm db:migrate` - Apply pending migrations to database
 - `pnpm db:push` - Push schema changes directly (dev only)
+- `pnpm db:studio` - Open Drizzle Studio for database inspection
 
 **Initial Setup:**
 
 1. `pnpm install` - Install dependencies
-2. Copy environment variables to `.env.local`
+2. Copy `.env.example` to `.env.local` and fill in required values
 3. `pnpm db:generate` - Generate initial schema
 4. `pnpm db:migrate` - Apply migrations
 5. `pnpm dev` - Start development server
@@ -31,10 +33,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Tech Stack
 
-- **Framework:** Next.js 15.3.2 with App Router and Turbopack
-- **Language:** TypeScript with React 19
-- **Database:** PostgreSQL (Neon) with Drizzle ORM
-- **Authentication:** Better Auth v1.2.8 with username plugin and Polar integration
+- **Framework:** Next.js 15.4.0-canary with App Router and Turbopack
+- **Language:** TypeScript 5.8.3 with React 19
+- **Database:** PostgreSQL (Neon serverless) with Drizzle ORM
+- **Authentication:** Better Auth v1.2.9 with username plugin and Polar integration
 - **File Storage:** R2 compatible S3 storage with Sharp for image processing
 - **Styling:** Tailwind CSS v4 with CSS variables
 - **Forms:** React Hook Form + Zod validation
@@ -302,3 +304,20 @@ Implemented comprehensive media cleanup functionality that automatically deletes
 - No direct R2 credential exposure to client-side
 
 This implementation ensures that the portfolio application maintains clean storage while providing users with intuitive media management capabilities.
+
+## Testing
+
+Currently, the project does not have automated tests configured. When implementing tests:
+
+- Consider using Jest and React Testing Library for unit and integration tests
+- Use Playwright or similar for E2E testing
+- Test Server Actions with proper mocking of database operations
+- Ensure authentication flows are properly tested
+
+## Performance Considerations
+
+- Images are automatically optimized using Sharp (WebP conversion at 85% quality)
+- Turbopack provides fast development builds
+- Database queries should use proper indexing (check migrations)
+- Consider implementing caching strategies for frequently accessed data
+- Monitor R2 storage usage and implement cleanup policies if needed
