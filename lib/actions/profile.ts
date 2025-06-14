@@ -3,14 +3,18 @@
 import { db } from "@/db/drizzle";
 import { profile, user, socialLink, account } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/actions/media";
 import { nanoid } from "nanoid";
-import { ActionResponse, REVALIDATION_PATHS } from "./utils";
+import { ActionResponse } from "./utils";
 import { updateProfileSchema } from "./schemas";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { notifyNewUserSignup } from "@/lib/utils/discord";
+import { 
+  revalidateUserProfile, 
+  revalidateUsernameChange
+} from "@/lib/utils/revalidation";
 
 type UpdateProfileParams = {
   profileData: {
@@ -181,29 +185,15 @@ export async function updateProfile(
       const usernameChanged = oldUsername !== params.userData.username;
 
       if (usernameChanged && oldUsername) {
-        // Revalidate old username paths
-        const oldPaths = REVALIDATION_PATHS.profile(oldUsername);
-        for (const path of oldPaths) {
-          revalidatePath(path);
-        }
-        // Force revalidation of old username page
-        revalidatePath(`/${oldUsername}`, "layout");
-        revalidatePath(`/${oldUsername}`, "page");
-      }
-
-      // Revalidate new/current username paths
-      const paths = REVALIDATION_PATHS.profile(params.userData.username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
-
-      if (usernameChanged) {
-        // Force revalidation of new username page
-        revalidatePath(`/${params.userData.username}`, "layout");
-        revalidatePath(`/${params.userData.username}`, "page");
-        // Invalidate user cache tags
-        revalidateTag(`user:${userId}`);
-        revalidateTag(`profile:${profileId}`);
+        // Use optimized revalidation for username changes
+        await revalidateUsernameChange(
+          oldUsername,
+          params.userData.username,
+          userId
+        );
+      } else {
+        // Regular profile update revalidation
+        await revalidateUserProfile(params.userData.username, userId);
       }
 
       return {
@@ -315,12 +305,13 @@ export async function createProfile(
       }
     }
 
-    // Revalidate paths
+    // Use optimized revalidation for new profile creation
+    if (username) {
+      await revalidateUserProfile(username, userId);
+    }
+    // Also revalidate admin and onboarding pages
     revalidatePath("/admin");
     revalidatePath("/onboarding");
-    if (username) {
-      revalidatePath(`/${username}`);
-    }
 
     return { success: true, data: { profileId, username } };
   } catch (error) {
@@ -402,14 +393,12 @@ export async function updateUsername(
       })
       .where(eq(user.id, userId));
 
-    // Revalidate paths
-    if (oldUsername) {
-      revalidatePath(`/${oldUsername}`);
-    }
-    const paths = REVALIDATION_PATHS.profile(newUsername);
-    for (const path of paths) {
-      revalidatePath(path);
-    }
+    // Use optimized revalidation for username changes
+    await revalidateUsernameChange(
+      oldUsername || "",
+      newUsername,
+      userId
+    );
 
     return { success: true, data: { username: newUsername } };
   } catch (error) {

@@ -28,6 +28,9 @@ type Props = {
   params: Promise<{ username: string }>;
 };
 
+// Configure ISR with different strategies based on content type
+export const revalidate = 180; // 3 minutes - more reasonable for UGC platforms
+
 // SSG
 export async function generateStaticParams() {
   try {
@@ -76,6 +79,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // Page
 export default async function PortfolioPage({ params }: Props) {
+  // Add cache timestamp for debugging
+  const cacheTimestamp = new Date().toISOString();
   const { username } = await params;
 
   const projectsResult = await getProjectsByUsername(username);
@@ -123,6 +128,12 @@ export default async function PortfolioPage({ params }: Props) {
         <Container>{renderGrid()}</Container>
       </Section>
       <ProfileFooter username={username} />
+      {/* Debug: Cache timestamp */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed bottom-0 right-0 p-2 bg-black/50 text-white text-xs">
+          Rendered: {cacheTimestamp}
+        </div>
+      )}
     </>
   );
 }

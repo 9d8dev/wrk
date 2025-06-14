@@ -8,6 +8,7 @@ import {
   withErrorHandling,
   dedupe
 } from "./utils";
+import { unstable_cache } from "next/cache";
 import { 
   userIdSchema, 
   usernameSchema,
@@ -28,7 +29,7 @@ export interface ProfileWithRelations {
 /**
  * Get profile by username with all related data
  */
-export const getProfileByUsername = dedupe(async (
+const _getProfileByUsername = async (
   username: string
 ): Promise<DataResponse<ProfileWithRelations | null>> => {
   return withErrorHandling(async () => {
@@ -71,7 +72,22 @@ export const getProfileByUsername = dedupe(async (
       profileImage,
     };
   }, "Failed to fetch profile by username");
-});
+};
+
+// Create a cached version for better performance
+const getCachedProfile = unstable_cache(
+  async (username: string) => {
+    return await _getProfileByUsername(username);
+  },
+  ['profile-by-username'],
+  {
+    tags: ['profiles'],
+    revalidate: 300, // 5 minutes
+  }
+);
+
+// Export with deduplication
+export const getProfileByUsername = dedupe(getCachedProfile);
 
 /**
  * Get profile by user ID

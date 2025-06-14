@@ -3,8 +3,8 @@
 import { db } from "@/db/drizzle";
 import { theme, gridTypes } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import crypto from "crypto";
+import { revalidateUserTheme } from "@/lib/utils/revalidation";
 
 type GridType = (typeof gridTypes)[number];
 
@@ -59,10 +59,9 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
       .limit(1);
 
     if (userResult.length > 0 && userResult[0].username) {
-      revalidatePath(`/${userResult[0].username}`);
+      // Use aggressive revalidation for theme changes
+      await revalidateUserTheme(userResult[0].username, userId);
     }
-
-    revalidatePath("/admin/theme");
     return { success: true };
   } catch (error) {
     console.error("Error updating theme:", error);

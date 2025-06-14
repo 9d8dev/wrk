@@ -11,6 +11,7 @@ import {
   getPaginationOffset,
   dedupe
 } from "./utils";
+import { unstable_cache } from "next/cache";
 import { 
   userIdSchema, 
   usernameSchema,
@@ -30,15 +31,15 @@ export interface ProjectWithRelations {
 }
 
 /**
- * Get projects by username with pagination
+ * Internal function for getting projects by username with pagination
  */
-export async function getProjectsByUsername(
+const _getProjectsByUsername = async (
   username: string,
   params?: {
     page?: number;
     limit?: number;
   }
-): Promise<DataResponse<PaginatedResponse<Project>>> {
+): Promise<DataResponse<PaginatedResponse<Project>>> => {
   return withErrorHandling(async () => {
     // Validate inputs
     const usernameValidation = usernameSchema.safeParse(username);
@@ -98,7 +99,24 @@ export async function getProjectsByUsername(
       ...calculatePagination(total, page, limit),
     };
   }, "Failed to fetch projects by username");
-}
+};
+
+// Create a cached version for better performance
+const getCachedProjects = unstable_cache(
+  async (username: string, params?: { page?: number; limit?: number }) => {
+    return await _getProjectsByUsername(username, params);
+  },
+  ['projects-by-username'],
+  {
+    tags: ['projects'],
+    revalidate: 300, // 5 minutes
+  }
+);
+
+/**
+ * Get projects by username with pagination (cached)
+ */
+export const getProjectsByUsername = getCachedProjects;
 
 /**
  * Get a single project by username and slug

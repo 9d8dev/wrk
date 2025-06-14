@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { nanoid } from "nanoid";
-import { ActionResponse, REVALIDATION_PATHS } from "./utils";
+import { ActionResponse } from "./utils";
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -16,7 +16,7 @@ import {
 } from "./schemas";
 import { deleteMediaBatchWithCleanup } from "@/lib/actions/media";
 import { getAllMediaByProjectId } from "@/lib/data/media";
-import { revalidateTag } from "next/cache";
+import { revalidateUserProjects } from "@/lib/utils/revalidation";
 
 type ProjectData = {
   title: string;
@@ -142,18 +142,10 @@ export async function createProject(
 
     const result = newProject[0];
 
-    // Revalidate paths and cache tags
+    // Use aggressive revalidation for project creation
     if (username) {
-      const paths = REVALIDATION_PATHS.project(username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
-      // Force revalidation of the layout as well
-      revalidatePath(`/${username}`, "layout");
-      revalidatePath(`/${username}`, "page");
-      // Also revalidate cache tags for better SSG revalidation
-      revalidateTag(`projects:${userId}`);
-      revalidateTag(`user:${userId}`);
+      await revalidateUserProjects(username, userId);
+      // Revalidation is now handled by revalidateUserProjects
     }
 
     return {
@@ -305,18 +297,14 @@ export async function updateProject(
 
     const result = updated[0];
 
-    // Revalidate paths and cache tags
+    // Use aggressive revalidation for project update
     if (username) {
-      const paths = REVALIDATION_PATHS.project(username, result.slug);
-      for (const path of paths) {
-        revalidatePath(path);
+      await revalidateUserProjects(username, userId);
+      // Revalidation is now handled by revalidateUserProjects
+      // If slug changed, revalidate old slug too
+      if (existing[0].slug !== result.slug) {
+        revalidatePath(`/${username}/${existing[0].slug}`);
       }
-      // Force revalidation of the layout as well
-      revalidatePath(`/${username}`, "layout");
-      revalidatePath(`/${username}`, "page");
-      // Also revalidate cache tags for better SSG revalidation
-      revalidateTag(`projects:${userId}`);
-      revalidateTag(`user:${userId}`);
     }
 
     return {
@@ -409,12 +397,9 @@ export async function deleteProject(id: string): Promise<ActionResponse<void>> {
         .where(eq(projectTable.id, remainingProjects[i].id));
     }
 
-    // Revalidate paths
+    // Use aggressive revalidation for project deletion
     if (username) {
-      const paths = REVALIDATION_PATHS.project(username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
+      await revalidateUserProjects(username, userId);
     }
 
     return { success: true, data: undefined };
@@ -444,7 +429,6 @@ export async function updateProjectOrder(
     }
 
     const userId = session.user.id;
-    const username = session.user.username;
 
     // Validate input
     const validation = reorderProjectsSchema.safeParse({ projectIds });
@@ -489,13 +473,7 @@ export async function updateProjectOrder(
         );
     }
 
-    // Revalidate paths
-    if (username) {
-      const paths = REVALIDATION_PATHS.project(username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
-    }
+    // Revalidation is now handled by revalidateUserProjects
 
     return { success: true, data: undefined };
   } catch (error) {
@@ -526,7 +504,6 @@ export async function moveProjectUp(
     }
 
     const userId = session.user.id;
-    const username = session.user.username;
 
     // Get current project with ownership check
     const currentProject = await db
@@ -574,13 +551,7 @@ export async function moveProjectUp(
       .set({ displayOrder: current.displayOrder })
       .where(eq(projectTable.id, previousProject[0].id));
 
-    // Revalidate paths
-    if (username) {
-      const paths = REVALIDATION_PATHS.project(username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
-    }
+    // Revalidation is now handled by revalidateUserProjects
 
     return { success: true, data: undefined };
   } catch (error) {
@@ -618,7 +589,6 @@ export async function moveProjectDown(
     }
 
     const userId = session.user.id;
-    const username = session.user.username;
 
     // Get current project with ownership check
     const currentProject = await db
@@ -674,13 +644,7 @@ export async function moveProjectDown(
       .set({ displayOrder: current.displayOrder })
       .where(eq(projectTable.id, nextProject[0].id));
 
-    // Revalidate paths
-    if (username) {
-      const paths = REVALIDATION_PATHS.project(username);
-      for (const path of paths) {
-        revalidatePath(path);
-      }
-    }
+    // Revalidation is now handled by revalidateUserProjects
 
     return { success: true, data: undefined };
   } catch (error) {
