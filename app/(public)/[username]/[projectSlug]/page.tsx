@@ -1,4 +1,4 @@
-import { Container, Prose, Section } from "@/components/ds";
+import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { AsyncImage } from "@/components/ui/async-image";
@@ -173,11 +173,15 @@ export default async function ProjectPage({ params }: Props) {
 const ProjectDescription = ({ project }: { project: Project }) => {
   return (
     <Container>
-      <div className="space-y-4 max-w-3xl mx-auto">
+      <div className="space-y-6 max-w-3xl mx-auto">
         <h1>{project.title}</h1>
 
         {project.about && (
-          <p className="text-muted-foreground">{project.about}</p>
+          <div className="text-muted-foreground space-y-4">
+            {project.about.split("\n\n").map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
         )}
 
         {project.externalLink && (
