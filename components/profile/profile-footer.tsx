@@ -1,5 +1,5 @@
 import { Section, Container } from "@/components/ds";
-import { ArrowUpRight, MapPin, Pin } from "lucide-react";
+import { ArrowUpRight, MapPin } from "lucide-react";
 
 import Link from "next/link";
 
