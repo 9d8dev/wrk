@@ -72,7 +72,7 @@ export default async function CustomDomainContactPage({ params }: Props) {
               </p>
             </div>
             
-            <ContactForm userId={userId} />
+            <ContactForm userId={userId} portfolioOwner={username} />
           </div>
         </Container>
       </Section>

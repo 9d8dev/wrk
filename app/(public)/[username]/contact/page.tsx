@@ -106,7 +106,7 @@ export default async function ContactPage({ params }: Props) {
       <ProfileHeader username={username} />
       <Section>
         <Container>
-          <ContactForm userId={user.id} />
+          <ContactForm userId={user.id} portfolioOwner={username} />
         </Container>
       </Section>
       <ProfileFooter username={username} />

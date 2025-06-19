@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
+import { usePostHogEvents } from "@/components/analytics";
 
 interface UpgradeButtonProps {
   productSlug: string;
@@ -22,9 +23,11 @@ export function UpgradeButton({
   variant = "default"
 }: UpgradeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { trackUpgradeClicked } = usePostHogEvents();
 
   const handleUpgrade = async () => {
     setIsLoading(true);
+    trackUpgradeClicked();
     try {
       console.log("🚀 Starting checkout with authClient for slug:", productSlug);
       

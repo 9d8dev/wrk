@@ -7,6 +7,10 @@ import { getSession } from "@/lib/actions/auth";
 import { hasActiveProSubscription } from "@/lib/actions/polar";
 import { polarConfig } from "@/lib/config/polar";
 import { redirect } from "next/navigation";
+import { PostHogUserIdentifier } from "@/components/analytics/posthog-user-identifier";
+import { db } from "@/db/drizzle";
+import { user } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Error Boundary Component for Admin Layout
@@ -43,6 +47,19 @@ export default async function AdminLayout({
       redirect("/onboarding");
     }
 
+    // Get full user data from database for PostHog identification
+    const fullUser = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, session.user.id))
+      .limit(1);
+
+    if (!fullUser[0]) {
+      redirect("/sign-in");
+    }
+
+    const userData = fullUser[0];
+
     // Check if user has an active Pro subscription
     let isPro = false;
     try {
@@ -70,6 +87,7 @@ export default async function AdminLayout({
 
     return (
       <SidebarProvider>
+        <PostHogUserIdentifier user={userData} />
         <AdminSidebar
           name={userName}
           username={userUsername}

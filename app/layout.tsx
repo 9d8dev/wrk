@@ -3,6 +3,8 @@ import "lenis/dist/lenis.css";
 
 import { Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogWrapper, PostHogPageView } from "@/components/analytics";
+import { Suspense } from "react";
 
 import type { Metadata } from "next";
 
@@ -31,7 +33,12 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans font-light leading-tight antialiased`}
       >
-        {children}
+        <PostHogWrapper>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          {children}
+        </PostHogWrapper>
         <Analytics />
       </body>
     </html>

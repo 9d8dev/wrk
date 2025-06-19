@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Copy, ExternalLink, AlertTriangle, CheckCircle, Clock, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { usePostHogEvents } from "@/components/analytics";
 
 interface DomainStatus {
   domain: string | null;
@@ -22,6 +23,7 @@ export function DomainManagement() {
   const [newDomain, setNewDomain] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const { trackCustomDomainAdded, trackCustomDomainVerified, trackCustomDomainRemoved } = usePostHogEvents();
 
   // Load current domain status
   useEffect(() => {
@@ -67,6 +69,7 @@ export function DomainManagement() {
 
       if (response.ok) {
         toast.success(data.message);
+        trackCustomDomainAdded(newDomain.trim());
         setNewDomain("");
         await fetchDomainStatus();
       } else {
@@ -91,6 +94,9 @@ export function DomainManagement() {
 
       if (response.ok) {
         toast.success(data.message);
+        if (domainStatus?.domain) {
+          trackCustomDomainRemoved(domainStatus.domain);
+        }
         await fetchDomainStatus();
       } else {
         toast.error(data.error);
@@ -120,6 +126,9 @@ export function DomainManagement() {
 
       if (data.verified) {
         toast.success(data.message);
+        if (domainStatus?.domain) {
+          trackCustomDomainVerified(domainStatus.domain);
+        }
         await fetchDomainStatus();
       } else {
         toast.error(data.message);

@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { usePostHogEvents } from "@/components/analytics";
 
 import {
   Form,
@@ -31,9 +32,10 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ContactForm({ userId }: { userId: string }) {
+export function ContactForm({ userId, portfolioOwner }: { userId: string; portfolioOwner?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { trackContactFormSubmission } = usePostHogEvents();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -55,9 +57,15 @@ export function ContactForm({ userId }: { userId: string }) {
       if (result.success) {
         setIsSuccess(true);
         toast.success("Message sent successfully");
+        if (portfolioOwner) {
+          trackContactFormSubmission(portfolioOwner, true);
+        }
         form.reset();
       } else {
         toast.error("Failed to send message");
+        if (portfolioOwner) {
+          trackContactFormSubmission(portfolioOwner, false);
+        }
       }
     } catch (error) {
       toast.error("An error occurred");

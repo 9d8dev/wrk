@@ -185,6 +185,11 @@ Required environment variables (add to `.env.local`):
 - `R2_PUBLIC_URL` - Public URL for serving R2 files
 - `DISCORD_WEBHOOK_URL` - Discord webhook URL for notifications (optional)
 
+### PostHog Analytics
+
+- `NEXT_PUBLIC_POSTHOG_KEY` - PostHog project API key for analytics tracking
+- `NEXT_PUBLIC_POSTHOG_HOST` - PostHog instance URL (defaults to https://us.i.posthog.com)
+
 ### Polar Integration
 
 - `POLAR_ACCESS_TOKEN` - Organization access token from Polar
@@ -311,6 +316,56 @@ Currently, the project does not have automated tests configured. When implementi
 - Test Server Actions with proper mocking of database operations
 - Ensure authentication flows are properly tested
 
+## Analytics Integration
+
+### PostHog Analytics
+
+The application includes comprehensive PostHog analytics integration for user behavior tracking, product analytics, and business intelligence.
+
+**Setup Requirements:**
+- Add `NEXT_PUBLIC_POSTHOG_KEY` to environment variables (get from PostHog project settings)
+- `NEXT_PUBLIC_POSTHOG_HOST` defaults to `https://us.i.posthog.com`
+
+**Key Features:**
+- **Page View Tracking**: Automatic tracking across all routes including custom domains
+- **User Identification**: Authenticated users are identified with subscription status and profile data
+- **Multi-Tenant Analytics**: Domain-aware tracking (main domain, subdomains, custom domains)
+- **Custom Event Tracking**: Portfolio views, project interactions, contact form submissions, Pro feature usage
+- **Privacy-First**: Only creates profiles for identified users, masks sensitive inputs
+- **Ad-Blocker Bypass**: Uses reverse proxy at `/ingest/*` to avoid tracking blockers
+
+**Available Event Tracking:**
+- Portfolio and project views with owner attribution
+- Contact form submissions (success/failure)
+- Pro subscription events (upgrades, custom domain management)
+- User journey events (sign up, onboarding completion)
+- Admin actions (project CRUD, theme changes, profile updates)
+
+**Analytics Components:**
+- `/components/analytics/posthog-provider.tsx` - Main PostHog initialization
+- `/components/analytics/posthog-pageview.tsx` - Page view tracking
+- `/components/analytics/posthog-user-identifier.tsx` - User identification for admin areas
+- `/components/analytics/use-posthog-events.ts` - Custom event tracking hooks
+
+**Usage Example:**
+```typescript
+import { usePostHogEvents } from '@/components/analytics';
+
+const { trackPortfolioView, trackProjectCreated } = usePostHogEvents();
+
+// Track portfolio view
+trackPortfolioView(username, 'custom_domain');
+
+// Track project creation
+trackProjectCreated();
+```
+
+**Integration Notes:**
+- Works alongside existing Vercel Analytics
+- Integrated into admin layout for authenticated user tracking
+- Domain context automatically included in all events
+- Ready for feature flags and A/B testing expansion
+
 ## Performance Considerations
 
 - Images are automatically optimized using Sharp (WebP conversion at 85% quality)
@@ -318,3 +373,4 @@ Currently, the project does not have automated tests configured. When implementi
 - Database queries should use proper indexing (check migrations)
 - Consider implementing caching strategies for frequently accessed data
 - Monitor R2 storage usage and implement cleanup policies if needed
+- PostHog analytics are loaded asynchronously and don't impact page performance
