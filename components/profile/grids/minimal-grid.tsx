@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AsyncImage } from "@/components/ui/async-image";
 import type { Project, Media } from "@/db/schema";
+import { ArrowUpRight } from "lucide-react";
 
 interface MinimalGridProps {
   projects: Array<{
@@ -18,7 +19,7 @@ export function MinimalGrid({ projects, username }: MinimalGridProps) {
         <Link
           key={project.project.id}
           href={`/${username}/${project.project.slug}`}
-          className="group mx-auto relative flex gap-6 max-w-lg"
+          className="group mx-auto relative flex gap-6 max-w-3xl"
         >
           {project.featuredImage && (
             <AsyncImage
@@ -29,13 +30,8 @@ export function MinimalGrid({ projects, username }: MinimalGridProps) {
               placeholder="shimmer"
             />
           )}
-          <div className="py-2 absolute top-0 -right-68 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 w-64">
-            <h3 className="line-clamp-1">{project.project.title}</h3>
-            {project.project.about && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {project.project.about}
-              </p>
-            )}
+          <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity top-4 right-4">
+            <ArrowUpRight size={16} />
           </div>
         </Link>
       ))}
