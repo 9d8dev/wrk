@@ -11,7 +11,9 @@
       "WebFetch(domain:nextjs.org)",
       "Bash(rm:*)",
       "Bash(pnpm list:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(pnpm run:*)"
     ],
     "deny": []
   },

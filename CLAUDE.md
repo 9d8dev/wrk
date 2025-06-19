@@ -10,14 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm typecheck` - Run TypeScript type checking
-
 **Database Operations:**
 
 - `pnpm db:generate` - Generate Drizzle migrations from schema changes
 - `pnpm db:migrate` - Apply pending migrations to database
 - `pnpm db:push` - Push schema changes directly (dev only)
-- `pnpm db:studio` - Open Drizzle Studio for database inspection
 
 **Initial Setup:**
 
@@ -86,7 +83,7 @@ Key entities and relationships:
 - Each migration has an associated snapshot in `/db/migrations/meta/`
 - Use `pnpm db:generate` to create new migrations from schema changes
 - Use `pnpm db:migrate` to apply pending migrations
-- **Note:** There's a pending migration (0004_warm_brother_voodoo.sql) that changes project slugs from globally unique to unique per user. Apply with `pnpm db:push` or `pnpm db:migrate` when ready.
+- **Note:** Migration history includes schema changes for project slugs and other database improvements. Use `pnpm db:migrate` to apply any pending migrations.
 
 ### Server Actions Pattern
 
