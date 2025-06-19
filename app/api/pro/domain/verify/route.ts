@@ -4,6 +4,7 @@ import { db } from "@/db/drizzle";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { promises as dns } from "dns";
 
 // Domain verification schema
 const verifySchema = z.object({
@@ -15,16 +16,9 @@ async function checkDNSResolution(domain: string): Promise<{
   resolves: boolean;
   pointsToVercel: boolean;
   error?: string;
+  details?: string;
 }> {
   try {
-    // In a real implementation, you would:
-    // 1. Check if the domain resolves to your Vercel deployment
-    // 2. Verify CNAME or A records point to your platform
-    // 3. Check for proper SSL certificate setup
-    
-    // For now, we'll simulate a basic check
-    // In production, you'd use DNS lookup libraries or external APIs
-    
     // Basic domain format validation
     const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     
@@ -36,23 +30,77 @@ async function checkDNSResolution(domain: string): Promise<{
       };
     }
 
-    // In a real implementation, you would make actual DNS queries here
-    // For demonstration purposes, we'll assume verification passes
-    // You could integrate with services like:
-    // - Vercel Domains API
-    // - Cloudflare API
-    // - DNS lookup libraries
+    // Expected targets for Vercel deployment
+    const VERCEL_CNAME_TARGET = "cname.vercel-dns.com";
+    const VERCEL_A_RECORD_TARGET = "76.76.19.61";
     
+    let resolves = false;
+    let pointsToVercel = false;
+    let details = "";
+
+    // First, try to check CNAME records
+    try {
+      const cnameRecords = await dns.resolveCname(domain);
+      console.log(`CNAME records for ${domain}:`, cnameRecords);
+      
+      if (cnameRecords && cnameRecords.length > 0) {
+        resolves = true;
+        // Check if any CNAME points to Vercel
+        const hasVercelCname = cnameRecords.some(record => 
+          record.toLowerCase().includes("vercel") || 
+          record.toLowerCase() === VERCEL_CNAME_TARGET
+        );
+        
+        if (hasVercelCname) {
+          pointsToVercel = true;
+          details = `CNAME record found pointing to ${cnameRecords[0]}`;
+        } else {
+          details = `CNAME record found but points to ${cnameRecords[0]}, not Vercel`;
+        }
+      }
+    } catch {
+      // If CNAME lookup fails, try A records
+      try {
+        const aRecords = await dns.resolve4(domain);
+        console.log(`A records for ${domain}:`, aRecords);
+        
+        if (aRecords && aRecords.length > 0) {
+          resolves = true;
+          // Check if any A record points to Vercel IP
+          const hasVercelARecord = aRecords.includes(VERCEL_A_RECORD_TARGET);
+          
+          if (hasVercelARecord) {
+            pointsToVercel = true;
+            details = `A record found pointing to ${VERCEL_A_RECORD_TARGET}`;
+          } else {
+            details = `A record found but points to ${aRecords[0]}, not Vercel (${VERCEL_A_RECORD_TARGET})`;
+          }
+        }
+      } catch {
+        // Neither CNAME nor A records found
+        console.error(`DNS lookup failed for ${domain}`);
+        return {
+          resolves: false,
+          pointsToVercel: false,
+          error: "Domain does not resolve. Please check your DNS configuration.",
+          details: "No CNAME or A records found for this domain"
+        };
+      }
+    }
+
     return {
-      resolves: true,
-      pointsToVercel: true,
+      resolves,
+      pointsToVercel,
+      details
     };
 
   } catch (error) {
+    console.error(`DNS check error for ${domain}:`, error);
     return {
       resolves: false,
       pointsToVercel: false,
-      error: error instanceof Error ? error.message : "DNS check failed"
+      error: error instanceof Error ? error.message : "DNS check failed",
+      details: "An unexpected error occurred during DNS verification"
     };
   }
 }
@@ -129,11 +177,14 @@ export async function POST(request: NextRequest) {
         message: 'Domain verified successfully! Your custom domain is now active.'
       });
     } else {
-      // Update domain status to error
+      // Keep domain status as pending if DNS not yet configured
+      // Only set to error if there's an actual error (not just missing config)
+      const newStatus = dnsCheck.error && !dnsCheck.error.includes("does not resolve") ? 'error' : 'pending';
+      
       await db
         .update(user)
         .set({
-          domainStatus: 'error',
+          domainStatus: newStatus,
           updatedAt: new Date(),
         })
         .where(eq(user.id, session.user.id));
@@ -142,12 +193,13 @@ export async function POST(request: NextRequest) {
         success: false,
         verified: false,
         domain,
-        status: 'error',
+        status: newStatus,
         error: dnsCheck.error || 'Domain verification failed',
-        message: 'Please check your DNS configuration and try again.',
+        message: dnsCheck.details || 'Please check your DNS configuration and try again.',
         instructions: {
           cname: `Create a CNAME record pointing ${domain} to cname.vercel-dns.com`,
-          a_record: `Or create an A record pointing ${domain} to 76.76.19.61`
+          a_record: `Or create an A record pointing ${domain} to 76.76.19.61`,
+          note: "DNS changes may take up to 48 hours to propagate worldwide."
         }
       });
     }
