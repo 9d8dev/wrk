@@ -16,7 +16,10 @@
       "Bash(pnpm run:*)",
       "WebFetch(domain:vercel.com)",
       "Bash(mkdir:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(curl:*)"
     ],
     "deny": []
   },
