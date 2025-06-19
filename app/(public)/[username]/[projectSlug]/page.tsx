@@ -177,7 +177,7 @@ const ProjectDescription = ({ project }: { project: Project }) => {
         <h1>{project.title}</h1>
 
         {project.about && (
-          <div className="text-muted-foreground space-y-4">
+          <div className="text-muted-foreground space-y-3">
             {project.about.split("\n\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
