@@ -16,7 +16,7 @@ interface DiagnosticResult {
   step: string;
   status: 'success' | 'warning' | 'error';
   message: string;
-  details?: any;
+  details?: string[] | Record<string, unknown> | string | null;
 }
 
 // Helper function to check DNS resolution with detailed diagnostics
@@ -101,7 +101,7 @@ async function checkDNSDiagnostics(domain: string): Promise<DiagnosticResult[]> 
         step: "TXT Records",
         status: "success",
         message: "TXT records found",
-        details: txtRecords
+        details: txtRecords.flat().join(', ')
       });
     } catch {
       results.push({

@@ -1,9 +1,5 @@
-import { createClient } from '@vercel/client';
-
-// Initialize Vercel client
-const client = createClient({
-  accessToken: process.env.VERCEL_API_TOKEN!,
-});
+// Vercel API integration using direct REST API calls
+// This avoids build issues with the @vercel/client package
 
 const projectId = process.env.VERCEL_PROJECT_ID!;
 const teamId = process.env.VERCEL_TEAM_ID;

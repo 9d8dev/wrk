@@ -119,16 +119,19 @@ export const ProjectForm = ({
   });
 
   // Memoize arrays to prevent infinite loops
+  const existingAdditionalImagesIds = useMemo(
+    () => existingAdditionalImages.map((img) => img.id).join(","),
+    [existingAdditionalImages]
+  );
+  
   const stableExistingAdditionalImages = useMemo(
     () => existingAdditionalImages,
-    [
-      existingAdditionalImages.length,
-      existingAdditionalImages.map((img) => img.id).join(","),
-    ]
+    [existingAdditionalImages]
   );
+  
   const stableInitialImages = useMemo(
     () => initialImages,
-    [initialImages.length]
+    [initialImages]
   );
 
   // Initialize images on mount
@@ -174,7 +177,7 @@ export const ProjectForm = ({
     initializeImages();
   }, [
     project?.id,
-    existingFeaturedImage?.id,
+    existingFeaturedImage,
     stableExistingAdditionalImages,
     stableInitialImages,
   ]);
