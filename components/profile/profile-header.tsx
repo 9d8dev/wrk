@@ -3,6 +3,7 @@ import { ProfileNav } from "@/components/profile/profile-nav";
 
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
+import { isProUser } from "@/lib/actions/subscription";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import type { Profile, User } from "@/db/schema";
 export const ProfileHeader = async ({ username }: { username: string }) => {
   const profileResult = await getProfileByUsername(username);
   const userResult = await getUserByUsername(username);
+  const isPro = await isProUser(userResult.data?.id || "");
 
   if (
     !profileResult.success ||
@@ -32,7 +34,7 @@ export const ProfileHeader = async ({ username }: { username: string }) => {
     <Section>
       <Container className="flex justify-between items-start gap-6">
         <Info profile={profile} user={user} imageSrc={imageSrc} />
-        <ProfileNav user={user} />
+        <ProfileNav user={user} isPro={isPro} />
       </Container>
     </Section>
   );

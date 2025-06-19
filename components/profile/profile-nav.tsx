@@ -1,14 +1,15 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
+
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
 import type { User } from "@/db/schema";
-import { ArrowUpRight } from "lucide-react";
 
-export const ProfileNav = ({ user }: { user: User }) => {
+export const ProfileNav = ({ user, isPro }: { user: User; isPro: boolean }) => {
   const pathname = usePathname();
 
   return (
@@ -31,17 +32,21 @@ export const ProfileNav = ({ user }: { user: User }) => {
       >
         Contact
       </Link>
-      |
-      <Link
-        href={`/`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          "text-muted-foreground hover:text-foreground transition-all"
-        )}
-      >
-        Made with Wrk.so <ArrowUpRight size={12} className="inline-block" />
-      </Link>
+      {!isPro && (
+        <>
+          |
+          <Link
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "text-muted-foreground hover:text-foreground transition-all"
+            )}
+          >
+            Made with Wrk.so <ArrowUpRight size={12} className="inline-block" />
+          </Link>
+        </>
+      )}
     </nav>
   );
 };

@@ -15,7 +15,12 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
   const profileResult = await getProfileByUsername(username);
   const userResult = await getUserByUsername(username);
 
-  if (!profileResult.success || !profileResult.data || !userResult.success || !userResult.data) {
+  if (
+    !profileResult.success ||
+    !profileResult.data ||
+    !userResult.success ||
+    !userResult.data
+  ) {
     return null;
   }
 
@@ -56,7 +61,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
 
 const SocialLinks = async ({ profile }: { profile: Profile }) => {
   const socialLinksResult = await getSocialLinksByProfileId(profile.id);
-  
+
   if (!socialLinksResult.success || socialLinksResult.data.length === 0) {
     return null;
   }

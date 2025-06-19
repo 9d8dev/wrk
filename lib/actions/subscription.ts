@@ -1,11 +1,25 @@
 "use server";
 
-import { db } from "@/db/drizzle";
 import { user, subscriptionHistory } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { nanoid } from "nanoid";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { eq } from "drizzle-orm";
+import { db } from "@/db/drizzle";
+
+export async function isProUser(userId: string) {
+  const userData = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+
+  if (!userData[0]) {
+    return false;
+  }
+
+  return userData[0].subscriptionStatus === "active";
+}
 
 // Helper function to get user by polarCustomerId
 export async function getUserByPolarCustomerId(polarCustomerId: string) {
