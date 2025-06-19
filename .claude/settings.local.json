@@ -13,7 +13,10 @@
       "Bash(pnpm list:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(pnpm run:*)"
+      "Bash(pnpm run:*)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm dev:*)"
     ],
     "deny": []
   },

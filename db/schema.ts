@@ -27,6 +27,10 @@ export const user = pgTable("user", {
   subscriptionId: text("subscription_id"),
   subscriptionProductId: text("subscription_product_id"),
   subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
+  // Custom domain fields (Pro only)
+  customDomain: text("custom_domain").unique(),
+  domainStatus: text("domain_status"), // pending, active, error, null
+  domainVerifiedAt: timestamp("domain_verified_at"),
 });
 
 // SUBSCRIPTION HISTORY TABLE

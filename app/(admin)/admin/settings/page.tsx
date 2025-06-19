@@ -11,6 +11,7 @@ import { UpgradeButton } from "@/components/admin/upgrade-button";
 import { polarConfig } from "@/lib/config/polar";
 import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
 import { DeleteAccountButton } from "@/components/admin/delete-account-button";
+import { DomainManagement } from "@/components/admin/domain-management";
 
 export const dynamic = "force-dynamic";
 
@@ -152,6 +153,11 @@ export default async function SettingsPage() {
         <AdminHeader pageTitle="Settings" />
         <PageWrapper>
           <SubscriptionSection subscriptionDetails={subscriptionDetails} />
+
+          {/* Domain Management Section */}
+          <div className="mt-8">
+            <DomainManagement />
+          </div>
 
           {/* Account Deletion Section */}
           <div className="mt-12 pt-8 border-t border-destructive/20">

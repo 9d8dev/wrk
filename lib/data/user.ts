@@ -114,6 +114,33 @@ export const getUserByUsername = dedupe(async (username: string): Promise<DataRe
 });
 
 /**
+ * Get a user by custom domain with caching (Pro users only)
+ */
+export const getUserByCustomDomain = dedupe(async (domain: string): Promise<DataResponse<User | null>> => {
+  return withErrorHandling(async () => {
+    // Basic domain validation
+    if (!domain || typeof domain !== 'string' || domain.length < 3) {
+      throw new Error("Invalid domain");
+    }
+
+    const data = await db
+      .select()
+      .from(user)
+      .where(eq(user.customDomain, domain))
+      .limit(1);
+
+    const foundUser = data[0] || null;
+    
+    // Check if user has active Pro subscription
+    if (foundUser && foundUser.subscriptionStatus !== 'active') {
+      throw new Error("Domain access requires active Pro subscription");
+    }
+
+    return foundUser;
+  }, "Failed to fetch user by custom domain");
+});
+
+/**
  * Check if a username is available
  */
 export async function isUsernameAvailable(username: string): Promise<DataResponse<boolean>> {
