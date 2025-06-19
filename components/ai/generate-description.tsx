@@ -4,8 +4,17 @@ import { useState } from "react";
 import { generateDescription } from "@/lib/actions/ai";
 import { Button } from "@/components/ui/button";
 
-export const GenerateDescription = ({ imageUrl }: { imageUrl: string }) => {
-  const [generatedText, setGeneratedText] = useState<string>("");
+interface GenerateDescriptionProps {
+  imageUrl: string;
+  field: {
+    onChange: (value: string) => void;
+  };
+}
+
+export const GenerateDescription = ({
+  imageUrl,
+  field,
+}: GenerateDescriptionProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -17,7 +26,7 @@ export const GenerateDescription = ({ imageUrl }: { imageUrl: string }) => {
 
     try {
       const result = await generateDescription(imageUrl);
-      setGeneratedText(result);
+      field.onChange(result); // Update the form field with generated text
     } catch (err) {
       setError("Failed to generate description. Please try again.");
       console.error("Description generation error:", err);
@@ -27,21 +36,18 @@ export const GenerateDescription = ({ imageUrl }: { imageUrl: string }) => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <Button
+        type="button"
         onClick={handleGenerate}
         disabled={isLoading || !imageUrl}
         variant="outline"
         size="sm"
       >
-        {isLoading ? "Generating..." : "Generate Description"}
+        {isLoading ? "Generating..." : "Generate with AI"}
       </Button>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-
-      {generatedText && (
-        <div className="text-sm text-muted-foreground">{generatedText}</div>
-      )}
     </div>
   );
 };

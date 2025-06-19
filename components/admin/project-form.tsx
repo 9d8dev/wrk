@@ -640,7 +640,10 @@ export const ProjectForm = ({
                           : featuredImage.previewUrl;
 
                       return imageUrl ? (
-                        <GenerateDescription imageUrl={imageUrl} />
+                        <GenerateDescription
+                          imageUrl={imageUrl}
+                          field={field}
+                        />
                       ) : null;
                     })()}
 
