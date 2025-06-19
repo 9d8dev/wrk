@@ -13,7 +13,12 @@ export const ProfileHeader = async ({ username }: { username: string }) => {
   const profileResult = await getProfileByUsername(username);
   const userResult = await getUserByUsername(username);
 
-  if (!profileResult.success || !profileResult.data || !userResult.success || !userResult.data) {
+  if (
+    !profileResult.success ||
+    !profileResult.data ||
+    !userResult.success ||
+    !userResult.data
+  ) {
     return null;
   }
 
@@ -64,11 +69,6 @@ const Info = ({
         {profile.title && (
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             {profile.title}
-          </p>
-        )}
-        {profile.location && (
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            {profile.location}
           </p>
         )}
       </div>
