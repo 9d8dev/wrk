@@ -438,9 +438,9 @@ export function QuickCreateProject() {
                     rows={3}
                   />
 
-                  {previewUrls[featuredImageIndex] && (
+                  {projectImages[featuredImageIndex] && (
                     <GenerateDescription
-                      imageUrl={previewUrls[featuredImageIndex]}
+                      file={projectImages[featuredImageIndex]}
                       field={{ onChange: setAbout }}
                     />
                   )}

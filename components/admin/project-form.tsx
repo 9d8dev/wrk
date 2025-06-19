@@ -634,17 +634,21 @@ export const ProjectForm = ({
                       );
                       if (!featuredImage) return null;
 
-                      const imageUrl =
-                        featuredImage.type === "existing"
-                          ? featuredImage.media?.url
-                          : featuredImage.previewUrl;
-
-                      return imageUrl ? (
+                      return (
                         <GenerateDescription
-                          imageUrl={imageUrl}
+                          imageUrl={
+                            featuredImage.type === "existing"
+                              ? featuredImage.media?.url
+                              : undefined
+                          }
+                          file={
+                            featuredImage.type === "new"
+                              ? featuredImage.file
+                              : undefined
+                          }
                           field={field}
                         />
-                      ) : null;
+                      );
                     })()}
 
                     <FormDescription>
