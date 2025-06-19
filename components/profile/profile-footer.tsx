@@ -62,13 +62,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
           {!isPro && (
             <div>
               <p className="flex items-center gap-1">
-                ✏︎{" "}
-                <Link
-                  className="underline underline-offset-2 decoration-muted flex items-center gap-1"
-                  href="/"
-                >
-                  Create your Portfolio with Wrk.so
-                </Link>
+                ✏︎ <Link href="/">Create your Portfolio with Wrk.so</Link>
               </p>
             </div>
           )}
