@@ -57,7 +57,7 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
             <Link
               key={project.project.id}
               href={`/${username}/${project.project.slug}`}
-              className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg"
+              className="group relative overflow-hidden transition-all duration-300"
             >
               {project.featuredImage && (
                 <div
