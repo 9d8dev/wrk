@@ -22,7 +22,6 @@ export const ProfileNav = ({ user }: { user: User }) => {
       >
         Projects
       </Link>
-
       <Link
         href={`/${user.username}/contact`}
         className={cn(
@@ -32,7 +31,7 @@ export const ProfileNav = ({ user }: { user: User }) => {
       >
         Contact
       </Link>
-
+      |
       <Link
         href={`/`}
         target="_blank"
