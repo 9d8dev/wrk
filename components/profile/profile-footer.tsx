@@ -33,15 +33,23 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
     <footer className="border-t border-dashed bg-accent/20 mt-24">
       <Section>
         <Container className="text-sm flex items-start justify-between gap-4">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h3>
               {user.name}{" "}
               <span className="text-muted-foreground">@{user.username}</span>
             </h3>
-            <h4 className="flex items-center gap-1">
-              <MapPin size={12} /> {profile.location}
-            </h4>
-            {profile.bio && <p className="max-w-prose">{profile.bio}</p>}
+            <div className="flex items-center gap-2">
+              {profile.title && (
+                <h4 className="text-muted-foreground">{profile.title}</h4>
+              )}
+              {profile.title && profile.location && "|"}
+              {profile.location && (
+                <h4 className="flex text-muted-foreground items-center gap-1">
+                  <MapPin size={12} /> {profile.location}
+                </h4>
+              )}
+            </div>
+            {profile.bio && <p className="max-w-prose mt-8">{profile.bio}</p>}
           </div>
           <SocialLinks profile={profile} />
         </Container>
@@ -71,20 +79,14 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
 const SocialLinks = async ({ profile }: { profile: Profile }) => {
   const socialLinksResult = await getSocialLinksByProfileId(profile.id);
 
-  // if (!socialLinksResult.success || socialLinksResult.data.length === 0) {
-  //   return null;
-  // }
+  if (!socialLinksResult.success || socialLinksResult.data.length === 0) {
+    return null;
+  }
 
   const socialLinks = socialLinksResult.data;
 
   return (
     <div className="flex flex-col gap-1">
-      <a
-        className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-        href="https://example"
-      >
-        Example <ArrowUpRight size={12} />
-      </a>
       {socialLinks.map((link) => (
         <a
           key={link.id}
