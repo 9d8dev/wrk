@@ -36,7 +36,9 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
           <div className="space-y-4">
             <h3>
               {user.name}{" "}
-              <span className="text-muted-foreground">@{user.username}</span>
+              {!isPro && (
+                <span className="text-muted-foreground">@{user.username}</span>
+              )}
             </h3>
             <div className="flex items-center gap-2">
               {profile.title && (

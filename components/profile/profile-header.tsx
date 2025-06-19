@@ -33,7 +33,7 @@ export const ProfileHeader = async ({ username }: { username: string }) => {
   return (
     <Section>
       <Container className="flex justify-between items-start gap-6">
-        <Info profile={profile} user={user} imageSrc={imageSrc} />
+        <Info profile={profile} user={user} imageSrc={imageSrc} isPro={isPro} />
         <ProfileNav user={user} isPro={isPro} />
       </Container>
     </Section>
@@ -44,10 +44,12 @@ const Info = ({
   profile,
   user,
   imageSrc,
+  isPro,
 }: {
   profile: Profile;
   user: User;
   imageSrc: string | null;
+  isPro: boolean;
 }) => {
   return (
     <div className="grid grid-cols-[auto_1fr] gap-4">
@@ -63,17 +65,19 @@ const Info = ({
           />
         </Link>
       )}
-      <div>
-        <Link href={`/${user.username}`} className="flex items-center gap-2">
+      <Link href={`/${user.username}`}>
+        <div className="flex items-center gap-2">
           <h1>{user.name}</h1>
-          <h2 className="text-sm text-muted-foreground">@{user.username}</h2>
-        </Link>
+          {!isPro && (
+            <h2 className="text-sm text-muted-foreground">@{user.username}</h2>
+          )}
+        </div>
         {profile.title && (
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             {profile.title}
           </p>
         )}
-      </div>
+      </Link>
     </div>
   );
 };
