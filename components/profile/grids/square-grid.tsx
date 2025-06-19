@@ -23,7 +23,7 @@ export function SquareGrid({ projects, username }: SquareGridProps) {
           {project.featuredImage && (
             <>
               <AsyncImage
-                className="object-cover transition-all duration-300 group-hover:brightness-75"
+                className="object-cover transition-all duration-300"
                 src={project.featuredImage.url}
                 alt={project.project.title}
                 fill
