@@ -4,6 +4,7 @@ import { db } from "@/db/drizzle";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { removeDomainFromVercel } from "@/lib/vercel-api";
 
 // Domain validation schema
 const domainSchema = z.object({
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
         customDomain: domain,
         domainStatus: 'pending',
         domainVerifiedAt: null,
+        domainErrorMessage: null,
         updatedAt: new Date(),
       })
       .where(eq(user.id, session.user.id));
@@ -123,6 +125,7 @@ export async function GET(request: NextRequest) {
         customDomain: user.customDomain,
         domainStatus: user.domainStatus,
         domainVerifiedAt: user.domainVerifiedAt,
+        domainErrorMessage: user.domainErrorMessage,
         subscriptionStatus: user.subscriptionStatus,
       })
       .from(user)
@@ -140,6 +143,7 @@ export async function GET(request: NextRequest) {
       status: userData.domainStatus,
       verifiedAt: userData.domainVerifiedAt,
       hasActivePro: hasActivePro(userData),
+      errorMessage: userData.domainErrorMessage,
     });
 
   } catch (error) {
@@ -162,6 +166,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get current domain before removing it
+    const userRecord = await db
+      .select({ customDomain: user.customDomain })
+      .from(user)
+      .where(eq(user.id, session.user.id))
+      .limit(1);
+
+    const currentDomain = userRecord[0]?.customDomain;
+
     // Remove custom domain from user
     await db
       .update(user)
@@ -169,9 +182,19 @@ export async function DELETE(request: NextRequest) {
         customDomain: null,
         domainStatus: null,
         domainVerifiedAt: null,
+        domainErrorMessage: null,
         updatedAt: new Date(),
       })
       .where(eq(user.id, session.user.id));
+
+    // Remove domain from Vercel if it exists
+    if (currentDomain) {
+      const removeResult = await removeDomainFromVercel(currentDomain);
+      if (!removeResult.success) {
+        console.error(`Failed to remove domain ${currentDomain} from Vercel:`, removeResult.error);
+        // Don't fail the entire operation if Vercel removal fails
+      }
+    }
 
     return NextResponse.json({ 
       success: true,

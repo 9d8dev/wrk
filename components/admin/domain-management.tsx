@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, AlertTriangle, CheckCircle, Clock, Globe } from "lucide-react";
+import { Copy, ExternalLink, AlertTriangle, CheckCircle, Clock, Globe, Settings, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { usePostHogEvents } from "@/components/analytics";
 
@@ -16,6 +16,7 @@ interface DomainStatus {
   status: string | null;
   verifiedAt: string | null;
   hasActivePro: boolean;
+  errorMessage?: string | null;
 }
 
 export function DomainManagement() {
@@ -151,7 +152,13 @@ export function DomainManagement() {
       case "active":
         return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending DNS Setup</Badge>;
+      case "dns_configured":
+        return <Badge className="bg-blue-100 text-blue-800"><Settings className="w-3 h-3 mr-1" />DNS Configured</Badge>;
+      case "vercel_pending":
+        return <Badge className="bg-blue-100 text-blue-800"><Settings className="w-3 h-3 mr-1" />Setting up Vercel</Badge>;
+      case "ssl_pending":
+        return <Badge className="bg-orange-100 text-orange-800"><Shield className="w-3 h-3 mr-1" />SSL Pending</Badge>;
       case "error":
         return <Badge className="bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />Error</Badge>;
       default:
@@ -223,6 +230,11 @@ export function DomainManagement() {
                     Verified on {new Date(domainStatus.verifiedAt).toLocaleDateString()}
                   </p>
                 )}
+                {domainStatus.errorMessage && (
+                  <p className="text-sm text-red-600">
+                    {domainStatus.errorMessage}
+                  </p>
+                )}
               </div>
               <div className="flex gap-2">
                 {domainStatus.status === "active" && (
@@ -245,56 +257,66 @@ export function DomainManagement() {
               </div>
             </div>
 
-            {/* DNS Instructions */}
+            {/* Status-specific Instructions */}
             {domainStatus.status !== "active" && (
               <div className="space-y-4">
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    To activate your custom domain, please configure your DNS settings:
+                    {domainStatus.status === "pending" && "To activate your custom domain, please configure your DNS settings:"}
+                    {domainStatus.status === "dns_configured" && "DNS is configured! Setting up your domain with Vercel..."}
+                    {domainStatus.status === "vercel_pending" && "Domain added to Vercel. Configuring SSL certificate..."}
+                    {domainStatus.status === "ssl_pending" && "SSL certificate is being provisioned. This may take a few minutes."}
+                    {domainStatus.status === "error" && "There was an error configuring your domain. Please check the error message above and try again."}
                   </AlertDescription>
                 </Alert>
 
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-sm font-medium">CNAME Record (Recommended)</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <code className="flex-1 p-2 bg-muted rounded text-sm">
-                        {domainStatus.domain} → cname.vercel-dns.com
-                      </code>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(`${domainStatus.domain} CNAME cname.vercel-dns.com`)}
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
+                {(domainStatus.status === "pending" || domainStatus.status === "error") && (
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-sm font-medium">CNAME Record (Recommended)</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="flex-1 p-2 bg-muted rounded text-sm">
+                          {domainStatus.domain} → cname.vercel-dns.com
+                        </code>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(`${domainStatus.domain} CNAME cname.vercel-dns.com`)}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <Label className="text-sm font-medium">A Record (Alternative)</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <code className="flex-1 p-2 bg-muted rounded text-sm">
-                        {domainStatus.domain} → 76.76.19.61
-                      </code>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(`${domainStatus.domain} A 76.76.19.61`)}
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
+                    <div>
+                      <Label className="text-sm font-medium">A Record (Alternative)</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="flex-1 p-2 bg-muted rounded text-sm">
+                          {domainStatus.domain} → 76.76.19.61
+                        </code>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(`${domainStatus.domain} A 76.76.19.61`)}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <Button 
                   onClick={verifyDomain} 
-                  disabled={isLoading}
+                  disabled={isLoading || (domainStatus.status !== "pending" && domainStatus.status !== "error" && domainStatus.status !== "ssl_pending")}
                   className="w-full"
                 >
-                  {isLoading ? "Verifying..." : "Verify Domain"}
+                  {isLoading ? "Checking..." : 
+                   domainStatus.status === "ssl_pending" ? "Check SSL Status" :
+                   domainStatus.status === "dns_configured" ? "Configuring..." :
+                   domainStatus.status === "vercel_pending" ? "Setting up..." :
+                   "Verify Domain"}
                 </Button>
               </div>
             )}

@@ -218,6 +218,11 @@ Required environment variables (add to `.env.local`):
 - `POLAR_WEBHOOK_SECRET` - Webhook secret for verification
 - `NEXT_PUBLIC_APP_URL` - Your app's URL (e.g., https://wrk.so)
 
+**Vercel API Integration:**
+- `VERCEL_API_TOKEN` - Vercel API token for domain management
+- `VERCEL_PROJECT_ID` - Vercel project ID
+- `VERCEL_TEAM_ID` - Vercel team ID (optional, for team accounts)
+
 ## Polar Integration
 
 The Polar plugin from @polar-sh/better-auth provides:

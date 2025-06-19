@@ -5,6 +5,7 @@ import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { promises as dns } from "dns";
+import { addDomainToVercel, getDomainStatus, verifyDomainInVercel } from "@/lib/vercel-api";
 
 // Domain verification schema
 const verifySchema = z.object({
@@ -155,36 +156,18 @@ export async function POST(request: NextRequest) {
       }, { status: 403 });
     }
 
-    // Perform DNS verification
+    // Step 1: Perform DNS verification
     const dnsCheck = await checkDNSResolution(domain);
-
-    if (dnsCheck.resolves && dnsCheck.pointsToVercel) {
-      // Update domain status to active
-      await db
-        .update(user)
-        .set({
-          domainStatus: 'active',
-          domainVerifiedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, session.user.id));
-
-      return NextResponse.json({
-        success: true,
-        verified: true,
-        domain,
-        status: 'active',
-        message: 'Domain verified successfully! Your custom domain is now active.'
-      });
-    } else {
-      // Keep domain status as pending if DNS not yet configured
-      // Only set to error if there's an actual error (not just missing config)
+    
+    if (!dnsCheck.resolves || !dnsCheck.pointsToVercel) {
+      // DNS not configured correctly yet
       const newStatus = dnsCheck.error && !dnsCheck.error.includes("does not resolve") ? 'error' : 'pending';
       
       await db
         .update(user)
         .set({
           domainStatus: newStatus,
+          domainErrorMessage: dnsCheck.error || null,
           updatedAt: new Date(),
         })
         .where(eq(user.id, session.user.id));
@@ -203,6 +186,135 @@ export async function POST(request: NextRequest) {
         }
       });
     }
+
+    // Step 2: DNS is configured, now handle Vercel integration
+    await db
+      .update(user)
+      .set({
+        domainStatus: 'dns_configured',
+        domainErrorMessage: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, session.user.id));
+
+    // Step 3: Add domain to Vercel project
+    const addResult = await addDomainToVercel(domain);
+    if (!addResult.success) {
+      await db
+        .update(user)
+        .set({
+          domainStatus: 'error',
+          domainErrorMessage: `Failed to add domain to Vercel: ${addResult.error}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, session.user.id));
+
+      return NextResponse.json({
+        success: false,
+        verified: false,
+        domain,
+        status: 'error',
+        error: `Failed to configure domain in Vercel: ${addResult.error}`,
+        message: 'DNS is configured correctly, but there was an issue setting up the domain in Vercel.',
+      });
+    }
+
+    // Step 4: Update status to vercel_pending while we wait for SSL
+    await db
+      .update(user)
+      .set({
+        domainStatus: 'vercel_pending',
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, session.user.id));
+
+    // Step 5: Verify domain in Vercel
+    const verifyResult = await verifyDomainInVercel(domain);
+    if (!verifyResult.success) {
+      await db
+        .update(user)
+        .set({
+          domainStatus: 'error',
+          domainErrorMessage: `Vercel verification failed: ${verifyResult.error}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, session.user.id));
+
+      return NextResponse.json({
+        success: false,
+        verified: false,
+        domain,
+        status: 'error',
+        error: `Domain verification failed: ${verifyResult.error}`,
+        message: 'Domain was added to Vercel but verification failed.',
+      });
+    }
+
+    // Step 6: Check domain status in Vercel
+    const statusResult = await getDomainStatus(domain);
+    if (statusResult.success && statusResult.data) {
+      const { ssl, configured } = statusResult.data;
+      
+      if (configured && ssl.state === 'READY') {
+        // Domain is fully active
+        await db
+          .update(user)
+          .set({
+            domainStatus: 'active',
+            domainVerifiedAt: new Date(),
+            domainErrorMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, session.user.id));
+
+        return NextResponse.json({
+          success: true,
+          verified: true,
+          domain,
+          status: 'active',
+          message: 'Domain verified successfully! Your custom domain is now active.'
+        });
+      } else if (configured && ssl.state === 'PENDING') {
+        // SSL is still being provisioned
+        await db
+          .update(user)
+          .set({
+            domainStatus: 'ssl_pending',
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, session.user.id));
+
+        return NextResponse.json({
+          success: false,
+          verified: false,
+          domain,
+          status: 'ssl_pending',
+          message: 'Domain is configured but SSL certificate is still being provisioned. This can take a few minutes.',
+          instructions: {
+            note: "Please wait a few minutes and try verifying again. SSL provisioning typically takes 2-5 minutes."
+          }
+        });
+      }
+    }
+
+    // Default fallback - mark as active if we got this far
+    await db
+      .update(user)
+      .set({
+        domainStatus: 'active',
+        domainVerifiedAt: new Date(),
+        domainErrorMessage: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, session.user.id));
+
+    return NextResponse.json({
+      success: true,
+      verified: true,
+      domain,
+      status: 'active',
+      message: 'Domain verified successfully! Your custom domain is now active.'
+    });
 
   } catch (error) {
     console.error("Error verifying domain:", error);

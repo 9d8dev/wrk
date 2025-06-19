@@ -29,7 +29,10 @@ export const user = pgTable("user", {
   subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
   // Custom domain fields (Pro only)
   customDomain: text("custom_domain").unique(),
-  domainStatus: text("domain_status"), // pending, active, error, null
+  domainStatus: text("domain_status", { 
+    enum: ["pending", "dns_configured", "vercel_pending", "ssl_pending", "active", "error"] 
+  }), // More detailed status tracking
+  domainErrorMessage: text("domain_error_message"),
   domainVerifiedAt: timestamp("domain_verified_at"),
 });
 

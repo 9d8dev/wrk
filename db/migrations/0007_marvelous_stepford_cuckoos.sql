@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "domain_error_message" text;
