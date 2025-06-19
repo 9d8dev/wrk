@@ -1,23 +1,27 @@
 import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ArrowUpLeft } from "lucide-react";
 import { AsyncImage } from "@/components/ui/async-image";
 
-import { getProjectByUsernameAndSlug, getProjectsByUsername } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
 import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
+import {
+  getProjectByUsernameAndSlug,
+  getProjectsByUsername,
+} from "@/lib/data/project";
 import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
 
-import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpLeft } from "lucide-react";
+
+import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -31,12 +35,12 @@ export async function generateStaticParams() {
       .select({ username: user.username })
       .from(user)
       .where(isNotNull(user.username));
-    
+
     // For each user, get their projects
     const params = [];
     for (const u of users) {
       if (!u.username) continue;
-      
+
       const projectsResult = await getProjectsByUsername(u.username);
       if (projectsResult.success && projectsResult.data.items.length > 0) {
         for (const project of projectsResult.data.items) {
@@ -47,7 +51,7 @@ export async function generateStaticParams() {
         }
       }
     }
-    
+
     return params;
   } catch (error) {
     console.error("Error generating static params for project pages:", error);
@@ -61,28 +65,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username, projectSlug } = await params;
   const profileResult = await getProfileByUsername(username);
   const userResult = await getUserByUsername(username);
-  const projectResult = await getProjectByUsernameAndSlug(username, projectSlug);
-  
-  if (!userResult.success || !userResult.data || !projectResult.success || !projectResult.data) {
+  const projectResult = await getProjectByUsernameAndSlug(
+    username,
+    projectSlug
+  );
+
+  if (
+    !userResult.success ||
+    !userResult.data ||
+    !projectResult.success ||
+    !projectResult.data
+  ) {
     return {
       title: "Project | Wrk.so",
       description: "Portfolio project created using Wrk.so.",
     };
   }
-  
+
   const user = userResult.data;
   const profile = profileResult.success ? profileResult.data : null;
   const project = projectResult.data.project;
-  
+
   const featuredImageResult = await getFeaturedImageByProjectId(project.id);
   const allImagesResult = await getAllProjectImages(project.id);
-  
-  const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+
+  const featuredImage = featuredImageResult.success
+    ? featuredImageResult.data
+    : null;
   const allImages = allImagesResult.success ? allImagesResult.data : [];
   const ogImage = featuredImage || (allImages.length > 0 ? allImages[0] : null);
 
   return {
-    title: `${project.title} by ${user.name} | ${profile?.profile.title || "Wrk.so"}`,
+    title: `${project.title} by ${user.name} | ${
+      profile?.profile.title || "Wrk.so"
+    }`,
     description:
       (project.about && project.about.length > 160
         ? project.about.substring(0, 157) + "..."
@@ -117,7 +133,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // Page
 export default async function ProjectPage({ params }: Props) {
   const { username, projectSlug } = await params;
-  const projectResult = await getProjectByUsernameAndSlug(username, projectSlug);
+  const projectResult = await getProjectByUsernameAndSlug(
+    username,
+    projectSlug
+  );
 
   if (!projectResult.success || !projectResult.data) {
     return notFound();
@@ -126,8 +145,10 @@ export default async function ProjectPage({ params }: Props) {
   const project = projectResult.data.project;
   const featuredImageResult = await getFeaturedImageByProjectId(project.id);
   const allImagesResult = await getAllProjectImages(project.id);
-  
-  const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+
+  const featuredImage = featuredImageResult.success
+    ? featuredImageResult.data
+    : null;
   const allImages = allImagesResult.success ? allImagesResult.data : [];
 
   const mainImage =
