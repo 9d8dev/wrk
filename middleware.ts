@@ -65,14 +65,20 @@ export async function middleware(request: NextRequest) {
     if (
       pathname.startsWith("/sign-in") ||
       pathname === "/" ||
-      pathname.startsWith("/api")
+      pathname.startsWith("/api") ||
+      pathname.startsWith("/privacy") ||
+      pathname.startsWith("/terms") ||
+      // Allow all username-based portfolio routes (like /brijr, /brijr/project-name, /brijr/contact)
+      pathname.match(/^\/[^\/]+(\/(contact|[^\/]+))?$/)
     ) {
       return NextResponse.next();
     }
 
-    // Check if user is authenticated for admin routes
-    if (!session?.user) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+    // Only protect admin routes and onboarding
+    if (pathname.startsWith("/admin") || pathname.startsWith("/onboarding")) {
+      if (!session?.user) {
+        return NextResponse.redirect(new URL("/sign-in", request.url));
+      }
     }
 
     return NextResponse.next();

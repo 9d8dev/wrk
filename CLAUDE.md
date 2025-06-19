@@ -55,9 +55,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Username plugin for custom portfolio URLs with reserved username enforcement
 - Cookie prefix: `"better-auth"`
 - Session duration: 30 days with 1-day update threshold and 5-minute cache
-- Middleware protects `/admin/*` and `/onboarding` routes
+- Middleware protects `/admin/*` and `/onboarding` routes only
 - Session-based authentication via `auth.api.getSession`
-- Public access allowed for `/sign-in`, `/`, and `/api/*`
+- Public access allowed for all portfolio routes (`/username`, `/username/project`, `/username/contact`), static pages (`/privacy`, `/terms`), and API routes
 - Discord notifications sent for new email/password signups
 - Reserved usernames: admin, posts, privacy-policy, terms-of-use, about, contact, dashboard, login, sign-in, sign-up, sign-out
 - nanoid used for generating unique database IDs
