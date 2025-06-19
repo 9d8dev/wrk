@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { GenerateDescription } from "@/components/ai/generate-description";
 import Image from "next/image";
 
 const generateSlugFromTitle = (title: string): string => {
@@ -429,12 +430,22 @@ export function QuickCreateProject() {
 
             {showAdvanced && (
               <div className="mt-3 space-y-3">
-                <Textarea
-                  placeholder="About this project (optional)"
-                  value={about}
-                  onChange={(e) => setAbout(e.target.value)}
-                  rows={3}
-                />
+                <div className="space-y-2">
+                  <Textarea
+                    placeholder="About this project (optional)"
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value)}
+                    rows={3}
+                  />
+
+                  {previewUrls[featuredImageIndex] && (
+                    <GenerateDescription
+                      imageUrl={previewUrls[featuredImageIndex]}
+                      field={{ onChange: setAbout }}
+                    />
+                  )}
+                </div>
+
                 <Input
                   placeholder="External link (optional)"
                   value={externalLink}
