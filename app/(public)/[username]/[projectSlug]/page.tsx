@@ -2,12 +2,13 @@ import { Container, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { AsyncImage } from "@/components/ui/async-image";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
 import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { Project, user, Media } from "@/db/schema";
+import { user } from "@/db/schema";
 import { db } from "@/db/drizzle";
 
 import {
@@ -18,9 +19,10 @@ import {
   getFeaturedImageByProjectId,
   getAllProjectImages,
 } from "@/lib/data/media";
+import Link from "next/link";
 
+import type { Project, Media } from "@/db/schema";
 import type { Metadata } from "next";
-import { ArrowUpRight } from "lucide-react";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -161,7 +163,11 @@ export default async function ProjectPage({ params }: Props) {
     <>
       <ProfileHeader username={username} />
       <Section>
-        <FeaturedImage project={project} mainImage={mainImage} />
+        <FeaturedImage
+          project={project}
+          mainImage={mainImage}
+          username={username}
+        />
         <ProjectDescription project={project} />
         <ProjectImages project={project} additionalImages={additionalImages} />
       </Section>
@@ -202,12 +208,14 @@ const ProjectDescription = ({ project }: { project: Project }) => {
 const FeaturedImage = ({
   project,
   mainImage,
+  username,
 }: {
   project: Project;
   mainImage: Media | null;
+  username: string;
 }) => {
   return (
-    <Container>
+    <Container className="relative">
       <div className="space-y-4 max-w-3xl mx-auto">
         {mainImage && (
           <AsyncImage
@@ -219,9 +227,17 @@ const FeaturedImage = ({
           />
         )}
       </div>
+      <Link
+        className="text-sm flex items-center gap-1 absolute top-6 left-6 text-muted-foreground hover:text-foreground transition-colors"
+        href={`/${username}`}
+      >
+        <ArrowLeft size={12} />
+        Back to Projects
+      </Link>
     </Container>
   );
 };
+
 const ProjectImages = ({
   project,
   additionalImages,
