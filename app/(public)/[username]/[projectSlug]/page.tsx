@@ -1,15 +1,15 @@
-import { Container, Section } from "@/components/ds";
+import { Container, Prose, Section } from "@/components/ds";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileFooter } from "@/components/profile/profile-footer";
-import { ArrowUpLeft } from "lucide-react";
 import { AsyncImage } from "@/components/ui/async-image";
 
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
 import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { user } from "@/db/schema";
+import { Project, user, Media } from "@/db/schema";
 import { db } from "@/db/drizzle";
+
 import {
   getProjectByUsernameAndSlug,
   getProjectsByUsername,
@@ -19,9 +19,8 @@ import {
   getAllProjectImages,
 } from "@/lib/data/media";
 
-import Link from "next/link";
-
 import type { Metadata } from "next";
+import { ArrowUpRight } from "lucide-react";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;
@@ -162,55 +161,84 @@ export default async function ProjectPage({ params }: Props) {
     <>
       <ProfileHeader username={username} />
       <Section>
-        <Container className="flex justify-between items-start gap-6">
-          <div>
-            <h1>{project.title}</h1>
-            {project.about && (
-              <h3 className="text-muted-foreground">{project.about}</h3>
-            )}
-            <Link
-              href={`/${username}`}
-              className="text-muted-foreground hover:text-foreground transition-colors text-sm mt-4 flex items-center gap-1"
-            >
-              <ArrowUpLeft size={12} /> Back to Portfolio
-            </Link>
-          </div>
-          {project.externalLink && (
-            <a
-              href={project.externalLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors text-sm mt-4 block"
-            >
-              Visit Project
-            </a>
-          )}
-        </Container>
-        <Container>
-          <div className="space-y-4">
-            {mainImage && (
-              <AsyncImage
-                src={mainImage.url}
-                alt={mainImage.alt || project.title}
-                placeholder="shimmer"
-                width={mainImage.width}
-                height={mainImage.height}
-              />
-            )}
-            {additionalImages.map((image) => (
-              <AsyncImage
-                key={image.id}
-                src={image.url}
-                alt={image.alt || `${project.title} image`}
-                placeholder="shimmer"
-                width={image.width}
-                height={image.height}
-              />
-            ))}
-          </div>
-        </Container>
+        <FeaturedImage project={project} mainImage={mainImage} />
+        <ProjectDescription project={project} />
+        <ProjectImages project={project} additionalImages={additionalImages} />
       </Section>
       <ProfileFooter username={username} />
     </>
   );
 }
+
+const ProjectDescription = ({ project }: { project: Project }) => {
+  return (
+    <Container>
+      <div className="space-y-4 max-w-3xl mx-auto">
+        <h1>{project.title}</h1>
+
+        {project.about && (
+          <p className="text-muted-foreground">{project.about}</p>
+        )}
+
+        {project.externalLink && (
+          <a
+            href={project.externalLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-color mt-4 flex items-center gap-1"
+          >
+            Visit Project <ArrowUpRight size={16} />
+          </a>
+        )}
+      </div>
+    </Container>
+  );
+};
+
+const FeaturedImage = ({
+  project,
+  mainImage,
+}: {
+  project: Project;
+  mainImage: Media | null;
+}) => {
+  return (
+    <Container>
+      <div className="space-y-4 max-w-3xl mx-auto">
+        {mainImage && (
+          <AsyncImage
+            src={mainImage.url}
+            alt={mainImage.alt || project.title}
+            placeholder="shimmer"
+            width={mainImage.width}
+            height={mainImage.height}
+          />
+        )}
+      </div>
+    </Container>
+  );
+};
+const ProjectImages = ({
+  project,
+  additionalImages,
+}: {
+  project: Project;
+  additionalImages: Media[];
+}) => {
+  return (
+    <Container>
+      <div className="space-y-4 max-w-3xl mx-auto">
+        {additionalImages.map((image) => (
+          <AsyncImage
+            key={image.id}
+            src={image.url}
+            alt={image.alt || `${project.title} image`}
+            placeholder="shimmer"
+            width={image.width}
+            height={image.height}
+          />
+        ))}
+      </div>
+    </Container>
+  );
+};
