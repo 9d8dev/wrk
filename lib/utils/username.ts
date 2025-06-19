@@ -105,8 +105,8 @@ export async function generateUsernameSuggestions(
   }
 
   // Generate creative variations
-  const prefixes = ["the", "dev", "pro"];
-  const suffixes = ["dev", "pro", "code", "design"];
+  const prefixes = ["the", "creative", "pro"];
+  const suffixes = ["creative", "pro", "studio", "design"];
 
   for (const prefix of prefixes) {
     if (suggestions.length >= 5) break;
