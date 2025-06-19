@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createProject, editProject } from "@/lib/actions/project";
 import { uploadMultipleImages } from "@/lib/utils/upload";
 import { UploadProgress } from "@/components/ui/upload-progress";
@@ -39,6 +39,7 @@ import Image from "next/image";
 
 import type { Media, Project } from "@/db/schema";
 import { deleteMediaWithCleanup } from "@/lib/actions/media";
+import { GenerateDescription } from "../ai/generate-description";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -117,6 +118,19 @@ export const ProjectForm = ({
     },
   });
 
+  // Memoize arrays to prevent infinite loops
+  const stableExistingAdditionalImages = useMemo(
+    () => existingAdditionalImages,
+    [
+      existingAdditionalImages.length,
+      existingAdditionalImages.map((img) => img.id).join(","),
+    ]
+  );
+  const stableInitialImages = useMemo(
+    () => initialImages,
+    [initialImages.length]
+  );
+
   // Initialize images on mount
   useEffect(() => {
     const initializeImages = () => {
@@ -133,7 +147,7 @@ export const ProjectForm = ({
       }
 
       // Add existing additional images
-      existingAdditionalImages.forEach((media) => {
+      stableExistingAdditionalImages.forEach((media) => {
         imageList.push({
           id: media.id,
           type: "existing",
@@ -143,7 +157,7 @@ export const ProjectForm = ({
       });
 
       // Add initial images (for new projects)
-      initialImages.forEach((file, index) => {
+      stableInitialImages.forEach((file, index) => {
         const id = `new-${Date.now()}-${index}`;
         imageList.push({
           id,
@@ -160,9 +174,9 @@ export const ProjectForm = ({
     initializeImages();
   }, [
     project?.id,
-    existingFeaturedImage,
-    existingAdditionalImages,
-    initialImages,
+    existingFeaturedImage?.id,
+    stableExistingAdditionalImages,
+    stableInitialImages,
   ]);
 
   // Cleanup preview URLs when images change
@@ -613,6 +627,23 @@ export const ProjectForm = ({
                         {...field}
                       />
                     </FormControl>
+
+                    {(() => {
+                      const featuredImage = images.find(
+                        (img) => img.isFeatured
+                      );
+                      if (!featuredImage) return null;
+
+                      const imageUrl =
+                        featuredImage.type === "existing"
+                          ? featuredImage.media?.url
+                          : featuredImage.previewUrl;
+
+                      return imageUrl ? (
+                        <GenerateDescription imageUrl={imageUrl} />
+                      ) : null;
+                    })()}
+
                     <FormDescription>
                       Tell visitors about this project, the technology used, or
                       the story behind it.
