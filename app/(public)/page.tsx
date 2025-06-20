@@ -60,11 +60,15 @@ export default function Home() {
           </h1>
         </Container>
 
-        <Container className="border-x bg-accent/30">
+        <Container className="!p-0 border-x bg-accent/30">
           <h3 className="sr-only">Examples</h3>
-          <div className="flex justify-center gap-2">
+          <div className="grid gap-px sm:grid-cols-2">
             {examples.map((example) => (
-              <Link key={example.href} href={example.href}>
+              <Link
+                className="p-6 bg-background"
+                key={example.href}
+                href={example.href}
+              >
                 [ {example.title}↗ ]
               </Link>
             ))}
@@ -75,7 +79,7 @@ export default function Home() {
           <footer>
             <div className="flex justify-between items-center gap-4">
               <p className="text-sm text-muted-foreground">
-                Created by <a href="https://wip.is">WIP</a>
+                Created by <a href="https://wip.ac">WIP</a>
               </p>
               <p className="text-sm text-muted-foreground">
                 © 2025 Wrk.so. All rights reserved.
