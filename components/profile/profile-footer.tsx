@@ -61,7 +61,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
             {new Date().getFullYear()} © {user.name}, All rights reserved.
           </p>
           {!isPro && (
-            <div>
+            <div className="flex items-center gap-6">
               <p className="flex items-center gap-1">
                 ✏︎ <Link href="/">Create your Portfolio with Wrk.so</Link>
               </p>
