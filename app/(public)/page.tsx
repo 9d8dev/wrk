@@ -29,7 +29,7 @@ export const dynamic = "force-static";
 
 export default function Home() {
   return (
-    <main className="h-screen overflow-hidden flex flex-col tracking-tight">
+    <main className="bg-grid h-screen overflow-hidden flex flex-col tracking-tight">
       <Section className="divide-y !py-0">
         <Container className="border-x bg-accent/30">
           <nav>
