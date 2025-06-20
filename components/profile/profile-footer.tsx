@@ -1,5 +1,6 @@
-import { Section, Container } from "@/components/ds";
 import { ArrowUpRight, MapPin } from "lucide-react";
+import { Section, Container } from "@/components/ds";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 import Link from "next/link";
 
@@ -64,6 +65,7 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
               <p className="flex items-center gap-1">
                 ✏︎ <Link href="/">Create your Portfolio with Wrk.so</Link>
               </p>
+              <ThemeToggle />
             </div>
           )}
         </Container>

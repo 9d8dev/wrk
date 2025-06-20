@@ -7,6 +7,7 @@ import { PostHogWrapper, PostHogPageView } from "@/components/analytics";
 import { Suspense } from "react";
 
 import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const fontSans = FontSans({
   variable: "--font-font-sans",
@@ -29,18 +30,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans font-light leading-tight antialiased`}
-      >
-        <PostHogWrapper>
-          <Suspense fallback={null}>
-            <PostHogPageView />
-          </Suspense>
-          {children}
-        </PostHogWrapper>
-        <Analytics />
-      </body>
-    </html>
+    <PostHogWrapper>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${fontSans.variable} ${fontMono.variable} font-sans font-light leading-tight antialiased`}
+        >
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Suspense fallback={null}>
+              <PostHogPageView />
+            </Suspense>
+            {children}
+            <Analytics />
+          </ThemeProvider>
+        </body>
+      </html>
+    </PostHogWrapper>
   );
 }
