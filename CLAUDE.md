@@ -17,10 +17,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Initial Setup:**
 1. `pnpm install` - Install dependencies
-2. Copy `.env.example` to `.env.local` and fill in required values
+2. Create `.env.local` file with required environment variables (see Environment Variables section below)
 3. `pnpm db:generate` - Generate initial schema
 4. `pnpm db:migrate` - Apply migrations
-5. `pnpm dev` - Start development server
+5. `pnpm dev` - Start development server on http://localhost:3000
+
+**Note:** No `.env.example` file exists. Refer to the Environment Variables section for all required variables.
 
 ## Architecture Overview
 
@@ -143,6 +145,11 @@ Key entities and relationships:
 - Custom domains: Pro feature with domain verification
 - Middleware handles routing based on host header
 - Domain context included in all analytics events
+- **Subdomain Routing:**
+  - `_sites/[domain]` route group handles all subdomain/custom domain requests
+  - Mirrors the same structure as public username routes
+  - Middleware (`/middleware.ts`) determines routing based on host header
+  - Local development: Test subdomains using hosts file or tools like `lvh.me`
 
 ### Webhook Architecture
 - Comprehensive webhook type system in `/lib/polar-webhook-types.ts`
@@ -157,6 +164,33 @@ Key entities and relationships:
 - Project detail pages (`/[username]/[projectSlug]`)
 - Contact forms generating leads in admin dashboard
 - Pro subscription via Polar ($12/month)
+
+## Common Development Workflows
+
+**Adding a New Feature to Admin Dashboard:**
+1. Create component in `/components/admin/`
+2. Add page route in `/app/(admin)/admin/`
+3. Update admin navigation in `/components/admin/admin-nav.tsx`
+4. Create server actions in `/lib/actions/`
+5. Add PostHog event tracking in `/components/analytics/use-posthog-events.ts`
+
+**Creating a New Grid Layout:**
+1. Add new grid component in `/components/profile/grids/`
+2. Export from `/components/profile/grids/index.tsx`
+3. Update theme schema if needed in `/db/schema.ts`
+4. Run `pnpm db:generate` and `pnpm db:migrate`
+
+**Adding New Media Type Support:**
+1. Update allowed MIME types in `/lib/utils/media.ts`
+2. Modify image processing logic in `/lib/utils/image-compression.ts`
+3. Update upload validation in `/api/upload/route.ts`
+4. Test with various file sizes and formats
+
+**Implementing Custom Domain Feature:**
+1. Use domain management component at `/components/admin/domain-management.tsx`
+2. Vercel API integration in `/lib/vercel-api.ts`
+3. Domain verification endpoint at `/api/pro/domain/verify/route.ts`
+4. Update middleware to handle new custom domains
 
 ## Development Notes
 
@@ -212,6 +246,9 @@ Required environment variables (add to `.env.local`):
 - `NEXT_PUBLIC_POSTHOG_KEY` - PostHog project API key
 - `NEXT_PUBLIC_POSTHOG_HOST` - PostHog instance URL (defaults to https://us.i.posthog.com)
 
+**AI Features (Optional):**
+- `GROQ_API_KEY` - Groq API key for AI-powered description generation
+
 **Polar Integration:**
 - `POLAR_ACCESS_TOKEN` - Organization access token from Polar
 - `POLAR_PRO_PRODUCT_ID` - Product ID for the Pro plan
@@ -222,6 +259,15 @@ Required environment variables (add to `.env.local`):
 - `VERCEL_API_TOKEN` - Vercel API token for domain management
 - `VERCEL_PROJECT_ID` - Vercel project ID
 - `VERCEL_TEAM_ID` - Vercel team ID (optional, for team accounts)
+
+## AI Integration
+
+The project includes AI-powered features using Groq:
+- **Description Generation:** Automatic project description generation based on project title
+- Located in `/components/ai/generate-description.tsx`
+- Uses Groq's Llama 3.1 model via AI SDK
+- Requires `GROQ_API_KEY` environment variable
+- Server action in `/lib/actions/ai.ts` handles the API calls
 
 ## Polar Integration
 
