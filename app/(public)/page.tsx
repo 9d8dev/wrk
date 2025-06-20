@@ -2,6 +2,8 @@ import { Section, Container } from "@/components/ds";
 import { Logo } from "@/components/logo";
 
 import Link from "next/link";
+import Image from "next/image";
+import Hero from "@/public/home.webp";
 
 const examples = [
   {
@@ -53,19 +55,23 @@ export default function Home() {
           </nav>
         </Container>
 
-        <Container className="space-y-6 border-x bg-accent/30 uppercase">
-          <h1 className="text-3xl font-bold">
+        <Container className="bg-grid space-y-6 border-x uppercase font-bold">
+          <h1 className="text-6xl md:text-9xl text-balance leading-[0.9]">
             <span className="text-muted-foreground">Wrk.so /</span> Portfolios
             for Creatives
           </h1>
+          <h2 className="text-xl md:text-3xl text-balance text-muted-foreground">
+            A platform for creatives to showcase their work and capture
+            opportunities.
+          </h2>
         </Container>
 
-        <Container className="!p-0 border-x bg-accent/30">
+        <Container className="!p-0 border-x bg-border">
           <h3 className="sr-only">Examples</h3>
-          <div className="grid gap-px sm:grid-cols-2">
+          <div className="grid gap-[1.5px] sm:grid-cols-2">
             {examples.map((example) => (
               <Link
-                className="p-6 bg-background"
+                className="p-6 bg-background hover:bg-accent/30 transition-colors"
                 key={example.href}
                 href={example.href}
               >

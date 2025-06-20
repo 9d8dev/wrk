@@ -144,4 +144,19 @@
   .animate-shimmer {
     animation: shimmer 1.5s infinite;
   }
+
+  .bg-grid {
+    background-image: linear-gradient(
+        to right,
+        hsl(var(--foreground) / 0.3) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        hsl(var(--foreground) / 0.3) 1px,
+        transparent 1px
+      );
+    background-size: 24px 24px;
+    background-position: center;
+  }
 }
