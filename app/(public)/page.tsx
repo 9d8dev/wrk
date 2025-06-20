@@ -3,24 +3,28 @@ import { Logo } from "@/components/logo";
 
 import Link from "next/link";
 import Image from "next/image";
-import Hero from "@/public/home.webp";
+import Placeholder from "@/public/placeholder.jpg";
 
 const examples = [
   {
     title: "Masonry",
     href: "/masonry",
+    image: Placeholder,
   },
   {
     title: "Grid",
     href: "/grid",
+    image: Placeholder,
   },
   {
     title: "Square",
     href: "/square",
+    image: Placeholder,
   },
   {
     title: "Minimal",
     href: "/minimal",
+    image: Placeholder,
   },
 ];
 
@@ -29,7 +33,7 @@ export const dynamic = "force-static";
 
 export default function Home() {
   return (
-    <main className="bg-grid h-screen overflow-hidden flex flex-col tracking-tight">
+    <main className="flex flex-col tracking-tight">
       <Section className="divide-y !py-0">
         <Container className="border-x bg-accent/30">
           <nav>
@@ -68,14 +72,19 @@ export default function Home() {
 
         <Container className="!p-0 border-x bg-border">
           <h3 className="sr-only">Examples</h3>
-          <div className="grid gap-[1.5px] sm:grid-cols-2">
+          <div className="grid gap-px sm:grid-cols-2">
             {examples.map((example) => (
               <Link
-                className="p-6 bg-background hover:bg-accent/30 transition-colors"
+                className="p-4 bg-background hover:bg-accent transition-colors space-y-4"
                 key={example.href}
                 href={example.href}
               >
-                [ {example.title}↗ ]
+                <Image
+                  src={example.image}
+                  alt={example.title}
+                  placeholder="blur"
+                />
+                <h4 className="uppercase">{example.title}</h4>
               </Link>
             ))}
           </div>

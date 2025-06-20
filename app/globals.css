@@ -124,16 +124,12 @@
 
 @layer utilities {
   .bg-grid {
-    background-image: linear-gradient(
-        to right,
-        hsl(var(--foreground) / 0.08) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        hsl(var(--foreground) / 0.08) 1px,
-        transparent 1px
-      );
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(
+      circle,
+      hsl(var(--foreground) / 0.3) 1px,
+      transparent 1px
+    );
     background-size: 20px 20px;
   }
 
