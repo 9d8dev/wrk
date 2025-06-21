@@ -59,7 +59,7 @@ function SignInPageContent() {
           className="w-full"
           onValueChange={(value) => setActiveTab(value)}
         >
-          <TabsList className="w-full">
+          <TabsList className="w-full bg-muted">
             <TabsTrigger value="sign-in">Login</TabsTrigger>
             <TabsTrigger value="sign-up">Create Account</TabsTrigger>
           </TabsList>
