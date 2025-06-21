@@ -12,10 +12,10 @@ import { getProjectsByUsername } from "@/lib/data/project";
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
 import { getThemeByUsername } from "@/lib/actions/theme";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
 import { isNotNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 import type { Metadata } from "next";
 
@@ -39,10 +39,10 @@ export async function generateStaticParams() {
       .select({ username: user.username })
       .from(user)
       .where(isNotNull(user.username));
-    
+
     // Return params for each username
     return users
-      .filter(u => u.username) // Extra safety check
+      .filter((u) => u.username) // Extra safety check
       .map((u) => ({
         username: u.username!,
       }));
@@ -97,10 +97,12 @@ export default async function PortfolioPage({ params }: Props) {
     projectsResult.data.items.map(async (project) => {
       const featuredImageResult = await getFeaturedImageByProjectId(project.id);
       const allImagesResult = await getAllProjectImages(project.id);
-      
-      const featuredImage = featuredImageResult.success ? featuredImageResult.data : null;
+
+      const featuredImage = featuredImageResult.success
+        ? featuredImageResult.data
+        : null;
       const allImages = allImagesResult.success ? allImagesResult.data : [];
-      
+
       return { project, featuredImage, allImages };
     })
   );
