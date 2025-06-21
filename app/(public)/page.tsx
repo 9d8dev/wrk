@@ -255,9 +255,15 @@ export default function Home() {
         <Container className="border-x bg-accent/30">
           <footer>
             <div className="flex justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground uppercase">
-                Created by <a href="https://wip.ac">WIP</a>
-              </p>
+              <div className="space-y-1 text-muted-foreground ">
+                <p className="text-sm uppercase">
+                  Created by <a href="https://wip.ac">WIP</a>
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Link href="/privacy">Privacy Policy</Link>
+                  <Link href="/terms">Terms of Service</Link>
+                </div>
+              </div>
               <div className="flex items-center gap-6">
                 <p className="text-sm text-muted-foreground">
                   © 2025 Wrk.so. All rights reserved.
