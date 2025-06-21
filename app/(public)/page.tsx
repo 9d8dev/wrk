@@ -49,7 +49,7 @@ export default function Home() {
                   Login
                 </Link>
                 <Link
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-orange-500 hover:text-orange-700"
                   href="/sign-in?tab=signup"
                 >
                   Create Account
