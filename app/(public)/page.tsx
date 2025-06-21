@@ -32,7 +32,6 @@ const examples = [
   },
 ];
 
-// Force static generation for the homepage
 export const dynamic = "force-static";
 
 export default function Home() {
