@@ -139,8 +139,9 @@ export default function Home() {
             <div className="flex flex-col h-full">
               <div className="border-b p-6 bg-accent">
                 <h3 className="text-3xl font-bold uppercase">
-                  It's <span className="text-orange-500">free</span> to create
-                  an account. You don&apos;t need an invite. You just need to{" "}
+                  It&apos;s <span className="text-orange-500">free</span> to
+                  create an account. You don&apos;t need an invite. You just
+                  need to{" "}
                   <span className="text-orange-500">
                     <Link href="/sign-in?tab=signup">share your work!</Link>
                   </span>
