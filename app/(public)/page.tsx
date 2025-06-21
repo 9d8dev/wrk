@@ -3,28 +3,32 @@ import { Logo } from "@/components/logo";
 
 import Link from "next/link";
 import Image from "next/image";
-import Placeholder from "@/public/placeholder.jpg";
+
+import Grid from "@/public/examples/grid.jpg";
+import Masonry from "@/public/examples/masonry.jpg";
+import Square from "@/public/examples/square.jpg";
+import Minimal from "@/public/examples/minimal.jpg";
 
 const examples = [
   {
     title: "Masonry",
     href: "/masonry",
-    image: Placeholder,
+    image: Masonry,
   },
   {
     title: "Grid",
     href: "/grid",
-    image: Placeholder,
+    image: Grid,
   },
   {
     title: "Square",
     href: "/square",
-    image: Placeholder,
+    image: Square,
   },
   {
     title: "Minimal",
     href: "/minimal",
-    image: Placeholder,
+    image: Minimal,
   },
 ];
 
