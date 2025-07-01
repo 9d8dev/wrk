@@ -224,6 +224,7 @@ type CreateProfileParams = {
     location: string | null;
   };
   profileImageFormData?: FormData | null;
+  username?: string;
 };
 
 /**
@@ -242,43 +243,97 @@ export async function createProfile(
       return { success: false, error: "Unauthorized" };
     }
 
-    const userId = session.user.id;
-    const username = session.user.username || session.user.email;
+      const userId = session.user.id;
+  const currentUsername = session.user.username;
+  const targetUsername = params.username || currentUsername || session.user.email;
 
-    // Check if profile already exists
-    const existingProfile = await db
+  // Check if profile already exists
+  const existingProfile = await db
+    .select()
+    .from(profile)
+    .where(eq(profile.userId, userId))
+    .limit(1);
+
+  if (existingProfile.length > 0) {
+    return { success: false, error: "Profile already exists" };
+  }
+
+  // If username is being changed, validate and check availability
+  if (params.username && params.username !== currentUsername) {
+    // Validate username format
+    const validation = updateProfileSchema.shape.username.safeParse(params.username);
+    if (!validation.success) {
+      return {
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid username",
+      };
+    }
+
+    // Check reserved usernames
+    const reservedUsernames = [
+      "admin",
+      "posts",
+      "privacy-policy",
+      "terms-of-use",
+      "about",
+      "contact",
+      "dashboard",
+      "login",
+      "sign-in",
+      "sign-up",
+      "sign-out",
+      "onboarding",
+    ];
+
+    if (reservedUsernames.includes(params.username.toLowerCase())) {
+      return { success: false, error: "This username is reserved" };
+    }
+
+    // Check if username is already taken
+    const existingUser = await db
       .select()
-      .from(profile)
-      .where(eq(profile.userId, userId))
+      .from(user)
+      .where(eq(user.username, params.username))
       .limit(1);
 
-    if (existingProfile.length > 0) {
-      return { success: false, error: "Profile already exists" };
+    if (existingUser.length > 0) {
+      return { success: false, error: "Username is already taken" };
     }
 
-    // Create profile ID
-    const profileId = nanoid();
+    // Update username first
+    await db
+      .update(user)
+      .set({
+        username: params.username,
+        displayUsername: params.username,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId));
+  }
 
-    // Handle profile image upload if provided
-    let profileImageId: string | null = null;
-    if (params.profileImageFormData) {
-      const imageResult = await uploadImage(params.profileImageFormData);
-      if (imageResult.success && imageResult.mediaId) {
-        profileImageId = imageResult.mediaId;
-      }
+  // Create profile ID
+  const profileId = nanoid();
+
+  // Handle profile image upload if provided
+  let profileImageId: string | null = null;
+  if (params.profileImageFormData) {
+    const imageResult = await uploadImage(params.profileImageFormData);
+    if (imageResult.success && imageResult.mediaId) {
+      profileImageId = imageResult.mediaId;
     }
+  }
 
-    // Create new profile
-    await db.insert(profile).values({
-      id: profileId,
-      userId,
-      title: params.profileData.title || null,
-      bio: params.profileData.bio,
-      location: params.profileData.location,
-      profileImageId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+  // Create new profile
+  await db.insert(profile).values({
+    id: profileId,
+    userId,
+    title: params.profileData.title || null,
+    bio: params.profileData.bio,
+    location: params.profileData.location,
+    profileImageId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 
     // Check if this is an OAuth user and send Discord notification
     const userAccounts = await db
@@ -296,7 +351,7 @@ export async function createProfile(
         await notifyNewUserSignup({
           name: session.user.name || "Unknown",
           email: session.user.email,
-          username: username || "unknown",
+          username: targetUsername || "unknown",
           createdAt: new Date(),
         });
       } catch (error) {
@@ -305,15 +360,26 @@ export async function createProfile(
       }
     }
 
-    // Use optimized revalidation for new profile creation
-    if (username) {
-      await revalidateUserProfile(username, userId);
+    // Enhanced revalidation for profile creation with optional username change
+    if (params.username && params.username !== currentUsername) {
+      // Username was changed - use username change revalidation
+      await revalidateUsernameChange(
+        currentUsername || "",
+        params.username,
+        userId
+      );
+    } else {
+      // Regular profile creation revalidation
+      if (targetUsername) {
+        await revalidateUserProfile(targetUsername, userId);
+      }
     }
+    
     // Also revalidate admin and onboarding pages
     revalidatePath("/admin");
     revalidatePath("/onboarding");
 
-    return { success: true, data: { profileId, username } };
+    return { success: true, data: { profileId, username: targetUsername } };
   } catch (error) {
     console.error("Error creating profile:", error);
     return {
