@@ -82,6 +82,22 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
   const needsUsername = !user.username;
   const [showUsernameEdit, setShowUsernameEdit] = useState(needsUsername);
 
+  // Helper function to determine if username is actually changing
+  const isUsernameChanging = () => {
+    const trimmedCurrent = (currentUsername || '').trim();
+    const trimmedOriginal = (originalUsername || '').trim();
+    return trimmedCurrent !== trimmedOriginal && trimmedCurrent.length >= 3;
+  };
+
+  // Helper function to check if form is valid for submission
+  const isFormValidForSubmission = () => {
+    // If username is being changed, it must be available
+    if (isUsernameChanging()) {
+      return usernameAvailability.isAvailable === true && !usernameAvailability.isChecking;
+    }
+    return true;
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -101,11 +117,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
   async function onSubmit(values: FormValues) {
     // Validate username availability if it's being changed
-    if (
-      (needsUsername || showUsernameEdit) &&
-      values.username &&
-      shouldCheckAvailability
-    ) {
+    if (isUsernameChanging()) {
       if (usernameAvailability.isAvailable !== true) {
         toast.error("Please choose an available username");
         return;
@@ -121,11 +133,17 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
         formData.append("file", profileImage);
       }
 
-      // Determine the username to use
-      const usernameToUse = 
-        (needsUsername || showUsernameEdit) && values.username && values.username !== originalUsername
-          ? values.username
-          : undefined;
+      // Improved logic for determining username to use
+      let usernameToUse: string | undefined = undefined;
+      
+      // Case 1: User needs a username (new user without one)
+      if (needsUsername && values.username) {
+        usernameToUse = values.username.trim();
+      }
+      // Case 2: User is editing their existing username
+      else if (showUsernameEdit && values.username && values.username.trim() !== (originalUsername || '').trim()) {
+        usernameToUse = values.username.trim();
+      }
 
       const profileResult = await createProfile({
         profileData: {
@@ -339,8 +357,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
               type="submit"
               disabled={
                 isSubmitting ||
-                (shouldCheckAvailability &&
-                  usernameAvailability.isAvailable !== true)
+                !isFormValidForSubmission()
               }
               size="lg"
             >
