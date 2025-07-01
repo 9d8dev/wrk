@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, AlertTriangle, CheckCircle, Clock, Globe, Settings, Shield } from "lucide-react";
+import { Copy, ExternalLink, AlertTriangle, CheckCircle, Clock, Globe, Settings, Shield, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { usePostHogEvents } from "@/components/analytics";
 
@@ -24,6 +24,7 @@ export function DomainManagement() {
   const [newDomain, setNewDomain] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   const { trackCustomDomainAdded, trackCustomDomainVerified, trackCustomDomainRemoved } = usePostHogEvents();
 
   // Load current domain status
@@ -41,6 +42,7 @@ export function DomainManagement() {
         setDomainStatus(data);
       } else {
         console.error("Failed to fetch domain status:", data.error);
+        toast.error(data.error || "Failed to load domain status");
       }
     } catch (error) {
       console.error("Error fetching domain status:", error);
@@ -72,9 +74,17 @@ export function DomainManagement() {
         toast.success(data.message);
         trackCustomDomainAdded(newDomain.trim());
         setNewDomain("");
+        setRetryCount(0); // Reset retry count on success
         await fetchDomainStatus();
       } else {
         toast.error(data.error);
+        
+        // Show additional help for configuration errors
+        if (data.error?.includes("Vercel API configuration")) {
+          toast.error("Configuration issue detected. Please contact support.", {
+            description: "The domain management system requires additional setup."
+          });
+        }
       }
     } catch (error) {
       console.error("Error adding domain:", error);
@@ -98,6 +108,7 @@ export function DomainManagement() {
         if (domainStatus?.domain) {
           trackCustomDomainRemoved(domainStatus.domain);
         }
+        setRetryCount(0); // Reset retry count
         await fetchDomainStatus();
       } else {
         toast.error(data.error);
@@ -130,13 +141,74 @@ export function DomainManagement() {
         if (domainStatus?.domain) {
           trackCustomDomainVerified(domainStatus.domain);
         }
+        setRetryCount(0); // Reset retry count on success
         await fetchDomainStatus();
       } else {
         toast.error(data.message);
+        
+        // Increment retry count and show different messages
+        setRetryCount((prev: number) => prev + 1);
+        
+        // Show additional guidance based on error type
+        if (data.error?.includes("Vercel API configuration")) {
+          toast.error("System configuration issue detected. Please contact support.", {
+            description: "This appears to be a system-level configuration problem."
+          });
+        } else if (data.error?.includes("DNS")) {
+          toast.info("DNS propagation can take time", {
+            description: "DNS changes may take up to 48 hours to propagate worldwide. You can retry verification periodically."
+          });
+        }
       }
     } catch (error) {
       console.error("Error verifying domain:", error);
       toast.error("Failed to verify domain");
+      setRetryCount((prev: number) => prev + 1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const runDiagnostics = async () => {
+    if (!domainStatus?.domain) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/pro/domain/diagnostics", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ domain: domainStatus.domain }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Show diagnostic results in a toast
+        const { summary } = data;
+        if (summary.errors > 0) {
+          toast.error(`Diagnostics found ${summary.errors} error(s) and ${summary.warnings} warning(s)`, {
+            description: "Check the console for detailed diagnostic information."
+          });
+        } else if (summary.warnings > 0) {
+          toast.warning(`Diagnostics found ${summary.warnings} warning(s)`, {
+            description: "Domain should work but there may be optimization opportunities."
+          });
+        } else {
+          toast.success("All diagnostics passed!", {
+            description: "Your domain configuration looks good."
+          });
+        }
+        
+        // Log detailed results to console for debugging
+        console.log("Domain diagnostics:", data);
+      } else {
+        toast.error("Failed to run diagnostics");
+      }
+    } catch (error) {
+      console.error("Error running diagnostics:", error);
+      toast.error("Failed to run diagnostics");
     } finally {
       setIsLoading(false);
     }
@@ -163,6 +235,32 @@ export function DomainManagement() {
         return <Badge className="bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />Error</Badge>;
       default:
         return null;
+    }
+  };
+
+  const getRetryMessage = () => {
+    if (retryCount === 0) return null;
+    
+    if (retryCount < 3) {
+      return (
+        <Alert className="mt-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Verification attempt {retryCount}/3. DNS changes can take time to propagate.
+            You can retry now or wait a few minutes.
+          </AlertDescription>
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert className="mt-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Multiple verification attempts failed. This usually indicates a DNS configuration issue.
+            Please double-check your DNS settings or contact support if you need assistance.
+          </AlertDescription>
+        </Alert>
+      );
     }
   };
 
@@ -247,6 +345,15 @@ export function DomainManagement() {
                   </Button>
                 )}
                 <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={runDiagnostics}
+                  disabled={isLoading}
+                  title="Run diagnostics to check domain configuration"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
+                <Button
                   variant="destructive"
                   size="sm"
                   onClick={removeDomain}
@@ -307,17 +414,39 @@ export function DomainManagement() {
                   </div>
                 )}
 
-                <Button 
-                  onClick={verifyDomain} 
-                  disabled={isLoading || (domainStatus.status !== "pending" && domainStatus.status !== "error" && domainStatus.status !== "ssl_pending")}
-                  className="w-full"
-                >
-                  {isLoading ? "Checking..." : 
-                   domainStatus.status === "ssl_pending" ? "Check SSL Status" :
-                   domainStatus.status === "dns_configured" ? "Configuring..." :
-                   domainStatus.status === "vercel_pending" ? "Setting up..." :
-                   "Verify Domain"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={verifyDomain} 
+                    disabled={isLoading || (domainStatus.status !== "pending" && domainStatus.status !== "error" && domainStatus.status !== "ssl_pending")}
+                    className="flex-1"
+                  >
+                    {isLoading ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Checking...
+                      </>
+                    ) : (
+                      domainStatus.status === "ssl_pending" ? "Check SSL Status" :
+                      domainStatus.status === "dns_configured" ? "Configuring..." :
+                      domainStatus.status === "vercel_pending" ? "Setting up..." :
+                      "Verify Domain"
+                    )}
+                  </Button>
+                  
+                  {retryCount > 0 && (
+                    <Button 
+                      variant="outline"
+                      onClick={runDiagnostics}
+                      disabled={isLoading}
+                      title="Run detailed diagnostics"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Retry feedback */}
+                {getRetryMessage()}
               </div>
             )}
           </div>
@@ -349,6 +478,7 @@ export function DomainManagement() {
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Make sure you own this domain and have access to its DNS settings.
+                DNS changes typically take 5-10 minutes to propagate, but can take up to 48 hours.
               </AlertDescription>
             </Alert>
           </div>
