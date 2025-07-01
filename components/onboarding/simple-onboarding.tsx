@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { createProfile, updateUsername } from "@/lib/actions/profile";
+import { createProfile } from "@/lib/actions/profile";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
 import Image from "next/image";
 
@@ -121,17 +121,11 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
         formData.append("file", profileImage);
       }
 
-      // If user needs username or is changing it, update it first
-      if (
-        (needsUsername || showUsernameEdit) &&
-        values.username &&
-        values.username !== originalUsername
-      ) {
-        const usernameResult = await updateUsername(values.username);
-        if (!usernameResult.success) {
-          throw new Error(usernameResult.error);
-        }
-      }
+      // Determine the username to use
+      const usernameToUse = 
+        (needsUsername || showUsernameEdit) && values.username && values.username !== originalUsername
+          ? values.username
+          : undefined;
 
       const profileResult = await createProfile({
         profileData: {
@@ -140,6 +134,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
           location: values.location || null,
         },
         profileImageFormData: formData,
+        username: usernameToUse, // Pass username to be handled atomically
       });
 
       if (!profileResult.success) {
