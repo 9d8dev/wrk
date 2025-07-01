@@ -243,97 +243,100 @@ export async function createProfile(
       return { success: false, error: "Unauthorized" };
     }
 
-      const userId = session.user.id;
-  const currentUsername = session.user.username;
-  const targetUsername = params.username || currentUsername || session.user.email;
+    const userId = session.user.id;
+    const currentUsername = session.user.username;
+    let targetUsername = params.username || currentUsername || session.user.email;
 
-  // Check if profile already exists
-  const existingProfile = await db
-    .select()
-    .from(profile)
-    .where(eq(profile.userId, userId))
-    .limit(1);
-
-  if (existingProfile.length > 0) {
-    return { success: false, error: "Profile already exists" };
-  }
-
-  // If username is being changed, validate and check availability
-  if (params.username && params.username !== currentUsername) {
-    // Validate username format
-    const validation = updateProfileSchema.shape.username.safeParse(params.username);
-    if (!validation.success) {
-      return {
-        success: false,
-        error: validation.error.errors[0]?.message || "Invalid username",
-      };
-    }
-
-    // Check reserved usernames
-    const reservedUsernames = [
-      "admin",
-      "posts",
-      "privacy-policy",
-      "terms-of-use",
-      "about",
-      "contact",
-      "dashboard",
-      "login",
-      "sign-in",
-      "sign-up",
-      "sign-out",
-      "onboarding",
-    ];
-
-    if (reservedUsernames.includes(params.username.toLowerCase())) {
-      return { success: false, error: "This username is reserved" };
-    }
-
-    // Check if username is already taken
-    const existingUser = await db
+    // Check if profile already exists
+    const existingProfile = await db
       .select()
-      .from(user)
-      .where(eq(user.username, params.username))
+      .from(profile)
+      .where(eq(profile.userId, userId))
       .limit(1);
 
-    if (existingUser.length > 0) {
-      return { success: false, error: "Username is already taken" };
+    if (existingProfile.length > 0) {
+      return { success: false, error: "Profile already exists" };
     }
 
-    // Update username first
-    await db
-      .update(user)
-      .set({
-        username: params.username,
-        displayUsername: params.username,
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, userId));
-  }
+    // If username is being changed, validate and check availability
+    if (params.username && params.username !== currentUsername) {
+      // Validate username format
+      const validation = updateProfileSchema.shape.username.safeParse(params.username);
+      if (!validation.success) {
+        return {
+          success: false,
+          error: validation.error.errors[0]?.message || "Invalid username",
+        };
+      }
 
-  // Create profile ID
-  const profileId = nanoid();
+      // Check reserved usernames
+      const reservedUsernames = [
+        "admin",
+        "posts",
+        "privacy-policy",
+        "terms-of-use",
+        "about",
+        "contact",
+        "dashboard",
+        "login",
+        "sign-in",
+        "sign-up",
+        "sign-out",
+        "onboarding",
+      ];
 
-  // Handle profile image upload if provided
-  let profileImageId: string | null = null;
-  if (params.profileImageFormData) {
-    const imageResult = await uploadImage(params.profileImageFormData);
-    if (imageResult.success && imageResult.mediaId) {
-      profileImageId = imageResult.mediaId;
+      if (reservedUsernames.includes(params.username.toLowerCase())) {
+        return { success: false, error: "This username is reserved" };
+      }
+
+      // Check if username is already taken
+      const existingUser = await db
+        .select()
+        .from(user)
+        .where(eq(user.username, params.username))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        return { success: false, error: "Username is already taken" };
+      }
+
+      // Update username first
+      await db
+        .update(user)
+        .set({
+          username: params.username,
+          displayUsername: params.username,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+      
+      // Update the targetUsername to reflect the change
+      targetUsername = params.username;
     }
-  }
 
-  // Create new profile
-  await db.insert(profile).values({
-    id: profileId,
-    userId,
-    title: params.profileData.title || null,
-    bio: params.profileData.bio,
-    location: params.profileData.location,
-    profileImageId,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+    // Create profile ID
+    const profileId = nanoid();
+
+    // Handle profile image upload if provided
+    let profileImageId: string | null = null;
+    if (params.profileImageFormData) {
+      const imageResult = await uploadImage(params.profileImageFormData);
+      if (imageResult.success && imageResult.mediaId) {
+        profileImageId = imageResult.mediaId;
+      }
+    }
+
+    // Create new profile
+    await db.insert(profile).values({
+      id: profileId,
+      userId,
+      title: params.profileData.title || null,
+      bio: params.profileData.bio,
+      location: params.profileData.location,
+      profileImageId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     // Check if this is an OAuth user and send Discord notification
     const userAccounts = await db
