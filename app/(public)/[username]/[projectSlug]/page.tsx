@@ -26,16 +26,13 @@ type Props = {
 	params: Promise<{ username: string; projectSlug: string }>;
 };
 
-// SSG
 export async function generateStaticParams() {
 	try {
-		// Get all users with usernames
 		const users = await db
 			.select({ username: user.username })
 			.from(user)
 			.where(isNotNull(user.username));
 
-		// For each user, get their projects
 		const params = [];
 		for (const u of users) {
 			if (!u.username) continue;
@@ -43,7 +40,6 @@ export async function generateStaticParams() {
 			const projectsResult = await getProjectsByUsername(u.username);
 			if (projectsResult.success && projectsResult.data.items.length > 0) {
 				for (const project of projectsResult.data.items) {
-					// Validate slug before adding to static params
 					const slugValidation = projectSlugSchema.safeParse(project.slug);
 					if (slugValidation.success) {
 						params.push({
@@ -62,12 +58,10 @@ export async function generateStaticParams() {
 		return params;
 	} catch (error) {
 		console.error("Error generating static params for project pages:", error);
-		// Return empty array on error to fallback to on-demand generation
 		return [];
 	}
 }
 
-// Metadata Generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { username, projectSlug } = await params;
 	const profileResult = await getProfileByUsername(username);
@@ -139,6 +133,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
 	const { username, projectSlug } = await params;
+
 	const projectResult = await getProjectByUsernameAndSlug(
 		username,
 		projectSlug,

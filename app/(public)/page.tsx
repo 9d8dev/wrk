@@ -1,5 +1,6 @@
 import { YouTubeEmbed } from "@next/third-parties/google";
 import { ArrowUpRight } from "lucide-react";
+import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
 import { Container, Section } from "@/components/ds";
@@ -11,7 +12,11 @@ import Minimal from "@/public/examples/minimal.jpg";
 import Square from "@/public/examples/square.jpg";
 import Bg from "@/public/home.webp";
 
-const examples = [
+const examplePortfolios: {
+  title: string;
+  href: string;
+  image: StaticImageData;
+}[] = [
   {
     title: "Masonry",
     href: "/masonry",
@@ -33,8 +38,6 @@ const examples = [
     image: Minimal,
   },
 ];
-
-export const dynamic = "force-static";
 
 export default function Home() {
   return (
@@ -81,7 +84,7 @@ export default function Home() {
         <Container className="!p-0 border-x bg-border">
           <h3 className="sr-only">Examples</h3>
           <div className="grid gap-px sm:grid-cols-2">
-            {examples.map((example) => (
+            {examplePortfolios.map((example) => (
               <Link
                 className="p-4 bg-background hover:bg-accent transition-colors space-y-4"
                 key={example.href}
