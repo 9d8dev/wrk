@@ -1,15 +1,18 @@
+import type { StaticImageData } from "next/image";
+
 import { YouTubeEmbed } from "@next/third-parties/google";
 import { ArrowUpRight } from "lucide-react";
-import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
+
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Container, Section } from "@/components/ds";
 import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import Grid from "@/public/examples/grid.jpg";
+
 import Masonry from "@/public/examples/masonry.jpg";
 import Minimal from "@/public/examples/minimal.jpg";
 import Square from "@/public/examples/square.jpg";
+import Grid from "@/public/examples/grid.jpg";
 import Bg from "@/public/home.webp";
 
 const examplePortfolios: {
