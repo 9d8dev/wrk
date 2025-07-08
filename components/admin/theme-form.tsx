@@ -7,6 +7,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import Masonry from "@/public/examples/masonry.jpg";
+import Minimal from "@/public/examples/minimal.jpg";
+import Square from "@/public/examples/square.jpg";
+import Grid from "@/public/examples/grid.jpg";
+
 import {
   Form,
   FormControl,
@@ -22,10 +27,7 @@ import { cn } from "@/lib/utils";
 
 import { gridTypes, type Theme } from "@/db/schema";
 
-const formSchema = z.object({
-  gridType: z.enum(gridTypes),
-});
-
+// Types
 type SessionUser = {
   id: string;
   name?: string | null;
@@ -39,104 +41,195 @@ type ThemeFormProps = {
   theme: Theme | null;
 };
 
-// Define theme combinations
-const themeOptions = [
+type ThemeOption = {
+  id: string;
+  label: string;
+  description: string;
+  gridType: (typeof gridTypes)[number];
+};
+
+// Constants
+const THEME_OPTIONS: ThemeOption[] = [
   {
     id: "masonry",
     label: "Masonry Layout",
     description: "Dynamic masonry layout with varying heights",
-    gridType: "masonry" as const,
+    gridType: "masonry",
   },
   {
     id: "grid",
     label: "Grid Layout",
     description: "Clean grid layout for your projects",
-    gridType: "grid" as const,
+    gridType: "grid",
   },
   {
     id: "minimal",
     label: "Minimal Layout",
     description: "Simple list layout with minimal styling",
-    gridType: "minimal" as const,
+    gridType: "minimal",
   },
   {
     id: "square",
     label: "Square Layout",
     description: "Uniform square grid layout",
-    gridType: "square" as const,
+    gridType: "square",
   },
 ];
 
-// Placeholder SVG component - you can replace these with your custom SVGs
-function ThemePreviewSVG({ themeId }: { themeId: string }) {
+const formSchema = z.object({
+  gridType: z.enum(gridTypes),
+});
+
+// Theme preview images mapping
+const ThemeImages = {
+  grid: Grid,
+  minimal: Minimal,
+  masonry: Masonry,
+  square: Square,
+};
+
+function ThemePreviewImage({ themeId }: { themeId: string }) {
+  const ImageSrc = ThemeImages[themeId as keyof typeof ThemeImages];
+
+  if (!ImageSrc) {
+    return (
+      <div className="bg-muted flex h-24 w-full items-center justify-center rounded-md border">
+        <span className="text-muted-foreground text-sm">No preview</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-muted flex h-24 w-full items-center justify-center rounded-md border">
-      <svg
-        width="80"
-        height="60"
-        viewBox="0 0 80 60"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="text-muted-foreground"
-        aria-labelledby={`theme-preview-${themeId}`}
-      >
-        <title id={`theme-preview-${themeId}`}>{themeId} layout preview</title>
-        {themeId === "grid" && (
-          <div>
-            <rect
-              x="5"
-              y="8"
-              width="70"
-              height="8"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </div>
-        )}
-        {themeId === "minimal" && (
-          <div>
-            <rect
-              x="5"
-              y="5"
-              width="70"
-              height="70"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </div>
-        )}
-        {themeId === "masonry" && (
-          <div>
-            <rect
-              x="5"
-              y="5"
-              width="70"
-              height="70"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </div>
-        )}
-        {themeId === "square" && (
-          <div>
-            <rect
-              x="5"
-              y="5"
-              width="20"
-              height="20"
-              fill="currentColor"
-              opacity="0.3"
-            />
-          </div>
-        )}
-      </svg>
+    <div className="relative h-24 w-full overflow-hidden rounded-md border">
+      <img
+        src={ImageSrc.src}
+        alt={`${themeId} layout preview`}
+        className="h-full w-full object-cover"
+      />
     </div>
   );
 }
 
-export function ThemeForm({ user, theme }: ThemeFormProps) {
+// Theme option card component
+function ThemeOptionCard({
+  option,
+  isSelected,
+  onSelect,
+}: {
+  option: ThemeOption;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "hover:border-primary/50 relative rounded-lg border-2 p-4 text-left transition-all",
+        isSelected
+          ? "border-primary bg-primary/5"
+          : "border-border hover:bg-muted/50"
+      )}
+    >
+      {isSelected && (
+        <div className="absolute top-3 right-3">
+          <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full">
+            <Check className="text-primary-foreground h-4 w-4" />
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <ThemePreviewImage themeId={option.id} />
+      </div>
+
+      <div>
+        <h3 className="mb-1 font-semibold">{option.label}</h3>
+        <p className="text-muted-foreground mb-3 text-sm">
+          {option.description}
+        </p>
+        <div className="flex gap-3 text-xs">
+          <span className="bg-muted rounded-md px-2 py-1">
+            {option.gridType}
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// Read-only theme display component
+function ThemeDisplay({
+  theme,
+  onEdit,
+}: {
+  theme: Theme | null;
+  onEdit: () => void;
+}) {
+  const currentOption =
+    THEME_OPTIONS.find(
+      (option) => option.gridType === (theme?.gridType || "grid")
+    ) || THEME_OPTIONS[0];
+
+  return (
+    <div className="max-w-4xl">
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Theme Settings</h1>
+          <p className="text-muted-foreground">
+            Customize your portfolio appearance
+          </p>
+        </div>
+        <Button variant="outline" onClick={onEdit}>
+          <Edit className="mr-2 h-4 w-4" />
+          Edit
+        </Button>
+      </div>
+
+      <div className="space-y-8">
+        <div className="rounded-lg border p-6">
+          <div className="flex items-start gap-6">
+            <div className="w-48 flex-shrink-0">
+              <ThemePreviewImage themeId={currentOption.id} />
+            </div>
+            <div className="flex-1">
+              <h3 className="mb-2 text-xl font-semibold">
+                {currentOption.label}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {currentOption.description}
+              </p>
+              <div className="flex gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Layout:</span>{" "}
+                  {currentOption.gridType}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-muted-foreground text-xs">
+          Press <kbd className="bg-muted rounded px-1 py-0.5">E</kbd> to edit
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Theme selection form component
+function ThemeSelectionForm({
+  user,
+  theme,
+  onCancel,
+  onSuccess,
+}: {
+  user: SessionUser;
+  theme: Theme | null;
+  onCancel: () => void;
+  onSuccess: () => void;
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -148,6 +241,94 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
   const currentValues = form.watch();
   const currentThemeId = currentValues.gridType;
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      setIsSubmitting(true);
+
+      await updateTheme({
+        userId: user.id,
+        themeData: {
+          gridType: values.gridType,
+        },
+      });
+
+      toast.success("Theme updated successfully");
+      onSuccess();
+    } catch (error) {
+      console.error("Error updating theme:", error);
+      toast.error("Failed to update theme");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function selectTheme(option: ThemeOption) {
+    form.setValue("gridType", option.gridType);
+  }
+
+  return (
+    <div className="max-w-4xl">
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Choose Theme</h1>
+          <p className="text-muted-foreground">
+            Select a theme for your portfolio
+          </p>
+        </div>
+        <Button variant="outline" onClick={onCancel}>
+          <X className="mr-2 h-4 w-4" />
+          Cancel
+        </Button>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="gridType"
+            render={() => (
+              <FormItem>
+                <FormLabel className="text-base">Theme Options</FormLabel>
+                <FormControl>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {THEME_OPTIONS.map((option) => (
+                      <ThemeOptionCard
+                        key={option.id}
+                        option={option}
+                        isSelected={currentThemeId === option.gridType}
+                        onSelect={() => selectTheme(option)}
+                      />
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex gap-3 pt-4">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Theme"}
+            </Button>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Form>
+
+      <div className="text-muted-foreground mt-6 text-xs">
+        Press <kbd className="bg-muted rounded px-1 py-0.5">Esc</kbd> to cancel
+      </div>
+    </div>
+  );
+}
+
+// Custom hook for keyboard shortcuts
+function useThemeFormKeyboard(
+  isEditing: boolean,
+  setIsEditing: (editing: boolean) => void
+) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -166,177 +347,28 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isEditing]);
+  }, [isEditing, setIsEditing]);
+}
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      setIsSubmitting(true);
+// Main component
+export function ThemeForm({ user, theme }: ThemeFormProps) {
+  const [isEditing, setIsEditing] = useState(false);
 
-      await updateTheme({
-        userId: user.id,
-        themeData: {
-          gridType: values.gridType,
-        },
-      });
+  useThemeFormKeyboard(isEditing, setIsEditing);
 
-      toast.success("Theme updated successfully");
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating theme:", error);
-      toast.error("Failed to update theme");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const handleEditStart = () => setIsEditing(true);
+  const handleEditEnd = () => setIsEditing(false);
 
-  function selectTheme(option: (typeof themeOptions)[0]) {
-    form.setValue("gridType", option.gridType);
-  }
-
-  if (!isEditing) {
-    const currentOption =
-      themeOptions.find(
-        (option) => option.gridType === (theme?.gridType || "grid")
-      ) || themeOptions[0];
-
+  if (isEditing) {
     return (
-      <div className="max-w-4xl">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Theme Settings</h1>
-            <p className="text-muted-foreground">
-              Customize your portfolio appearance
-            </p>
-          </div>
-          <Button variant="outline" onClick={() => setIsEditing(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-        </div>
-
-        <div className="space-y-8">
-          <div className="rounded-lg border p-6">
-            <div className="flex items-start gap-6">
-              <div className="w-48 flex-shrink-0">
-                <ThemePreviewSVG themeId={currentOption.id} />
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-2 text-xl font-semibold">
-                  {currentOption.label}
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {currentOption.description}
-                </p>
-                <div className="flex gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">Layout:</span>{" "}
-                    {currentOption.gridType}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-muted-foreground text-xs">
-            Press <kbd className="bg-muted rounded px-1 py-0.5">E</kbd> to edit
-          </div>
-        </div>
-      </div>
+      <ThemeSelectionForm
+        user={user}
+        theme={theme}
+        onCancel={handleEditEnd}
+        onSuccess={handleEditEnd}
+      />
     );
   }
 
-  return (
-    <div className="max-w-4xl">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Choose Theme</h1>
-          <p className="text-muted-foreground">
-            Select a theme for your portfolio
-          </p>
-        </div>
-        <Button variant="outline" onClick={() => setIsEditing(false)}>
-          <X className="mr-2 h-4 w-4" />
-          Cancel
-        </Button>
-      </div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="gridType"
-            render={() => (
-              <FormItem>
-                <FormLabel className="text-base">Theme Options</FormLabel>
-                <FormControl>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {themeOptions.map((option) => {
-                      const isSelected = currentThemeId === option.id;
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => selectTheme(option)}
-                          className={cn(
-                            "hover:border-primary/50 relative rounded-lg border-2 p-4 text-left transition-all",
-                            isSelected
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted/50"
-                          )}
-                        >
-                          {isSelected && (
-                            <div className="absolute top-3 right-3">
-                              <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full">
-                                <Check className="text-primary-foreground h-4 w-4" />
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="mb-4">
-                            <ThemePreviewSVG themeId={option.id} />
-                          </div>
-
-                          <div>
-                            <h3 className="mb-1 font-semibold">
-                              {option.label}
-                            </h3>
-                            <p className="text-muted-foreground mb-3 text-sm">
-                              {option.description}
-                            </p>
-                            <div className="flex gap-3 text-xs">
-                              <span className="bg-muted rounded-md px-2 py-1">
-                                {option.gridType}
-                              </span>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Theme"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Form>
-
-      <div className="text-muted-foreground mt-6 text-xs">
-        Press <kbd className="bg-muted rounded px-1 py-0.5">Esc</kbd> to cancel
-      </div>
-    </div>
-  );
+  return <ThemeDisplay theme={theme} onEdit={handleEditStart} />;
 }
