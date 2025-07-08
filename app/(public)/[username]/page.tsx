@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Container, Section } from "@/components/ds";
 import { PortfolioGrid } from "@/components/profile/portfolio-grid";
 import { ProfileFooter } from "@/components/profile/profile-footer";
@@ -10,6 +9,7 @@ import { usernameSchema } from "@/lib/data/schemas";
 import { getUserByUsername } from "@/lib/data/user";
 import { getPortfolioData } from "@/hooks/use-portfolio-data";
 import { isNotNull } from "drizzle-orm";
+import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ username: string }>;
