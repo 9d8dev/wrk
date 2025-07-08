@@ -5,6 +5,7 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
 ## ✨ Key Features
 
 ### Core Portfolio Features
+
 - **Custom Username URLs** - Get your personalized portfolio at `wrk.so/yourname`
 - **Multiple Grid Layouts** - Choose from masonry, standard, minimal, or square layouts
 - **Drag-and-Drop Reordering** - Easily organize your projects with intuitive controls
@@ -12,6 +13,7 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
 - **Contact Forms** - Built-in lead generation and management system
 
 ### Pro Features ($12/month)
+
 - **Custom Domains** - Use your own domain (e.g., `yourname.com`)
 - **Unlimited Projects** - No limits on your creative showcase
 - **Priority Support** - Get help when you need it
@@ -19,6 +21,7 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
 - **Remove Branding** - Complete white-label experience
 
 ### Technical Highlights
+
 - **Blazing Fast** - Built with Next.js 15 and Turbopack
 - **Type-Safe** - Full TypeScript with Zod validation
 - **Modern Auth** - OAuth (GitHub/Google) + email/password with Better Auth
@@ -40,6 +43,7 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm package manager
 - PostgreSQL database (we recommend Neon)
@@ -48,17 +52,20 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd wrk
    ```
 
 2. **Install dependencies**
+
    ```bash
    pnpm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
@@ -71,12 +78,14 @@ Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunni
    - See CLAUDE.md for complete list
 
 4. **Set up the database**
+
    ```bash
    pnpm db:generate  # Generate migrations
    pnpm db:migrate   # Apply migrations
    ```
 
 5. **Start the development server**
+
    ```bash
    pnpm dev
    ```
@@ -121,6 +130,7 @@ pnpm db:migrate   # Apply DB migrations
 ## 🔐 Authentication
 
 Wrk.so uses Better Auth with:
+
 - GitHub OAuth
 - Google OAuth
 - Email/password
@@ -131,18 +141,22 @@ Wrk.so uses Better Auth with:
 ## 🎨 Customization
 
 ### Grid Layouts
+
 Choose from multiple professional layouts:
+
 - **Masonry** - Pinterest-style variable heights
 - **Standard** - Clean, uniform grid
 - **Minimal** - Focus on content
 - **Square** - Instagram-style layout
 
 ### Themes
+
 Customize colors, typography, and spacing through the admin dashboard.
 
 ## 📊 Analytics
 
 Built-in analytics with:
+
 - Page view tracking
 - User journey events
 - Custom domain attribution
