@@ -18,7 +18,9 @@ interface SocialLinksManagerProps {
   control: Control<any>;
 }
 
-export default function SocialLinksManager({ control }: SocialLinksManagerProps) {
+export default function SocialLinksManager({
+  control,
+}: SocialLinksManagerProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "socialLinks",
