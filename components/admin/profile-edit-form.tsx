@@ -90,6 +90,7 @@ export default function ProfileEditForm({
               <ProfileImageUpload
                 currentImageUrl={profileImageUrl}
                 userName={user.name}
+                userUsername={user.username}
                 profileImageFile={profileImageFile}
                 onImageChange={setProfileImageFile}
               />

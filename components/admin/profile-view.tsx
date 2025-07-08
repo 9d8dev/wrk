@@ -30,6 +30,12 @@ export default function ProfileView({
   profileImageUrl,
   onEdit,
 }: ProfileViewProps) {
+  const hasImage = !!profileImageUrl;
+  const userInitial =
+    user.username?.charAt(0).toUpperCase() ||
+    user.name?.charAt(0).toUpperCase() ||
+    "U";
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-8 flex items-start justify-between">
@@ -47,8 +53,8 @@ export default function ProfileView({
 
       <div className="space-y-8">
         <div className="flex items-center space-x-4">
-          {profileImageUrl && (
-            <div className="bg-muted h-20 w-20 overflow-hidden rounded-full">
+          <div className="h-20 w-20 overflow-hidden rounded-full">
+            {hasImage ? (
               <Image
                 src={profileImageUrl}
                 alt={user.name || "Profile"}
@@ -56,8 +62,14 @@ export default function ProfileView({
                 height={80}
                 className="h-full w-full object-cover"
               />
-            </div>
-          )}
+            ) : (
+              <div className="bg-primary flex h-full w-full items-center justify-center">
+                <span className="text-primary-foreground text-2xl font-semibold">
+                  {userInitial}
+                </span>
+              </div>
+            )}
+          </div>
           <div>
             <h2 className="text-xl font-semibold">{user.name || "—"}</h2>
             {profile?.title && (
