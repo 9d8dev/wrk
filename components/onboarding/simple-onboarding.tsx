@@ -247,7 +247,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 						{(needsUsername || showUsernameEdit) && (
 							<div className="space-y-2 md:col-span-2">
 								<div className="flex items-center justify-between">
-									<label className="text-sm font-medium flex items-center gap-2">
+									<label htmlFor="username" className="text-sm font-medium flex items-center gap-2">
 										<Hash className="h-4 w-4" />
 										Username
 									</label>
@@ -268,6 +268,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 								</div>
 								<div className="relative">
 									<Input
+										id="username"
 										{...form.register("username")}
 										placeholder="username"
 										className={
@@ -307,11 +308,12 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 						{/* Title */}
 						<div className="space-y-2">
-							<label className="text-sm font-medium flex items-center gap-2">
+							<label htmlFor="title" className="text-sm font-medium flex items-center gap-2">
 								<Briefcase className="h-4 w-4" />
 								Professional Title
 							</label>
 							<Input
+								id="title"
 								{...form.register("title")}
 								placeholder="Product Designer"
 							/>
@@ -324,11 +326,12 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 						{/* Location */}
 						<div className="space-y-2">
-							<label className="text-sm font-medium flex items-center gap-2">
+							<label htmlFor="location" className="text-sm font-medium flex items-center gap-2">
 								<MapPin className="h-4 w-4" />
 								Location
 							</label>
 							<Input
+								id="location"
 								{...form.register("location")}
 								placeholder="San Francisco, CA"
 							/>
@@ -337,8 +340,9 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 					{/* Bio */}
 					<div className="space-y-2">
-						<label className="text-sm font-medium">About You</label>
+						<label htmlFor="bio" className="text-sm font-medium">About You</label>
 						<Textarea
+							id="bio"
 							{...form.register("bio")}
 							placeholder="Tell us about yourself and what you do..."
 							className="min-h-[100px] resize-none"

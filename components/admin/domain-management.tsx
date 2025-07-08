@@ -401,6 +401,7 @@ export function DomainManagement() {
 							<div className="flex gap-2">
 								{domainStatus.status === "active" && (
 									<Button
+										type="button"
 										variant="outline"
 										size="sm"
 										onClick={() =>
@@ -411,6 +412,7 @@ export function DomainManagement() {
 									</Button>
 								)}
 								<Button
+									type="button"
 									variant="outline"
 									size="sm"
 									onClick={runDiagnostics}
@@ -420,6 +422,7 @@ export function DomainManagement() {
 									<Settings className="w-4 h-4" />
 								</Button>
 								<Button
+									type="button"
 									variant="destructive"
 									size="sm"
 									onClick={removeDomain}
@@ -461,6 +464,7 @@ export function DomainManagement() {
 													{domainStatus.domain} → cname.vercel-dns.com
 												</code>
 												<Button
+													type="button"
 													variant="outline"
 													size="sm"
 													onClick={() =>
@@ -483,6 +487,7 @@ export function DomainManagement() {
 													{domainStatus.domain} → 76.76.19.61
 												</code>
 												<Button
+													type="button"
 													variant="outline"
 													size="sm"
 													onClick={() =>
@@ -500,6 +505,7 @@ export function DomainManagement() {
 
 								<div className="flex gap-2">
 									<Button
+										type="button"
 										onClick={verifyDomain}
 										disabled={
 											isLoading ||
@@ -527,6 +533,7 @@ export function DomainManagement() {
 
 									{retryCount > 0 && (
 										<Button
+											type="button"
 											variant="outline"
 											onClick={runDiagnostics}
 											disabled={isLoading}
@@ -560,7 +567,7 @@ export function DomainManagement() {
 										}
 									}}
 								/>
-								<Button onClick={addDomain} disabled={isLoading}>
+								<Button type="button" onClick={addDomain} disabled={isLoading}>
 									{isLoading ? "Adding..." : "Add Domain"}
 								</Button>
 							</div>

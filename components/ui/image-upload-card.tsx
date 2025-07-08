@@ -49,9 +49,10 @@ export const ImageUploadCard = ({
 	};
 
 	return (
-		<div
+		<button
+			type="button"
 			className={cn(
-				"relative group border-2 rounded-lg overflow-hidden transition-all aspect-square",
+				"relative group border-2 rounded-lg overflow-hidden transition-all aspect-square w-full",
 				isFeatured
 					? "border-primary ring-2 ring-primary/20 shadow-lg"
 					: "border-border hover:border-primary/50",
@@ -59,6 +60,13 @@ export const ImageUploadCard = ({
 				isComplete && "border-green-500",
 			)}
 			onClick={onSetFeatured}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onSetFeatured?.();
+				}
+			}}
+			aria-label={`${isFeatured ? 'Featured' : 'Set as featured'} image: ${file.name}`}
 		>
 			{/* Image */}
 			<div className="relative w-full h-full">
@@ -161,6 +169,6 @@ export const ImageUploadCard = ({
 					<p className="truncate">{uploadError}</p>
 				</div>
 			)}
-		</div>
+		</button>
 	);
 };

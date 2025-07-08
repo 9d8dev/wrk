@@ -44,7 +44,7 @@ export function DropZone({
 	const [isDragging, setIsDragging] = useState(false);
 	const [shouldOpenDrawer, setShouldOpenDrawer] = useState(false);
 	const [dragCounter, setDragCounter] = useState(0);
-	const dropZoneRef = useRef<HTMLDivElement>(null);
+	const dropZoneRef = useRef<HTMLButtonElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const preventDefaults = useCallback((e: React.DragEvent) => {
@@ -242,10 +242,11 @@ export function DropZone({
 
 	return (
 		<>
-			<div
+			<button
 				ref={dropZoneRef}
+				type="button"
 				className={cn(
-					"relative border-2 border-dashed rounded-md transition-all cursor-pointer",
+					"relative border-2 border-dashed rounded-md transition-all cursor-pointer w-full",
 					isDragging
 						? "border-primary bg-primary/5"
 						: "border-muted-foreground/20 hover:border-muted-foreground/50 hover:bg-muted/5",
@@ -257,8 +258,6 @@ export function DropZone({
 				onDrop={handleDrop}
 				onClick={handleClick}
 				onKeyDown={handleKeyDown}
-				tabIndex={0}
-				role="button"
 				aria-label="File upload drop zone"
 			>
 				{/* Hidden file input */}
@@ -295,7 +294,7 @@ export function DropZone({
 						</p>
 					</div>
 				)}
-			</div>
+			</button>
 
 			{openProjectDrawer && (
 				<CreateProject

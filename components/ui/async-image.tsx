@@ -106,7 +106,9 @@ export function AsyncImage({
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
+					aria-labelledby="image-error-icon"
 				>
+					<title id="image-error-icon">Image failed to load</title>
 					<path
 						strokeLinecap="round"
 						strokeLinejoin="round"

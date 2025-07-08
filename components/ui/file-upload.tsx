@@ -297,8 +297,8 @@ FileUploaderContent.displayName = "FileUploaderContent";
  * FileUploaderItem - Individual file item with preview
  */
 export const FileUploaderItem = forwardRef<
-	HTMLDivElement,
-	{ index: number; file?: File } & React.HTMLAttributes<HTMLDivElement>
+	HTMLButtonElement,
+	{ index: number; file?: File } & React.HTMLAttributes<HTMLButtonElement>
 >(({ className, index, children, file, ...props }, ref) => {
 	const { removeFile, activeIndex, direction, setActiveIndex } =
 		useFileUpload();
@@ -330,16 +330,24 @@ export const FileUploaderItem = forwardRef<
 	}, [file]);
 
 	return (
-		<div
+		<button
 			ref={ref}
+			type="button"
 			className={cn(
-				"h-auto rounded-md overflow-hidden cursor-pointer relative group transition-all",
+				"h-auto rounded-md overflow-hidden cursor-pointer relative group transition-all w-full",
 				isSelected
 					? "ring-2 ring-primary ring-offset-1"
 					: "hover:ring-1 hover:ring-primary/50",
 				className,
 			)}
 			onClick={() => setActiveIndex(index)}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					setActiveIndex(index);
+				}
+			}}
+			aria-label={`Select file ${index + 1}: ${file?.name || 'Unknown file'}`}
 			{...props}
 		>
 			<div className="w-full h-full">
@@ -399,7 +407,7 @@ export const FileUploaderItem = forwardRef<
 				<span className="sr-only">Remove file {index + 1}</span>
 				<RemoveIcon className="w-4 h-4" />
 			</button>
-		</div>
+		</button>
 	);
 });
 

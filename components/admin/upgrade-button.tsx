@@ -56,6 +56,7 @@ export function UpgradeButton({
 
 	return (
 		<Button
+			type="button"
 			onClick={handleUpgrade}
 			className={className}
 			size={size}

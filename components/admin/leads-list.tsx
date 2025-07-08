@@ -147,6 +147,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 					messages will appear here.
 				</p>
 				<Button
+					type="button"
 					variant="outline"
 					onClick={refreshLeads}
 					disabled={isRefreshing}
@@ -192,6 +193,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 					</p>
 				</div>
 				<Button
+					type="button"
 					variant="outline"
 					size="sm"
 					onClick={refreshLeads}
@@ -283,7 +285,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
-										<Button variant="ghost" size="icon" disabled={isLoading}>
+										<Button type="button" variant="ghost" size="icon" disabled={isLoading}>
 											<MoreHorizontal className="h-4 w-4" />
 											<span className="sr-only">Actions</span>
 										</Button>

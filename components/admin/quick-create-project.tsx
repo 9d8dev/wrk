@@ -321,6 +321,15 @@ export function QuickCreateProject() {
 			onDragOver={preventDefaults}
 			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					fileInputRef.current?.click();
+				}
+			}}
+			tabIndex={0}
+			role="button"
+			aria-label="Image upload area - drag and drop files or press Enter to browse"
 		>
 			<input
 				ref={fileInputRef}
@@ -332,9 +341,16 @@ export function QuickCreateProject() {
 			/>
 
 			{projectImages.length === 0 ? (
-				<div
-					className="p-12 text-center cursor-pointer"
+				<button
+					type="button"
+					className="p-12 text-center cursor-pointer w-full"
 					onClick={() => fileInputRef.current?.click()}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							fileInputRef.current?.click();
+						}
+					}}
 				>
 					<Upload className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
 					<h3 className="text-lg font-medium mb-2">Quick Create Project</h3>
@@ -344,7 +360,7 @@ export function QuickCreateProject() {
 					<p className="text-xs text-muted-foreground mt-2">
 						Auto-generates title and slug from filename
 					</p>
-				</div>
+				</button>
 			) : (
 				<div className="p-6 space-y-4">
 					{/* Image Preview Grid */}
@@ -364,8 +380,9 @@ export function QuickCreateProject() {
 						</div>
 						<div className="grid grid-cols-5 gap-2">
 							{previewUrls.map((url, index) => (
-								<div
+								<button
 									key={`preview-${projectImages[index]?.name || index}-${index}`}
+									type="button"
 									className={cn(
 										"relative group cursor-pointer rounded overflow-hidden border-2",
 										featuredImageIndex === index
@@ -373,6 +390,13 @@ export function QuickCreateProject() {
 											: "border-transparent",
 									)}
 									onClick={() => setFeaturedImageIndex(index)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											setFeaturedImageIndex(index);
+										}
+									}}
+									aria-label={`Set ${projectImages[index]?.name || `image ${index + 1}`} as featured image`}
 								>
 									<div className="aspect-square relative">
 										<Image
@@ -388,15 +412,17 @@ export function QuickCreateProject() {
 										</div>
 									)}
 									<button
+										type="button"
 										onClick={(e) => {
 											e.stopPropagation();
 											handleRemoveImage(index);
 										}}
 										className="absolute top-1 right-1 bg-background/80 rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+										aria-label={`Remove ${projectImages[index]?.name || `image ${index + 1}`}`}
 									>
 										<X size={14} />
 									</button>
-								</div>
+								</button>
 							))}
 						</div>
 						<p className="text-xs text-muted-foreground">

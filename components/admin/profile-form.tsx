@@ -205,7 +205,7 @@ export function ProfileForm({
 							Manage your public profile information
 						</p>
 					</div>
-					<Button variant="outline" onClick={() => setIsEditing(true)}>
+					<Button type="button" variant="outline" onClick={() => setIsEditing(true)}>
 						<Edit className="w-4 h-4 mr-2" />
 						Edit
 					</Button>
@@ -301,7 +301,7 @@ export function ProfileForm({
 						Update your profile information
 					</p>
 				</div>
-				<Button variant="outline" onClick={() => setIsEditing(false)}>
+				<Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
 					<X className="w-4 h-4 mr-2" />
 					Cancel
 				</Button>

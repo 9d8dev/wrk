@@ -345,8 +345,8 @@ export const ProjectForm = ({
 					setTimeout(() => setUploadProgress(null), 1500);
 				}
 
-				// Combine all image IDs
-				const allImageIds = [...existingImageIds, ...uploadedImageIds];
+				// Combine all image IDs (filter out undefined values)
+				const allImageIds = [...existingImageIds, ...uploadedImageIds].filter((id): id is string => id !== undefined);
 
 				// Determine featured image ID
 				let featuredImageId: string | undefined;
@@ -752,21 +752,29 @@ interface ImageCardProps {
 
 const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 	const imageSrc =
-		image.type === "existing" ? image.media?.url : image.previewUrl!;
+		image.type === "existing" ? image.media?.url || '' : image.previewUrl!;
 	const imageAlt =
 		image.type === "existing"
 			? image.media?.alt || "Project image"
 			: "New image";
 
 	return (
-		<div
+		<button
+			type="button"
 			className={cn(
-				"relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square",
+				"relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all aspect-square w-full",
 				image.isFeatured
 					? "border-primary ring-2 ring-primary/20 shadow-lg"
 					: "border-border hover:border-primary/50",
 			)}
 			onClick={() => onSetFeatured(image.id)}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onSetFeatured(image.id);
+				}
+			}}
+			aria-label={`${image.isFeatured ? 'Featured' : 'Set as featured'} image`}
 		>
 			<Image src={imageSrc} alt={imageAlt} fill className="object-cover" />
 
@@ -797,6 +805,6 @@ const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 			</Button>
 
 			<div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
-		</div>
+		</button>
 	);
 };
