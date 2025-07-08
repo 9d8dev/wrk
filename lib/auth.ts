@@ -149,6 +149,10 @@ export const auth = betterAuth({
 					"sign-in",
 					"sign-up",
 					"sign-out",
+					"network",
+					"onboarding",
+					"privacy",
+					"terms",
 				];
 				if (reservedUsernames.includes(username)) {
 					return false;
