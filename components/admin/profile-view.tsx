@@ -53,7 +53,7 @@ export default function ProfileView({
 
       <div className="space-y-8">
         <div className="flex items-center space-x-4">
-          <div className="h-20 w-20 overflow-hidden rounded-full">
+          <div className="h-20 w-20 overflow-hidden rounded-full border">
             {hasImage ? (
               <Image
                 src={profileImageUrl}
@@ -63,8 +63,8 @@ export default function ProfileView({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="bg-primary flex h-full w-full items-center justify-center">
-                <span className="text-primary-foreground text-2xl font-semibold">
+              <div className="bg-accent flex h-full w-full items-center justify-center">
+                <span className="text-accent-foreground text-2xl">
                   {userInitial}
                 </span>
               </div>
