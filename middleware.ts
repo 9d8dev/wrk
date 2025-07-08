@@ -182,5 +182,5 @@ export const config = {
 		// Skip static assets & HMR
 		"/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|ingest).*)",
 	],
-	runtime: "nodejs", // 👈 critical
+	runtime: "nodejs",
 };
