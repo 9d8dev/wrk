@@ -147,7 +147,11 @@ export async function middleware(request: NextRequest) {
   const routeType = classifyRoute(pathname);
 
   let session: Awaited<ReturnType<typeof getSession>> | null = null;
-  if (routeType === "protected" || routeType === "api-upload") {
+  if (
+    routeType === "protected" ||
+    routeType === "api-upload" ||
+    pathname === "/sign-in"
+  ) {
     session = await getSession(request);
   }
 
@@ -159,6 +163,16 @@ export async function middleware(request: NextRequest) {
 
     case "api":
     case "public":
+      // Redirect authenticated users away from sign-in page
+      if (pathname === "/sign-in" && session?.user) {
+        // If user doesn't have a username, redirect to onboarding
+        if (!session.user.username) {
+          return NextResponse.redirect(new URL("/onboarding", request.url));
+        }
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+      return NextResponse.next();
+
     case "username":
       return NextResponse.next();
 
