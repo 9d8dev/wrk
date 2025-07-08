@@ -234,28 +234,15 @@ function ThemeSelectionForm({
   }
 
   return (
-    <div className="max-w-4xl">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Choose Theme</h1>
-          <p className="text-muted-foreground">
-            Select a theme for your portfolio
-          </p>
-        </div>
-        <Button variant="outline" onClick={onCancel}>
-          <X className="mr-2 h-4 w-4" />
-          Cancel
-        </Button>
-      </div>
-
+    <div className="mx-auto max-w-2xl">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-8">
           <FormField
             control={form.control}
             name="gridType"
             render={() => (
               <FormItem>
-                <FormLabel className="text-base">Theme Options</FormLabel>
+                <FormLabel className="sr-only">Theme Options</FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {THEME_OPTIONS.map((option) => (
