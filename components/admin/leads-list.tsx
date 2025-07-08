@@ -34,13 +34,34 @@ import { cn } from "@/lib/utils";
 
 import { type Lead, leadStatuses } from "@/db/schema";
 
+// Types
 type LeadsListProps = {
   userId: string;
   leads: Lead[];
 };
 
-// Status configuration
-const statusConfig = {
+type StatusConfig = {
+  label: string;
+  icon: typeof Clock;
+  color: string;
+  dot: string;
+};
+
+type LeadItemProps = {
+  lead: Lead;
+  isExpanded: boolean;
+  isLoading: boolean;
+  onToggleExpanded: (leadId: string) => void;
+  onEmailClick: (email: string) => void;
+  onStatusUpdate: (
+    leadId: string,
+    status: (typeof leadStatuses)[number]
+  ) => void;
+  onDelete: (leadId: string) => void;
+};
+
+// Constants
+const STATUS_CONFIG: Record<string, StatusConfig> = {
   new: {
     label: "New",
     icon: Clock,
@@ -71,12 +92,37 @@ const statusConfig = {
   },
 } as const;
 
-export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+const STATUS_PRIORITY = { new: 0, contacted: 1, resolved: 2, archived: 3 };
+
+// Utility functions
+function sortLeads(leads: Lead[]): Lead[] {
+  return [...leads].sort((a, b) => {
+    const aPriority =
+      STATUS_PRIORITY[a.status as keyof typeof STATUS_PRIORITY] ?? 4;
+    const bPriority =
+      STATUS_PRIORITY[b.status as keyof typeof STATUS_PRIORITY] ?? 4;
+
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
+    }
+
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
+function openEmail(email: string) {
+  window.open(`mailto:${email}`, "_blank");
+}
+
+// Custom hooks
+function useLeadOperations(
+  userId: string,
+  leads: Lead[],
+  setLeads: (leads: Lead[]) => void
+) {
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [expandedLead, setExpandedLead] = useState<string | null>(null);
 
   const refreshLeads = useCallback(async () => {
     try {
@@ -90,7 +136,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
     } finally {
       setIsRefreshing(false);
     }
-  }, [userId]);
+  }, [userId, setLeads]);
 
   const handleStatusUpdate = async (
     leadId: string,
@@ -130,214 +176,307 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
     }
   };
 
-  const handleEmailClick = (email: string) => {
-    window.open(`mailto:${email}`, "_blank");
+  return {
+    isUpdating,
+    isDeleting,
+    isRefreshing,
+    refreshLeads,
+    handleStatusUpdate,
+    handleDelete,
   };
+}
 
-  const toggleExpanded = (leadId: string) => {
+// Components
+function LeadStatusBadge({ status }: { status: string }) {
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.new;
+  const StatusIcon = config.icon;
+
+  return (
+    <Badge variant="outline" className={cn("text-xs", config.color)}>
+      <StatusIcon className="mr-1 h-3 w-3" />
+      {config.label}
+    </Badge>
+  );
+}
+
+function LeadMessage({
+  message,
+  isExpanded,
+  onToggleExpanded,
+}: {
+  message: string;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+}) {
+  const shouldShowToggle = message.length > 100;
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={onToggleExpanded}
+        className="w-full text-left"
+      >
+        <p className={cn("text-sm", isExpanded ? "" : "line-clamp-2")}>
+          {message}
+        </p>
+        {shouldShowToggle && (
+          <span className="text-primary mt-1 inline-block text-xs hover:underline">
+            {isExpanded ? "Show less" : "Read more"}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function LeadActionsMenu({
+  lead,
+  onEmailClick,
+  onStatusUpdate,
+  onDelete,
+  isLoading,
+}: {
+  lead: Lead;
+  onEmailClick: (email: string) => void;
+  onStatusUpdate: (
+    leadId: string,
+    status: (typeof leadStatuses)[number]
+  ) => void;
+  onDelete: (leadId: string) => void;
+  isLoading: boolean;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button type="button" variant="ghost" size="icon" disabled={isLoading}>
+          <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">Actions</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={() => onEmailClick(lead.email)}>
+          <Mail className="mr-2 h-4 w-4" />
+          Reply via email
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        {leadStatuses
+          .filter((status) => status !== lead.status)
+          .map((status) => {
+            const statusConfig = STATUS_CONFIG[status];
+            const StatusIcon = statusConfig.icon;
+            return (
+              <DropdownMenuItem
+                key={status}
+                onClick={() => onStatusUpdate(lead.id, status)}
+              >
+                <StatusIcon className="mr-2 h-4 w-4" />
+                Mark as {statusConfig.label}
+              </DropdownMenuItem>
+            );
+          })}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          className="text-destructive"
+          onClick={() => onDelete(lead.id)}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete lead
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function LeadItem({
+  lead,
+  isExpanded,
+  isLoading,
+  onToggleExpanded,
+  onEmailClick,
+  onStatusUpdate,
+  onDelete,
+}: LeadItemProps) {
+  const config = STATUS_CONFIG[lead.status] || STATUS_CONFIG.new;
+
+  return (
+    <div
+      className={cn(
+        "rounded-lg border p-4 transition-all",
+        isExpanded ? "ring-primary/20 ring-2" : "hover:bg-muted/50"
+      )}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center gap-3">
+            <div className={cn("h-2 w-2 rounded-full", config.dot)} />
+            <h3 className="truncate font-medium">{lead.name}</h3>
+            <LeadStatusBadge status={lead.status} />
+          </div>
+
+          <div className="text-muted-foreground mb-3 flex items-center gap-4 text-sm">
+            <button
+              type="button"
+              onClick={() => onEmailClick(lead.email)}
+              className="hover:text-primary flex items-center gap-1 transition-colors"
+            >
+              <Mail className="h-3 w-3" />
+              {lead.email}
+              <ExternalLink className="h-3 w-3" />
+            </button>
+            <span>•</span>
+            <span>
+              {formatDistanceToNow(new Date(lead.createdAt), {
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+
+          <LeadMessage
+            message={lead.message}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => onToggleExpanded(lead.id)}
+          />
+        </div>
+
+        <LeadActionsMenu
+          lead={lead}
+          onEmailClick={onEmailClick}
+          onStatusUpdate={onStatusUpdate}
+          onDelete={onDelete}
+          isLoading={isLoading}
+        />
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({
+  onRefresh,
+  isRefreshing,
+}: {
+  onRefresh: () => void;
+  isRefreshing: boolean;
+}) {
+  return (
+    <div className="py-16 text-center">
+      <MessageCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+      <h3 className="mb-2 text-lg font-semibold">No leads yet</h3>
+      <p className="text-muted-foreground mx-auto mb-6 max-w-md">
+        When someone contacts you through your portfolio contact form, their
+        messages will appear here.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onRefresh}
+        disabled={isRefreshing}
+      >
+        {isRefreshing ? (
+          <>
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            Checking for leads...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Check for leads
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+function LeadsHeader({
+  leadsCount,
+  onRefresh,
+  isRefreshing,
+}: {
+  leadsCount: number;
+  onRefresh: () => void;
+  isRefreshing: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-xl font-semibold">Leads ({leadsCount})</h2>
+        <p className="text-muted-foreground text-sm">
+          Manage messages from your portfolio contact form
+        </p>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={onRefresh}
+        disabled={isRefreshing}
+      >
+        {isRefreshing ? (
+          <>
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            Refreshing...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+// Main component
+export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
+
+  const {
+    isUpdating,
+    isDeleting,
+    isRefreshing,
+    refreshLeads,
+    handleStatusUpdate,
+    handleDelete,
+  } = useLeadOperations(userId, leads, setLeads);
+
+  const handleToggleExpanded = (leadId: string) => {
     setExpandedLead(expandedLead === leadId ? null : leadId);
   };
 
   if (leads.length === 0) {
-    return (
-      <div className="py-16 text-center">
-        <MessageCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-        <h3 className="mb-2 text-lg font-semibold">No leads yet</h3>
-        <p className="text-muted-foreground mx-auto mb-6 max-w-md">
-          When someone contacts you through your portfolio contact form, their
-          messages will appear here.
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={refreshLeads}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Checking for leads...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Check for leads
-            </>
-          )}
-        </Button>
-      </div>
-    );
+    return <EmptyState onRefresh={refreshLeads} isRefreshing={isRefreshing} />;
   }
 
-  // Sort leads by status priority and date
-  const sortedLeads = [...leads].sort((a, b) => {
-    const statusPriority = { new: 0, contacted: 1, resolved: 2, archived: 3 };
-    const aPriority =
-      statusPriority[a.status as keyof typeof statusPriority] ?? 4;
-    const bPriority =
-      statusPriority[b.status as keyof typeof statusPriority] ?? 4;
-
-    if (aPriority !== bPriority) {
-      return aPriority - bPriority;
-    }
-
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+  const sortedLeads = sortLeads(leads);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Leads ({leads.length})</h2>
-          <p className="text-muted-foreground text-sm">
-            Manage messages from your portfolio contact form
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={refreshLeads}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Refreshing...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
-            </>
-          )}
-        </Button>
-      </div>
+      <LeadsHeader
+        leadsCount={leads.length}
+        onRefresh={refreshLeads}
+        isRefreshing={isRefreshing}
+      />
 
       <div className="space-y-3">
-        {sortedLeads.map((lead) => {
-          const config = statusConfig[lead.status as keyof typeof statusConfig];
-          const StatusIcon = config.icon;
-          const isExpanded = expandedLead === lead.id;
-          const isLoading = isUpdating === lead.id || isDeleting === lead.id;
-
-          return (
-            <div
-              key={lead.id}
-              className={cn(
-                "rounded-lg border p-4 transition-all",
-                isExpanded ? "ring-primary/20 ring-2" : "hover:bg-muted/50"
-              )}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="mb-2 flex items-center gap-3">
-                    <div className={cn("h-2 w-2 rounded-full", config.dot)} />
-                    <h3 className="truncate font-medium">{lead.name}</h3>
-                    <Badge
-                      variant="outline"
-                      className={cn("text-xs", config.color)}
-                    >
-                      <StatusIcon className="mr-1 h-3 w-3" />
-                      {config.label}
-                    </Badge>
-                  </div>
-
-                  <div className="text-muted-foreground mb-3 flex items-center gap-4 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => handleEmailClick(lead.email)}
-                      className="hover:text-primary flex items-center gap-1 transition-colors"
-                    >
-                      <Mail className="h-3 w-3" />
-                      {lead.email}
-                      <ExternalLink className="h-3 w-3" />
-                    </button>
-                    <span>•</span>
-                    <span>
-                      {formatDistanceToNow(new Date(lead.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => toggleExpanded(lead.id)}
-                      className="w-full text-left"
-                    >
-                      <p
-                        className={cn(
-                          "text-sm",
-                          isExpanded ? "" : "line-clamp-2"
-                        )}
-                      >
-                        {lead.message}
-                      </p>
-                      {lead.message.length > 100 && (
-                        <span className="text-primary mt-1 inline-block text-xs hover:underline">
-                          {isExpanded ? "Show less" : "Read more"}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      disabled={isLoading}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Actions</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem
-                      onClick={() => handleEmailClick(lead.email)}
-                    >
-                      <Mail className="mr-2 h-4 w-4" />
-                      Reply via email
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-
-                    {leadStatuses
-                      .filter((status) => status !== lead.status)
-                      .map((status) => {
-                        const statusConf =
-                          statusConfig[status as keyof typeof statusConfig];
-                        const StatusIcon = statusConf.icon;
-                        return (
-                          <DropdownMenuItem
-                            key={status}
-                            onClick={() => handleStatusUpdate(lead.id, status)}
-                          >
-                            <StatusIcon className="mr-2 h-4 w-4" />
-                            Mark as {statusConf.label}
-                          </DropdownMenuItem>
-                        );
-                      })}
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => handleDelete(lead.id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete lead
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          );
-        })}
+        {sortedLeads.map((lead) => (
+          <LeadItem
+            key={lead.id}
+            lead={lead}
+            isExpanded={expandedLead === lead.id}
+            isLoading={isUpdating === lead.id || isDeleting === lead.id}
+            onToggleExpanded={handleToggleExpanded}
+            onEmailClick={openEmail}
+            onStatusUpdate={handleStatusUpdate}
+            onDelete={handleDelete}
+          />
+        ))}
       </div>
     </div>
   );
