@@ -24,7 +24,7 @@ function validateVercelConfig(): { isValid: boolean; error?: string } {
 	return { isValid: true };
 }
 
-export interface VercelDomainStatus { 
+export interface VercelDomainStatus {
 	configured: boolean;
 	verified: boolean;
 	ssl: {

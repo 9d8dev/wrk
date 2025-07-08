@@ -1,26 +1,15 @@
-import { isNotNull } from "drizzle-orm";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/ds";
-import {
-  MasonryGrid,
-  MinimalGrid,
-  SquareGrid,
-  StandardGrid,
-} from "@/components/profile/grids";
+import { PortfolioGrid } from "@/components/profile/portfolio-grid";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { db } from "@/db/drizzle";
 import { user } from "@/db/schema";
-import { getThemeByUsername } from "@/lib/actions/theme";
-import {
-  getAllProjectImages,
-  getFeaturedImageByProjectId,
-} from "@/lib/data/media";
 import { getProfileByUsername } from "@/lib/data/profile";
-import { getProjectsByUsername } from "@/lib/data/project";
 import { usernameSchema } from "@/lib/data/schemas";
 import { getUserByUsername } from "@/lib/data/user";
+import { getPortfolioData } from "@/hooks/use-portfolio-data";
+import { isNotNull } from "drizzle-orm";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -50,7 +39,6 @@ export async function generateStaticParams() {
       }));
   } catch (error) {
     console.error("Error generating static params for username pages:", error);
-
     return [];
   }
 }
@@ -81,48 +69,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PortfolioPage({ params }: Props) {
   const { username } = await params;
 
-  const projectsResult = await getProjectsByUsername(username);
-
-  const userTheme = await getThemeByUsername(username);
-  const gridType = userTheme?.gridType || "masonry";
-
-  const projects = await Promise.all(
-    (projectsResult.data?.items ?? []).map(async (project) => {
-      const featuredImageResult = await getFeaturedImageByProjectId(project.id);
-      const allImagesResult = await getAllProjectImages(project.id);
-
-      const featuredImage = featuredImageResult.success
-        ? featuredImageResult.data
-        : null;
-      const allImages = allImagesResult.success ? allImagesResult.data : [];
-
-      return { project, featuredImage, allImages };
-    })
-  );
-
-  const renderGrid = () => {
-    if (!projects.length) {
-      return <h2>Portfolio coming soon</h2>;
-    }
-    switch (gridType) {
-      case "masonry":
-        return <MasonryGrid projects={projects} username={username} />;
-      case "grid":
-        return <StandardGrid projects={projects} username={username} />;
-      case "minimal":
-        return <MinimalGrid projects={projects} username={username} />;
-      case "square":
-        return <SquareGrid projects={projects} username={username} />;
-      default:
-        return <MasonryGrid projects={projects} username={username} />;
-    }
-  };
+  const { projects, gridType } = await getPortfolioData(username);
 
   return (
     <main className="flex flex-col min-h-screen">
       <ProfileHeader username={username} />
       <Section className="flex-1">
-        <Container>{renderGrid()}</Container>
+        <Container>
+          <PortfolioGrid
+            projects={projects}
+            username={username}
+            gridType={gridType}
+          />
+        </Container>
       </Section>
       <ProfileFooter username={username} />
     </main>

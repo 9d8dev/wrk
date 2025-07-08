@@ -378,3 +378,91 @@ export const getProjectCount = dedupe(
 		}, "Failed to fetch project count");
 	},
 );
+
+/**
+ * Get projects with their images for portfolio display (optimized)
+ */
+export async function getPortfolioProjects(username: string): Promise<
+	DataResponse<
+		Array<{
+			project: Project;
+			featuredImage: Media | null;
+			allImages: Media[];
+		}>
+	>
+> {
+	return withErrorHandling(async () => {
+		// Validate username
+		const usernameValidation = usernameSchema.safeParse(username);
+		if (!usernameValidation.success) {
+			throw new Error(
+				usernameValidation.error.errors[0]?.message || "Invalid username",
+			);
+		}
+
+		// Get user first
+		const userData = await db
+			.select({ id: user.id })
+			.from(user)
+			.where(eq(user.username, username))
+			.limit(1);
+
+		if (!userData[0]) {
+			return [];
+		}
+
+		const userId = userData[0].id;
+
+		// Get all projects with featured images in one query
+		const projectsWithFeaturedImages = await db
+			.select({
+				project: project,
+				featuredImage: media,
+			})
+			.from(project)
+			.leftJoin(media, eq(media.id, project.featuredImageId))
+			.where(eq(project.userId, userId))
+			.orderBy(asc(project.displayOrder));
+
+		if (projectsWithFeaturedImages.length === 0) {
+			return [];
+		}
+
+		// Get all project IDs that have additional images
+		const projectIds = projectsWithFeaturedImages
+			.filter((p) => p.project.imageIds && p.project.imageIds.length > 0)
+			.map((p) => p.project.id);
+
+		// Get all additional images in a single query if there are any
+		let allAdditionalImages: Media[] = [];
+		if (projectIds.length > 0) {
+			// Get all image IDs from all projects
+			const allImageIds = projectsWithFeaturedImages
+				.flatMap((p) => p.project.imageIds || [])
+				.filter((id, index, array) => array.indexOf(id) === index); // dedupe
+
+			if (allImageIds.length > 0) {
+				allAdditionalImages = await db
+					.select()
+					.from(media)
+					.where(inArray(media.id, allImageIds));
+			}
+		}
+
+		// Map projects with their images
+		return projectsWithFeaturedImages.map(
+			({ project: proj, featuredImage }) => {
+				const projectImageIds = proj.imageIds || [];
+				const allImages = allAdditionalImages.filter((img) =>
+					projectImageIds.includes(img.id),
+				);
+
+				return {
+					project: proj,
+					featuredImage,
+					allImages,
+				};
+			},
+		);
+	}, "Failed to fetch portfolio projects");
+}
