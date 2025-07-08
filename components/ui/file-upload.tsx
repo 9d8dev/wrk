@@ -273,11 +273,7 @@ export const FileUploaderContent = forwardRef<
 	const { orientation } = useFileUpload();
 
 	return (
-		<div
-			className="w-full px-1"
-			role="region"
-			aria-label="File upload content holder"
-		>
+		<section className="w-full px-1" aria-label="File upload content holder">
 			<div
 				{...props}
 				ref={ref}
@@ -291,7 +287,7 @@ export const FileUploaderContent = forwardRef<
 			>
 				{children}
 			</div>
-		</div>
+		</section>
 	);
 });
 
@@ -493,7 +489,11 @@ export const FileInput = forwardRef<
 											fill="none"
 											viewBox="0 0 24 24"
 											stroke="currentColor"
+											aria-labelledby="upload-success-icon"
 										>
+											<title id="upload-success-icon">
+												File upload accepted
+											</title>
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -517,7 +517,9 @@ export const FileInput = forwardRef<
 											fill="none"
 											viewBox="0 0 24 24"
 											stroke="currentColor"
+											aria-labelledby="upload-error-icon"
 										>
+											<title id="upload-error-icon">File upload rejected</title>
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"

@@ -1,6 +1,14 @@
 "use server";
 
 import { Polar } from "@polar-sh/sdk";
+
+// Validate required environment variables at module level
+const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;
+
+if (!POLAR_ACCESS_TOKEN) {
+	throw new Error("Missing required environment variable: POLAR_ACCESS_TOKEN");
+}
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -148,7 +156,7 @@ export const deleteAccount = async (): Promise<ActionResponse<void>> => {
 			try {
 				// Use the Polar SDK to cancel subscription
 				const polarClient = new Polar({
-					accessToken: process.env.POLAR_ACCESS_TOKEN!,
+					accessToken: POLAR_ACCESS_TOKEN,
 					server: "production",
 				});
 

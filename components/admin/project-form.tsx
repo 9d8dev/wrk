@@ -299,7 +299,9 @@ export const ProjectForm = ({
 						percent: 0,
 					});
 
-					const files = newImages.map((img) => img.file!);
+					const files = newImages
+						.map((img) => img.file)
+						.filter((file): file is File => file !== undefined);
 					const uploadResults = await uploadMultipleImages(
 						files,
 						(completed, total, currentFile) => {
@@ -754,7 +756,7 @@ interface ImageCardProps {
 
 const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 	const imageSrc =
-		image.type === "existing" ? image.media?.url || "" : image.previewUrl!;
+		image.type === "existing" ? image.media?.url || "" : image.previewUrl || "";
 	const imageAlt =
 		image.type === "existing"
 			? image.media?.alt || "Project image"

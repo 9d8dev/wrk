@@ -27,8 +27,39 @@ import {
 	generateUsernameFromName,
 } from "@/lib/utils/username";
 
+// Validate required environment variables at module level
+const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;
+if (!POLAR_ACCESS_TOKEN) {
+	throw new Error("POLAR_ACCESS_TOKEN is required");
+}
+
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+if (!GITHUB_CLIENT_ID) {
+	throw new Error("GITHUB_CLIENT_ID is required");
+}
+
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+if (!GITHUB_CLIENT_SECRET) {
+	throw new Error("GITHUB_CLIENT_SECRET is required");
+}
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+	throw new Error("GOOGLE_CLIENT_ID is required");
+}
+
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+if (!GOOGLE_CLIENT_SECRET) {
+	throw new Error("GOOGLE_CLIENT_SECRET is required");
+}
+
+const POLAR_WEBHOOK_SECRET = process.env.POLAR_WEBHOOK_SECRET;
+if (!POLAR_WEBHOOK_SECRET) {
+	throw new Error("POLAR_WEBHOOK_SECRET is required");
+}
+
 const polarClient = new Polar({
-	accessToken: process.env.POLAR_ACCESS_TOKEN!,
+	accessToken: POLAR_ACCESS_TOKEN,
 	server: "production", // Use 'sandbox' for testing
 });
 
@@ -43,8 +74,8 @@ export const auth = betterAuth({
 	},
 	socialProviders: {
 		github: {
-			clientId: process.env.GITHUB_CLIENT_ID!,
-			clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+			clientId: GITHUB_CLIENT_ID,
+			clientSecret: GITHUB_CLIENT_SECRET,
 			mapProfileToUser: async (profile) => {
 				// GitHub provides a login field which is their username
 				// Generate a default username that they can change during onboarding
@@ -58,8 +89,8 @@ export const auth = betterAuth({
 			},
 		},
 		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID!,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+			clientId: GOOGLE_CLIENT_ID,
+			clientSecret: GOOGLE_CLIENT_SECRET,
 			mapProfileToUser: async (profile) => {
 				// Google doesn't have usernames, so we generate from email and name
 				// Generate a default username that they can change during onboarding
@@ -140,7 +171,7 @@ export const auth = betterAuth({
 				portal(),
 				usage(),
 				webhooks({
-					secret: process.env.POLAR_WEBHOOK_SECRET!,
+					secret: POLAR_WEBHOOK_SECRET,
 					onCustomerCreated: async (payload) => {
 						console.log("Customer created:", payload);
 

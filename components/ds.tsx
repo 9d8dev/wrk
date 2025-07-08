@@ -249,10 +249,10 @@ export const Prose = ({
 				className,
 			)}
 			id={id}
-			dangerouslySetInnerHTML={dangerouslySetInnerHTML}
+			{...(dangerouslySetInnerHTML ? { dangerouslySetInnerHTML } : {})}
 			style={style}
 		>
-			{children}
+			{!dangerouslySetInnerHTML && children}
 		</Component>
 	);
 };

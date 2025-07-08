@@ -5,7 +5,9 @@ export function GitHubIcon({ className }: { className?: string }) {
 			viewBox="0 0 24 24"
 			fill="currentColor"
 			xmlns="http://www.w3.org/2000/svg"
+			aria-labelledby="github-icon-title"
 		>
+			<title id="github-icon-title">GitHub</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"
