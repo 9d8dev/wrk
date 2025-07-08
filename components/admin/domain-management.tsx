@@ -14,13 +14,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { usePostHogEvents } from "@/components/analytics";
 import { Button } from "@/components/ui/button";
@@ -329,31 +322,33 @@ export function DomainManagement() {
 
   if (isLoadingStatus) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="space-y-6">
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
             <Globe className="h-5 w-5" />
             Custom Domain
-          </CardTitle>
-          <CardDescription>Loading domain settings...</CardDescription>
-        </CardHeader>
-      </Card>
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Loading domain settings...
+          </p>
+        </div>
+      </div>
     );
   }
 
   if (!domainStatus?.hasActivePro) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="space-y-6">
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
             <Globe className="h-5 w-5" />
             Custom Domain
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-muted-foreground text-sm">
             Use your own domain for your portfolio
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div>
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
@@ -361,27 +356,27 @@ export function DomainManagement() {
               domain.
             </AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className="space-y-6">
+      <div>
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
           <Globe className="h-5 w-5" />
           Custom Domain
-        </CardTitle>
-        <CardDescription>
+        </h2>
+        <p className="text-muted-foreground text-sm">
           Use your own domain for your portfolio
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        </p>
+      </div>
+      <div className="space-y-6">
         {domainStatus.domain ? (
           <div className="space-y-4">
             {/* Current Domain Display */}
-            <div className="bg-muted/30 flex items-center justify-between rounded-lg border p-4">
+            <div className="bg-muted/30 flex items-center justify-between rounded border p-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{domainStatus.domain}</span>
@@ -584,7 +579,7 @@ export function DomainManagement() {
             </Alert>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
