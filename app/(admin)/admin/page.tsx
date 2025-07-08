@@ -16,63 +16,78 @@ import { getSession } from "@/lib/actions/auth";
 
 export const dynamic = "force-dynamic";
 
-async function getAdminData(userId: string) {
+async function checkUserProfile(userId: string) {
+  const profileResult = await getProfileByUserId(userId);
+  return {
+    needsOnboarding: !profileResult.success || !profileResult.data,
+    profile: profileResult.success ? profileResult.data : null,
+  };
+}
+
+async function enrichProjectWithImages(project: any) {
   try {
-    // Check profile completion
-    const profileResult = await getProfileByUserId(userId);
-    if (!profileResult.success || !profileResult.data) {
-      return { needsOnboarding: true };
-    }
+    const [featuredImageResult, allImagesResult] = await Promise.all([
+      getFeaturedImageByProjectId(project.id),
+      getAllProjectImages(project.id),
+    ]);
 
-    // Get projects
-    const projectsResult = await getAllProjects(userId);
-    if (!projectsResult.success) {
-      console.error("Error fetching projects:", projectsResult.error);
-      return { projects: [] };
-    }
+    const featuredImage = featuredImageResult.success
+      ? featuredImageResult.data
+      : null;
+    const allImages = allImagesResult.success ? allImagesResult.data : [];
 
-    // Get images for each project
-    const projectsWithImages = await Promise.all(
-      projectsResult.data.items.map(async (project) => {
-        try {
-          const [featuredImageResult, allImagesResult] = await Promise.all([
-            getFeaturedImageByProjectId(project.id),
-            getAllProjectImages(project.id),
-          ]);
+    const additionalImages = featuredImage
+      ? allImages.filter((img) => img.id !== featuredImage.id)
+      : allImages;
 
-          const featuredImage = featuredImageResult.success
-            ? featuredImageResult.data
-            : null;
-          const allImages = allImagesResult.success ? allImagesResult.data : [];
-
-          const additionalImages = featuredImage
-            ? allImages.filter((img) => img.id !== featuredImage.id)
-            : allImages;
-
-          return {
-            project,
-            featuredImage,
-            additionalImages,
-          };
-        } catch (error) {
-          console.error(
-            `Failed to load images for project ${project.id}:`,
-            error
-          );
-          return {
-            project,
-            featuredImage: null,
-            additionalImages: [],
-          };
-        }
-      })
-    );
-
-    return { projects: projectsWithImages };
+    return {
+      project,
+      featuredImage,
+      additionalImages,
+    };
   } catch (error) {
-    console.error("Error fetching admin data:", error);
-    return { projects: [] };
+    console.error(`Failed to load images for project ${project.id}:`, error);
+    return {
+      project,
+      featuredImage: null,
+      additionalImages: [],
+    };
   }
+}
+
+// Main data fetching function - now cleaner and more focused
+async function getAdminPageData(userId: string) {
+  // Check profile first
+  const { needsOnboarding } = await checkUserProfile(userId);
+  if (needsOnboarding) {
+    return { needsOnboarding: true, projects: [] };
+  }
+
+  // Get projects
+  const projectsResult = await getAllProjects(userId);
+  if (!projectsResult.success) {
+    console.error("Error fetching projects:", projectsResult.error);
+    return { needsOnboarding: false, projects: [] };
+  }
+
+  // Enrich projects with images
+  const projectsWithImages = await Promise.all(
+    projectsResult.data.items.map(enrichProjectWithImages)
+  );
+
+  return { needsOnboarding: false, projects: projectsWithImages };
+}
+
+// Component to render when no projects exist
+function EmptyProjectsState() {
+  return (
+    <div className="py-12 text-center">
+      <p className="text-muted-foreground">No projects found.</p>
+      <p className="text-muted-foreground mt-2 text-sm">
+        Create your first project to get started.
+      </p>
+    </div>
+  );
 }
 
 export default async function AdminPage() {
@@ -86,13 +101,11 @@ export default async function AdminPage() {
     redirect("/onboarding");
   }
 
-  const data = await getAdminData(session.user.id);
+  const { needsOnboarding, projects } = await getAdminPageData(session.user.id);
 
-  if (data.needsOnboarding) {
+  if (needsOnboarding) {
     redirect("/onboarding");
   }
-
-  const projects = data.projects || [];
 
   return (
     <>
@@ -109,7 +122,7 @@ export default async function AdminPage() {
               username={session.user.username}
             />
           ) : (
-            <div>No projects found.</div>
+            <EmptyProjectsState />
           )}
         </div>
       </PageWrapper>
