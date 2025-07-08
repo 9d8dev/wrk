@@ -147,20 +147,7 @@ function ThemeDisplay({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Theme Settings</h1>
-          <p className="text-muted-foreground">
-            Customize your portfolio appearance
-          </p>
-        </div>
-        <Button variant="outline" onClick={onEdit}>
-          <Edit className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </div>
-
-      <div className="space-y-8">
+      <div className="mt-8 space-y-8">
         <div className="bg-accent/30 rounded border p-4">
           <div className="flex items-start gap-6">
             <div className="flex-shrink-0">

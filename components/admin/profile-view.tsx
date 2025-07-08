@@ -38,20 +38,7 @@ export default function ProfileView({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your public profile information
-          </p>
-        </div>
-        <Button type="button" variant="outline" onClick={onEdit}>
-          <Edit className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </div>
-
-      <div className="space-y-8">
+      <div className="mt-8 space-y-8">
         <div className="flex items-center space-x-4">
           <div className="h-20 w-20 overflow-hidden rounded-full border">
             {hasImage ? (
