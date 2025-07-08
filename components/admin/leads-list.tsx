@@ -285,7 +285,12 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
-										<Button type="button" variant="ghost" size="icon" disabled={isLoading}>
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											disabled={isLoading}
+										>
 											<MoreHorizontal className="h-4 w-4" />
 											<span className="sr-only">Actions</span>
 										</Button>

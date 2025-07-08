@@ -247,7 +247,10 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 						{(needsUsername || showUsernameEdit) && (
 							<div className="space-y-2 md:col-span-2">
 								<div className="flex items-center justify-between">
-									<label htmlFor="username" className="text-sm font-medium flex items-center gap-2">
+									<label
+										htmlFor="username"
+										className="text-sm font-medium flex items-center gap-2"
+									>
 										<Hash className="h-4 w-4" />
 										Username
 									</label>
@@ -308,7 +311,10 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 						{/* Title */}
 						<div className="space-y-2">
-							<label htmlFor="title" className="text-sm font-medium flex items-center gap-2">
+							<label
+								htmlFor="title"
+								className="text-sm font-medium flex items-center gap-2"
+							>
 								<Briefcase className="h-4 w-4" />
 								Professional Title
 							</label>
@@ -326,7 +332,10 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 						{/* Location */}
 						<div className="space-y-2">
-							<label htmlFor="location" className="text-sm font-medium flex items-center gap-2">
+							<label
+								htmlFor="location"
+								className="text-sm font-medium flex items-center gap-2"
+							>
 								<MapPin className="h-4 w-4" />
 								Location
 							</label>
@@ -340,7 +349,9 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
 					{/* Bio */}
 					<div className="space-y-2">
-						<label htmlFor="bio" className="text-sm font-medium">About You</label>
+						<label htmlFor="bio" className="text-sm font-medium">
+							About You
+						</label>
 						<Textarea
 							id="bio"
 							{...form.register("bio")}

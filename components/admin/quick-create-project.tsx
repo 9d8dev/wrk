@@ -322,7 +322,7 @@ export function QuickCreateProject() {
 			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
 			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
+				if (e.key === "Enter" || e.key === " ") {
 					e.preventDefault();
 					fileInputRef.current?.click();
 				}
@@ -346,7 +346,7 @@ export function QuickCreateProject() {
 					className="p-12 text-center cursor-pointer w-full"
 					onClick={() => fileInputRef.current?.click()}
 					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
+						if (e.key === "Enter" || e.key === " ") {
 							e.preventDefault();
 							fileInputRef.current?.click();
 						}
@@ -391,7 +391,7 @@ export function QuickCreateProject() {
 									)}
 									onClick={() => setFeaturedImageIndex(index)}
 									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
+										if (e.key === "Enter" || e.key === " ") {
 											e.preventDefault();
 											setFeaturedImageIndex(index);
 										}

@@ -187,17 +187,18 @@ const SortableProjectCard = ({
 					additionalImages={additionalImages}
 					username={username}
 				/>
-				<div
+				<button
 					{...listeners}
 					className="cursor-grab active:cursor-grabbing bg-accent flex items-center border-l p-1"
 					aria-label="Drag to reorder"
 					title="Drag to reorder"
+					type="button"
 				>
 					<GripVertical
 						strokeWidth={1}
 						className="text-muted-foreground my-auto"
 					/>
-				</div>
+				</button>
 			</div>
 			<span className="w-4 h-4 text-muted-foreground p-1 text-[10px] bg-muted rounded border aspect-square flex items-center justify-center absolute top-1 left-1 z-1">
 				{project.displayOrder !== null ? project.displayOrder + 1 : ""}

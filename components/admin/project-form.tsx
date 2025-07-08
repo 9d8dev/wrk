@@ -346,7 +346,9 @@ export const ProjectForm = ({
 				}
 
 				// Combine all image IDs (filter out undefined values)
-				const allImageIds = [...existingImageIds, ...uploadedImageIds].filter((id): id is string => id !== undefined);
+				const allImageIds = [...existingImageIds, ...uploadedImageIds].filter(
+					(id): id is string => id !== undefined,
+				);
 
 				// Determine featured image ID
 				let featuredImageId: string | undefined;
@@ -752,7 +754,7 @@ interface ImageCardProps {
 
 const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 	const imageSrc =
-		image.type === "existing" ? image.media?.url || '' : image.previewUrl!;
+		image.type === "existing" ? image.media?.url || "" : image.previewUrl!;
 	const imageAlt =
 		image.type === "existing"
 			? image.media?.alt || "Project image"
@@ -769,12 +771,12 @@ const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 			)}
 			onClick={() => onSetFeatured(image.id)}
 			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
+				if (e.key === "Enter" || e.key === " ") {
 					e.preventDefault();
 					onSetFeatured(image.id);
 				}
 			}}
-			aria-label={`${image.isFeatured ? 'Featured' : 'Set as featured'} image`}
+			aria-label={`${image.isFeatured ? "Featured" : "Set as featured"} image`}
 		>
 			<Image src={imageSrc} alt={imageAlt} fill className="object-cover" />
 

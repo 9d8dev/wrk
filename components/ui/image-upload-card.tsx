@@ -61,12 +61,12 @@ export const ImageUploadCard = ({
 			)}
 			onClick={onSetFeatured}
 			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
+				if (e.key === "Enter" || e.key === " ") {
 					e.preventDefault();
 					onSetFeatured?.();
 				}
 			}}
-			aria-label={`${isFeatured ? 'Featured' : 'Set as featured'} image: ${file.name}`}
+			aria-label={`${isFeatured ? "Featured" : "Set as featured"} image: ${file.name}`}
 		>
 			{/* Image */}
 			<div className="relative w-full h-full">

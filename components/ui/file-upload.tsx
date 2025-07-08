@@ -273,7 +273,11 @@ export const FileUploaderContent = forwardRef<
 	const { orientation } = useFileUpload();
 
 	return (
-		<div className="w-full px-1" aria-description="content file holder">
+		<div
+			className="w-full px-1"
+			role="region"
+			aria-label="File upload content holder"
+		>
 			<div
 				{...props}
 				ref={ref}
@@ -342,12 +346,12 @@ export const FileUploaderItem = forwardRef<
 			)}
 			onClick={() => setActiveIndex(index)}
 			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
+				if (e.key === "Enter" || e.key === " ") {
 					e.preventDefault();
 					setActiveIndex(index);
 				}
 			}}
-			aria-label={`Select file ${index + 1}: ${file?.name || 'Unknown file'}`}
+			aria-label={`Select file ${index + 1}: ${file?.name || "Unknown file"}`}
 			{...props}
 		>
 			<div className="w-full h-full">
