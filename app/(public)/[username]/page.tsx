@@ -29,10 +29,8 @@ type Props = {
 // Configure ISR with different strategies based on content type
 export const revalidate = 180; // 3 minutes - more reasonable for UGC platforms
 
-// SSG
 export async function generateStaticParams() {
   try {
-    // Get all users with usernames
     const users = await db
       .select({ username: user.username })
       .from(user)
@@ -57,7 +55,7 @@ export async function generateStaticParams() {
       }));
   } catch (error) {
     console.error("Error generating static params for username pages:", error);
-    // Return empty array on error to fallback to on-demand generation
+
     return [];
   }
 }
@@ -88,8 +86,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // Page
 export default async function PortfolioPage({ params }: Props) {
-  // Add cache timestamp for debugging
-  const cacheTimestamp = new Date().toISOString();
   const { username } = await params;
 
   const projectsResult = await getProjectsByUsername(username);
@@ -98,9 +94,8 @@ export default async function PortfolioPage({ params }: Props) {
     return notFound();
   }
 
-  // Get user's theme preference
   const userTheme = await getThemeByUsername(username);
-  const gridType = userTheme?.gridType || "masonry"; // Default to masonry
+  const gridType = userTheme?.gridType || "masonry";
 
   const projects = await Promise.all(
     projectsResult.data.items.map(async (project) => {
@@ -139,12 +134,6 @@ export default async function PortfolioPage({ params }: Props) {
         <Container>{renderGrid()}</Container>
       </Section>
       <ProfileFooter username={username} />
-      {/* Debug: Cache timestamp */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed bottom-0 right-0 p-2 bg-black/50 text-white text-xs">
-          Rendered: {cacheTimestamp}
-        </div>
-      )}
     </>
   );
 }
