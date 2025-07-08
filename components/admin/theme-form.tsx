@@ -1,5 +1,7 @@
 "use client";
 
+import type { StaticImageData } from "next/image";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Edit, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -26,6 +28,7 @@ import { updateTheme } from "@/lib/actions/theme";
 import { cn } from "@/lib/utils";
 
 import { gridTypes, type Theme } from "@/db/schema";
+import Image from "next/image";
 
 // Types
 type SessionUser = {
@@ -46,6 +49,7 @@ type ThemeOption = {
   label: string;
   description: string;
   gridType: (typeof gridTypes)[number];
+  image: StaticImageData;
 };
 
 // Constants
@@ -55,24 +59,28 @@ const THEME_OPTIONS: ThemeOption[] = [
     label: "Masonry Layout",
     description: "Dynamic masonry layout with varying heights",
     gridType: "masonry",
+    image: Masonry,
   },
   {
     id: "grid",
     label: "Grid Layout",
     description: "Clean grid layout for your projects",
     gridType: "grid",
+    image: Grid,
   },
   {
     id: "minimal",
     label: "Minimal Layout",
     description: "Simple list layout with minimal styling",
     gridType: "minimal",
+    image: Minimal,
   },
   {
     id: "square",
     label: "Square Layout",
     description: "Uniform square grid layout",
     gridType: "square",
+    image: Square,
   },
 ];
 
@@ -80,37 +88,6 @@ const formSchema = z.object({
   gridType: z.enum(gridTypes),
 });
 
-// Theme preview images mapping
-const ThemeImages = {
-  grid: Grid,
-  minimal: Minimal,
-  masonry: Masonry,
-  square: Square,
-};
-
-function ThemePreviewImage({ themeId }: { themeId: string }) {
-  const ImageSrc = ThemeImages[themeId as keyof typeof ThemeImages];
-
-  if (!ImageSrc) {
-    return (
-      <div className="bg-muted flex h-24 w-full items-center justify-center rounded-md border">
-        <span className="text-muted-foreground text-sm">No preview</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative h-24 w-full overflow-hidden rounded-md border">
-      <img
-        src={ImageSrc.src}
-        alt={`${themeId} layout preview`}
-        className="h-full w-full object-cover"
-      />
-    </div>
-  );
-}
-
-// Theme option card component
 function ThemeOptionCard({
   option,
   isSelected,
@@ -125,14 +102,14 @@ function ThemeOptionCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "hover:border-primary/50 relative rounded-lg border-2 p-4 text-left transition-all",
+        "hover:border-primary/50 relative rounded border-2 p-4 text-left transition-all",
         isSelected
           ? "border-primary bg-primary/5"
           : "border-border hover:bg-muted/50"
       )}
     >
       {isSelected && (
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-2 right-2 z-10">
           <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full">
             <Check className="text-primary-foreground h-4 w-4" />
           </div>
@@ -140,20 +117,17 @@ function ThemeOptionCard({
       )}
 
       <div className="mb-4">
-        <ThemePreviewImage themeId={option.id} />
+        <Image
+          src={option.image.src}
+          alt={option.label}
+          width={300}
+          height={198.28}
+          className="rounded"
+        />
       </div>
 
-      <div>
-        <h3 className="mb-1 font-semibold">{option.label}</h3>
-        <p className="text-muted-foreground mb-3 text-sm">
-          {option.description}
-        </p>
-        <div className="flex gap-3 text-xs">
-          <span className="bg-muted rounded-md px-2 py-1">
-            {option.gridType}
-          </span>
-        </div>
-      </div>
+      <h3 className="mb-1 font-semibold">{option.label}</h3>
+      <p className="text-muted-foreground text-sm">{option.description}</p>
     </button>
   );
 }
@@ -172,7 +146,7 @@ function ThemeDisplay({
     ) || THEME_OPTIONS[0];
 
   return (
-    <div className="max-w-4xl">
+    <div className="mx-auto max-w-2xl">
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">Theme Settings</h1>
@@ -187,10 +161,16 @@ function ThemeDisplay({
       </div>
 
       <div className="space-y-8">
-        <div className="rounded-lg border p-6">
+        <div className="bg-accent/30 rounded border p-4">
           <div className="flex items-start gap-6">
-            <div className="w-48 flex-shrink-0">
-              <ThemePreviewImage themeId={currentOption.id} />
+            <div className="flex-shrink-0">
+              <Image
+                src={currentOption.image.src}
+                alt={currentOption.label}
+                width={300}
+                height={198.28}
+                className="rounded"
+              />
             </div>
             <div className="flex-1">
               <h3 className="mb-2 text-xl font-semibold">
