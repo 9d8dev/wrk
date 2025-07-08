@@ -3,8 +3,10 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { usePostHogEvents } from "@/components/analytics";
 import { Button } from "@/components/ui/button";
+
 import { authClient } from "@/lib/auth-client";
 
 interface UpgradeButtonProps {

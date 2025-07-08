@@ -5,14 +5,13 @@ import {
   usage,
   webhooks,
 } from "@polar-sh/better-auth";
-import { Polar } from "@polar-sh/sdk";
-import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { username } from "better-auth/plugins";
+import { betterAuth } from "better-auth";
+import { Polar } from "@polar-sh/sdk";
 import { nanoid } from "nanoid";
-import { db } from "@/db/drizzle";
-import * as schema from "@/db/schema";
+
 import {
   getUserByEmail,
   getUserByPolarCustomerId,
@@ -20,12 +19,15 @@ import {
   updateUserPolarCustomerId,
   updateUserSubscription,
 } from "@/lib/actions/subscription";
-import { polarConfig } from "@/lib/config/polar";
 import {
   generateUniqueUsername,
   generateUsernameFromEmail,
   generateUsernameFromName,
 } from "@/lib/utils/username";
+import { polarConfig } from "@/lib/config/polar";
+
+import * as schema from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 // Validate required environment variables at module level
 const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;

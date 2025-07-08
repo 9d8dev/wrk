@@ -1,17 +1,19 @@
 import { AlertTriangle } from "lucide-react";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AdminHeader } from "@/components/admin/admin-header";
-import { DeleteAccountButton } from "@/components/admin/delete-account-button";
-import { DomainManagement } from "@/components/admin/domain-management";
+import { headers } from "next/headers";
+
 import { ManageSubscriptionButton } from "@/components/admin/manage-subscription-button";
-import { PageWrapper } from "@/components/admin/page-wrapper";
 import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
-import { UpgradeButton } from "@/components/admin/upgrade-button";
+import { DeleteAccountButton } from "@/components/admin/delete-account-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DomainManagement } from "@/components/admin/domain-management";
+import { UpgradeButton } from "@/components/admin/upgrade-button";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+
 import { getUserSubscriptionDetails } from "@/lib/actions/subscription";
-import { auth } from "@/lib/auth";
 import { polarConfig } from "@/lib/config/polar";
+import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 

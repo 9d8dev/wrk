@@ -1,7 +1,9 @@
+import type { Media, Project } from "@/db/schema";
+
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+
 import { AsyncImage } from "@/components/ui/async-image";
-import type { Media, Project } from "@/db/schema";
 
 interface MinimalGridProps {
   projects: Array<{

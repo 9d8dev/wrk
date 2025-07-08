@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+
 import { getProjectsByUsername } from "@/lib/data/project";
 import { getAllUsers } from "@/lib/data/user";
 

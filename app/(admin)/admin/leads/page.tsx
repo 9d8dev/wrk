@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+
 import { AdminHeader } from "@/components/admin/admin-header";
-import { LeadsList } from "@/components/admin/leads-list";
 import { PageWrapper } from "@/components/admin/page-wrapper";
-import { getSession } from "@/lib/actions/auth";
+import { LeadsList } from "@/components/admin/leads-list";
+
 import { getLeadsByUserId } from "@/lib/actions/leads";
+import { getSession } from "@/lib/actions/auth";
 
 export const dynamic = "force-dynamic";
 

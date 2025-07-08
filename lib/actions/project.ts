@@ -1,22 +1,26 @@
 "use server";
 
+import type { ActionResponse } from "./utils";
+
 import { and, asc, desc, eq, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { db } from "@/db/drizzle";
-import { project as projectTable } from "@/db/schema";
+import { nanoid } from "nanoid";
+
 import { deleteMediaBatchWithCleanup } from "@/lib/actions/media";
-import { auth } from "@/lib/auth";
-import { getAllMediaByProjectId } from "@/lib/data/media";
 import { revalidateUserProjects } from "@/lib/utils/revalidation";
+import { getAllMediaByProjectId } from "@/lib/data/media";
+import { auth } from "@/lib/auth";
+
+import { project as projectTable } from "@/db/schema";
+import { db } from "@/db/drizzle";
+
 import {
   createProjectSchema,
   deleteProjectSchema,
   reorderProjectsSchema,
   updateProjectSchema,
 } from "./schemas";
-import type { ActionResponse } from "./utils";
 
 type ProjectData = {
   title: string;

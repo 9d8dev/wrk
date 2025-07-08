@@ -2,7 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { SignOutButton } from "@/components/auth/sign-out-button";
+
 import {
   Sidebar,
   SidebarContent,
@@ -10,10 +10,12 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Logo } from "../logo";
-import { AdminNav } from "./admin-nav";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+
 import { ProPlanCard } from "./manage-subscription-button";
 import { UpgradePlanCard } from "./upgrade-button";
+import { AdminNav } from "./admin-nav";
+import { Logo } from "../logo";
 
 export function AdminSidebar({
   name,

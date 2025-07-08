@@ -1,15 +1,20 @@
-import { Container, Section } from "@/components/ds";
+import type { Metadata } from "next";
+
+import { isNotNull } from "drizzle-orm";
+
 import { PortfolioGrid } from "@/components/profile/portfolio-grid";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
+import { Container, Section } from "@/components/ds";
+
+import { getPortfolioData } from "@/hooks/use-portfolio-data";
+
 import { getProfileByUsername } from "@/lib/data/profile";
 import { usernameSchema } from "@/lib/data/schemas";
 import { getUserByUsername } from "@/lib/data/user";
-import { getPortfolioData } from "@/hooks/use-portfolio-data";
-import { isNotNull } from "drizzle-orm";
-import type { Metadata } from "next";
+
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 type Props = {
   params: Promise<{ username: string }>;

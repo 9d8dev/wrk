@@ -1,10 +1,13 @@
 "use server";
 
 import crypto from "node:crypto";
+
 import { eq } from "drizzle-orm";
-import { db } from "@/db/drizzle";
-import { type gridTypes, theme } from "@/db/schema";
+
 import { revalidateUserTheme } from "@/lib/utils/revalidation";
+
+import { type gridTypes, theme } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 type GridType = (typeof gridTypes)[number];
 

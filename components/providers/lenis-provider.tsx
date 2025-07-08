@@ -1,8 +1,9 @@
 "use client";
 
 import type { LenisOptions } from "lenis";
-import Lenis from "lenis";
+
 import { createContext, useContext, useEffect, useRef } from "react";
+import Lenis from "lenis";
 
 const LenisContext = createContext<Lenis | null>(null);
 

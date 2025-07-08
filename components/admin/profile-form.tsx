@@ -1,6 +1,7 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import type { Profile, SocialLink } from "@/types";
+
 import {
   AlertCircle,
   CheckCircle,
@@ -11,19 +12,14 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import Image from "next/image";
+import { useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import Image from "next/image";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/ui/file-upload";
+
 import {
   Form,
   FormControl,
@@ -33,11 +29,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+
 import { updateProfile } from "@/lib/actions/profile";
-import type { Profile, SocialLink } from "@/types";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),

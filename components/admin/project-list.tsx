@@ -1,5 +1,7 @@
 "use client";
 
+import type { Media, Project } from "@/db/schema";
+
 import {
   closestCenter,
   DndContext,
@@ -16,13 +18,14 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { ExternalLink, GripVertical } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import { CSS } from "@dnd-kit/utilities";
+import Image from "next/image";
 import { toast } from "sonner";
-import type { Media, Project } from "@/db/schema";
+
 import { updateProjectOrder } from "@/lib/actions/project";
+
 import { DeleteProject } from "./delete-project";
 import { EditProject } from "./edit-project";
 

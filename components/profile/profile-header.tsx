@@ -1,10 +1,13 @@
+import type { Profile, User } from "@/db/schema";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Container, Section } from "@/components/ds";
+
 import { ProfileNav } from "@/components/profile/profile-nav";
-import type { Profile, User } from "@/db/schema";
-import { isProUser } from "@/lib/actions/subscription";
+import { Container, Section } from "@/components/ds";
+
 import { getProfileByUsername } from "@/lib/data/profile";
+import { isProUser } from "@/lib/actions/subscription";
 import { getUserByUsername } from "@/lib/data/user";
 
 export const ProfileHeader = async ({ username }: { username: string }) => {

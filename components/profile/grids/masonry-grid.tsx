@@ -1,6 +1,8 @@
-import Link from "next/link";
-import { AsyncImage } from "@/components/ui/async-image";
 import type { Media, Project } from "@/db/schema";
+
+import Link from "next/link";
+
+import { AsyncImage } from "@/components/ui/async-image";
 
 interface MasonryGridProps {
   projects: Array<{

@@ -1,7 +1,5 @@
 "use client";
 
-import { Trash2 as RemoveIcon } from "lucide-react";
-import NextImage from "next/image";
 import {
   createContext,
   type Dispatch,
@@ -18,8 +16,12 @@ import {
   type FileRejection,
   useDropzone,
 } from "react-dropzone";
+import { Trash2 as RemoveIcon } from "lucide-react";
+import NextImage from "next/image";
 import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
+
 import { cn } from "@/lib/utils";
 
 // Types

@@ -1,20 +1,24 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
+import type { ActionResponse } from "./utils";
+
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { db } from "@/db/drizzle";
-import { account, profile, socialLink, user } from "@/db/schema";
-import { uploadImage } from "@/lib/actions/media";
-import { auth } from "@/lib/auth";
-import { notifyNewUserSignup } from "@/lib/utils/discord";
+import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+
 import {
   revalidateUsernameChange,
   revalidateUserProfile,
 } from "@/lib/utils/revalidation";
+import { notifyNewUserSignup } from "@/lib/utils/discord";
+import { uploadImage } from "@/lib/actions/media";
+import { auth } from "@/lib/auth";
+
+import { account, profile, socialLink, user } from "@/db/schema";
+import { db } from "@/db/drizzle";
+
 import { updateProfileSchema } from "./schemas";
-import type { ActionResponse } from "./utils";
 
 type UpdateProfileParams = {
   profileData: {

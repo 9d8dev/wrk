@@ -1,9 +1,10 @@
-import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
 import sharp from "sharp";
+
 import { deleteMediaWithCleanup } from "@/lib/actions/media";
-import { auth } from "@/lib/auth";
 import { createMedia } from "@/lib/data/media";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {

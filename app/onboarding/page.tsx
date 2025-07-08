@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+
 import { SimpleOnboarding } from "@/components/onboarding/simple-onboarding";
-import { getSession } from "@/lib/actions/auth";
+
 import { getProfileByUserId } from "@/lib/data/profile";
+import { getSession } from "@/lib/actions/auth";
 
 export const dynamic = "force-dynamic";
 

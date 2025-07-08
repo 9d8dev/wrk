@@ -9,11 +9,16 @@ if (!POLAR_ACCESS_TOKEN) {
   throw new Error("Missing required environment variable: POLAR_ACCESS_TOKEN");
 }
 
-import { eq } from "drizzle-orm";
+import type { ActionResponse } from "./utils";
+
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { db } from "@/db/drizzle";
+import { headers } from "next/headers";
+import { eq } from "drizzle-orm";
+
+import { notifyNewUserSignup } from "@/lib/utils/discord";
+import { auth } from "@/lib/auth";
+
 import {
   account,
   lead,
@@ -25,10 +30,9 @@ import {
   theme,
   user,
 } from "@/db/schema";
-import { auth } from "@/lib/auth";
-import { notifyNewUserSignup } from "@/lib/utils/discord";
+import { db } from "@/db/drizzle";
+
 import { deleteMediaBatchWithCleanup } from "./media";
-import type { ActionResponse } from "./utils";
 
 /**
  * Get the current user session

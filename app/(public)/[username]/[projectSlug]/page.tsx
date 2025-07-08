@@ -1,26 +1,30 @@
-import { isNotNull } from "drizzle-orm";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import type { Media, Project } from "@/db/schema";
 import type { Metadata } from "next";
-import Link from "next/link";
+
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
-import { Container, Section } from "@/components/ds";
+import { isNotNull } from "drizzle-orm";
+import Link from "next/link";
+
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { AsyncImage } from "@/components/ui/async-image";
-import { db } from "@/db/drizzle";
-import type { Media, Project } from "@/db/schema";
-import { user } from "@/db/schema";
+import { Container, Section } from "@/components/ds";
+
+import {
+  getProjectByUsernameAndSlug,
+  getProjectsByUsername,
+} from "@/lib/data/project";
 import {
   getAllProjectImages,
   getFeaturedImageByProjectId,
 } from "@/lib/data/media";
 import { getProfileByUsername } from "@/lib/data/profile";
-import {
-  getProjectByUsernameAndSlug,
-  getProjectsByUsername,
-} from "@/lib/data/project";
 import { projectSlugSchema } from "@/lib/data/schemas";
 import { getUserByUsername } from "@/lib/data/user";
+
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 type Props = {
   params: Promise<{ username: string; projectSlug: string }>;

@@ -1,13 +1,16 @@
+import type { Profile } from "@/db/schema";
+
 import { ArrowUpRight, MapPin } from "lucide-react";
 import Link from "next/link";
-import { Container, Section } from "@/components/ds";
+
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import type { Profile } from "@/db/schema";
-import { isProUser } from "@/lib/actions/subscription";
+import { Container, Section } from "@/components/ds";
+
 import {
   getProfileByUsername,
   getSocialLinksByProfileId,
 } from "@/lib/data/profile";
+import { isProUser } from "@/lib/actions/subscription";
 import { getUserByUsername } from "@/lib/data/user";
 
 export const ProfileFooter = async ({ username }: { username: string }) => {

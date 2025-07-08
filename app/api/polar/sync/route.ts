@@ -1,15 +1,17 @@
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { Polar } from "@polar-sh/sdk";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
+
 import {
   logSubscriptionEvent,
   updateUserPolarCustomerId,
   updateUserSubscription,
 } from "@/lib/actions/subscription";
 import { auth } from "@/lib/auth";
+
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 export async function POST() {
   try {

@@ -1,14 +1,18 @@
-import { isNotNull } from "drizzle-orm";
 import type { Metadata } from "next";
+
 import { notFound } from "next/navigation";
-import { Container, Section } from "@/components/ds";
-import { ContactForm } from "@/components/profile/contact-form";
+import { isNotNull } from "drizzle-orm";
+
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
+import { ContactForm } from "@/components/profile/contact-form";
+import { Container, Section } from "@/components/ds";
+
 import { getProfileByUsername } from "@/lib/data/profile";
 import { getUserByUsername } from "@/lib/data/user";
+
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 type Props = {
   params: Promise<{ username: string }>;

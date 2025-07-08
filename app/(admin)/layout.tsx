@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+
 import { PostHogUserIdentifier } from "@/components/analytics/posthog-user-identifier";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getSession } from "@/lib/actions/auth";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+
 import { hasActiveProSubscription } from "@/lib/actions/polar";
 import { polarConfig } from "@/lib/config/polar";
+import { getSession } from "@/lib/actions/auth";
 import { getUserById } from "@/lib/data/user";
 
 async function getAdminData() {

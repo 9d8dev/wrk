@@ -1,10 +1,12 @@
 import "./globals.css";
 import "lenis/dist/lenis.css";
 
-import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+
 import { Geist_Mono as FontMono, Geist as FontSans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
+
 import { PostHogPageView, PostHogWrapper } from "@/components/analytics";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 

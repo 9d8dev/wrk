@@ -1,17 +1,19 @@
 "use client";
 
 import { ChevronDown, ChevronUp, Loader2, Upload, X } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
+
 import { GenerateDescription } from "@/components/ai/generate-description";
+import { UploadProgress } from "@/components/ui/upload-progress";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { UploadProgress } from "@/components/ui/upload-progress";
+
+import { uploadMultipleImages } from "@/lib/utils/upload";
 import { createProject } from "@/lib/actions/project";
 import { cn } from "@/lib/utils";
-import { uploadMultipleImages } from "@/lib/utils/upload";
 
 const generateSlugFromTitle = (title: string): string => {
   return title

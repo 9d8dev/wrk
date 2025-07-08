@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormControl,
@@ -15,9 +15,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { gridTypes, type Theme } from "@/db/schema";
+import { Button } from "@/components/ui/button";
+
 import { updateTheme } from "@/lib/actions/theme";
 import { cn } from "@/lib/utils";
+
+import { gridTypes, type Theme } from "@/db/schema";
 
 const formSchema = z.object({
   gridType: z.enum(gridTypes),

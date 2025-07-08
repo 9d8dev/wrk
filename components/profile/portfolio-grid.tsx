@@ -1,10 +1,11 @@
+import type { GridType, ProjectWithImages } from "@/types/portfolio";
+
 import {
   MasonryGrid,
   MinimalGrid,
   SquareGrid,
   StandardGrid,
 } from "@/components/profile/grids";
-import type { GridType, ProjectWithImages } from "@/types/portfolio";
 
 interface PortfolioGridProps {
   projects: ProjectWithImages[];

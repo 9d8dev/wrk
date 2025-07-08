@@ -1,9 +1,10 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
 import { polarConfig } from "@/lib/config/polar";
+import { auth } from "@/lib/auth";
 
 export async function createCheckoutSession(productSlug: string) {
   console.log("🚀 Starting checkout session creation for slug:", productSlug);

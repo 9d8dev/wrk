@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+
 import { getVercelConfigStatus } from "@/lib/vercel-api";
+import { auth } from "@/lib/auth";
 
 // GET - Check system configuration for domain management
 export async function GET(request: NextRequest) {

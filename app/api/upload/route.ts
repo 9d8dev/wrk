@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
+
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
 import sharp from "sharp";
-import { auth } from "@/lib/auth";
+
 import { createMedia } from "@/lib/data/media";
+import { auth } from "@/lib/auth";
 
 // Validate required environment variables at module level
 const R2_ENDPOINT = process.env.R2_ENDPOINT;

@@ -9,22 +9,26 @@ import {
   Mail,
   UserCircle,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
-import { Container } from "@/components/ds";
+import Link from "next/link";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitHubIcon } from "@/components/icons/github";
 import { GoogleIcon } from "@/components/icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { usePasswordStrength } from "@/hooks/use-password-strength";
+import { Container } from "@/components/ds";
+
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
+
 import { handlePostSignup } from "@/lib/actions/auth";
 import { authClient } from "@/lib/auth-client";
+
 import Water from "@/public/water.webp";
 
 function SignInPageContent() {

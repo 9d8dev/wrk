@@ -1,10 +1,11 @@
 import { ArrowLeft, Eye, Lock, Shield, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { Container, Section } from "@/components/ds";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+
 import { Separator } from "@/components/ui/separator";
+import { Container, Section } from "@/components/ds";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export default function PrivacyPolicy() {
   return (

@@ -1,17 +1,20 @@
-import { eq } from "drizzle-orm";
+import type { SocialLink } from "@/types";
+
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+
 import { AdminHeader } from "@/components/admin/admin-header";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { ProfileForm } from "@/components/admin/profile-form";
-import { db } from "@/db/drizzle";
-import { media } from "@/db/schema";
-import { getSession } from "@/lib/actions/auth";
+
 import {
   getProfileByUserId,
   getSocialLinksByProfileId,
 } from "@/lib/data/profile";
+import { getSession } from "@/lib/actions/auth";
 
-import type { SocialLink } from "@/types";
+import { media } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 export const dynamic = "force-dynamic";
 

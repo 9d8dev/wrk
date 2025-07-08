@@ -1,8 +1,11 @@
 "use client";
 
+import type { Project } from "@/db/schema";
+
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Project } from "@/db/schema";
+
 import { deleteProject } from "@/lib/actions/project";
 
 interface DeleteProjectProps {

@@ -1,6 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
   Briefcase,
@@ -10,17 +9,21 @@ import {
   MapPin,
   Upload,
 } from "lucide-react";
-import Image from "next/image";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+
 import { createProfile } from "@/lib/actions/profile";
 
 const formSchema = z.object({

@@ -1,10 +1,13 @@
 "use server";
 
-import { asc, eq } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
-import { db } from "@/db/drizzle";
 import type { Media, Profile, SocialLink, User } from "@/db/schema";
+
+import { unstable_cache } from "next/cache";
+import { asc, eq } from "drizzle-orm";
+
 import { media, profile, socialLink, user } from "@/db/schema";
+import { db } from "@/db/drizzle";
+
 import { profileIdSchema, userIdSchema, usernameSchema } from "./schemas";
 import { type DataResponse, dedupe, withErrorHandling } from "./utils";
 

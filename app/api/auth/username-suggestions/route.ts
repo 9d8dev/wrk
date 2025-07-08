@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+
 import { generateUsernameSuggestions } from "@/lib/utils/username";
 
 export async function GET(request: NextRequest) {

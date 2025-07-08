@@ -1,10 +1,12 @@
-import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
-import { auth } from "@/lib/auth";
+
 import { removeDomainFromVercel } from "@/lib/vercel-api";
+import { auth } from "@/lib/auth";
+
+import { user } from "@/db/schema";
+import { db } from "@/db/drizzle";
 
 // Domain validation schema
 const domainSchema = z.object({
