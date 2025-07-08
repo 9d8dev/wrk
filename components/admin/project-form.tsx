@@ -106,16 +106,8 @@ function useProjectImages(
   existingAdditionalImages: Media[] = [],
   initialImages: File[] = []
 ) {
-  const [images, setImages] = useState<ProjectImage[]>([]);
-
-  const stableExistingAdditionalImages = useMemo(
-    () => existingAdditionalImages,
-    [existingAdditionalImages]
-  );
-  const stableInitialImages = useMemo(() => initialImages, [initialImages]);
-
-  // Initialize images on mount
-  useEffect(() => {
+  const [images, setImages] = useState<ProjectImage[]>(() => {
+    // Initialize state immediately on first render
     const imageList: ProjectImage[] = [];
 
     // Add existing featured image
@@ -129,7 +121,7 @@ function useProjectImages(
     }
 
     // Add existing additional images
-    stableExistingAdditionalImages.forEach((media) => {
+    existingAdditionalImages.forEach((media) => {
       imageList.push({
         id: media.id,
         type: "existing",
@@ -139,7 +131,7 @@ function useProjectImages(
     });
 
     // Add initial images (for new projects)
-    stableInitialImages.forEach((file, index) => {
+    initialImages.forEach((file, index) => {
       const id = `new-${Date.now()}-${index}`;
       imageList.push({
         id,
@@ -150,12 +142,8 @@ function useProjectImages(
       });
     });
 
-    setImages(imageList);
-  }, [
-    existingFeaturedImage,
-    stableExistingAdditionalImages,
-    stableInitialImages,
-  ]);
+    return imageList;
+  });
 
   // Cleanup preview URLs when images change
   useEffect(() => {
