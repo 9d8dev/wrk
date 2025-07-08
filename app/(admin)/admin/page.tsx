@@ -1,3 +1,5 @@
+import type { Project } from "@/types";
+
 import { redirect } from "next/navigation";
 
 import { QuickCreateProject } from "@/components/admin/quick-create-project";
@@ -24,7 +26,7 @@ async function checkUserProfile(userId: string) {
   };
 }
 
-async function enrichProjectWithImages(project: any) {
+async function enrichProjectWithImages(project: Project) {
   try {
     const [featuredImageResult, allImagesResult] = await Promise.all([
       getFeaturedImageByProjectId(project.id),

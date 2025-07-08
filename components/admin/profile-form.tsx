@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
 import type { Profile, SocialLink } from "@/types";
+
+import { useState } from "react";
 
 import { useProfileKeyboardShortcuts } from "@/hooks/use-profile-keyboard-shortcuts";
 

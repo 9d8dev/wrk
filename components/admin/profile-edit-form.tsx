@@ -1,10 +1,9 @@
 "use client";
 
-import { X } from "lucide-react";
-
 import type { Profile, SocialLink } from "@/types";
 
-import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+
 import {
   Form,
   FormControl,
@@ -14,13 +13,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { useProfileForm } from "@/hooks/use-profile-form";
 
-import ProfileImageUpload from "./profile-image-upload";
 import ProfileUsernameField from "./profile-username-field";
+import ProfileImageUpload from "./profile-image-upload";
 import SocialLinksManager from "./social-links-manager";
 
 type SessionUser = {

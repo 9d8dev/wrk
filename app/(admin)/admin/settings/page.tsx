@@ -2,12 +2,12 @@ import { AlertTriangle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AdminHeader } from "@/components/admin/admin-header";
-import { DangerZone } from "@/components/admin/danger-zone";
-import { DomainManagement } from "@/components/admin/domain-management";
 import { SubscriptionSection } from "@/components/admin/subscription-section";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DomainManagement } from "@/components/admin/domain-management";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { PageWrapper } from "@/components/admin/page-wrapper";
+import { DangerZone } from "@/components/admin/danger-zone";
 
 import { getSubscriptionDetailsWithErrorHandling } from "@/lib/utils/subscription";
 import { auth } from "@/lib/auth";
