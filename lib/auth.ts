@@ -65,6 +65,13 @@ const polarClient = new Polar({
 
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
+	trustedOrigins: [
+		"http://localhost:3000",
+		"https://wrk.so",
+		"https://www.wrk.so",
+		"https://*.vercel.app",
+		"https://*.vercel.app",
+	],
 	database: drizzleAdapter(db, {
 		provider: "pg",
 		schema: schema,
@@ -297,7 +304,6 @@ export const auth = betterAuth({
 					},
 					onOrderPaid: async (payload) => {
 						console.log("Order paid:", payload);
-
 						// Log successful payment - safely access properties
 						const customerId =
 							payload.data.customerId ||
