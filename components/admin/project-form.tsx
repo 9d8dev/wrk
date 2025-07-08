@@ -11,7 +11,7 @@ import {
   Star,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
@@ -363,8 +363,9 @@ function ImageCard({ image, onSetFeatured, onRemove }: ImageCardProps) {
       : "New image";
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={cn(
         "group relative aspect-square w-full cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
         image.isFeatured
@@ -409,7 +410,7 @@ function ImageCard({ image, onSetFeatured, onRemove }: ImageCardProps) {
       </Button>
 
       <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
-    </button>
+    </div>
   );
 }
 
@@ -448,6 +449,129 @@ function EmptyImageState({ onAddImages }: EmptyImageStateProps) {
   );
 }
 
+interface SquareFileUploaderProps {
+  onAddImages: (files: File[]) => void;
+  remainingSlots: number;
+}
+
+function SquareFileUploader({
+  onAddImages,
+  remainingSlots,
+}: SquareFileUploaderProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget === e.target) {
+      setIsDragOver(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+      if (imageFiles.length > 0) {
+        onAddImages(imageFiles);
+      }
+    },
+    [onAddImages]
+  );
+
+  const handleClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        const imageFiles = Array.from(files).filter((file) =>
+          file.type.startsWith("image/")
+        );
+        if (imageFiles.length > 0) {
+          onAddImages(imageFiles);
+        }
+      }
+      // Reset the input value so the same file can be selected again
+      e.target.value = "";
+    },
+    [onAddImages]
+  );
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+        accept="image/*"
+        multiple
+      />
+      <button
+        type="button"
+        className={cn(
+          "group relative aspect-square w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed transition-all",
+          "flex flex-col items-center justify-center gap-2",
+          isDragOver
+            ? "border-primary bg-primary/10"
+            : "border-border hover:border-primary/50 hover:bg-muted/30"
+        )}
+        onClick={handleClick}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+        aria-label={`Add up to ${remainingSlots} more images`}
+      >
+        <Plus
+          className={cn(
+            "h-8 w-8 transition-colors",
+            isDragOver
+              ? "text-primary"
+              : "text-muted-foreground group-hover:text-primary"
+          )}
+        />
+        <span
+          className={cn(
+            "px-2 text-center text-xs font-medium transition-colors",
+            isDragOver
+              ? "text-primary"
+              : "text-muted-foreground group-hover:text-foreground"
+          )}
+        >
+          Add Images
+        </span>
+      </button>
+    </>
+  );
+}
+
 interface ImageGridProps {
   images: ProjectImage[];
   onSetFeatured: (id: string) => void;
@@ -476,18 +600,10 @@ function ImageGrid({
         ))}
 
         {totalImages < MAX_IMAGES && (
-          <FileUploader
-            value={[]}
-            onValueChange={(files) => files && onAddImages(files)}
-            dropzoneOptions={{
-              ...IMAGE_CONFIG,
-              maxFiles: MAX_IMAGES - totalImages,
-            }}
-          >
-            <FileInput>
-              <Plus />
-            </FileInput>
-          </FileUploader>
+          <SquareFileUploader
+            onAddImages={onAddImages}
+            remainingSlots={MAX_IMAGES - totalImages}
+          />
         )}
       </div>
 
