@@ -34,7 +34,6 @@ export default async function SettingsPage() {
       redirect("/sign-in");
     }
 
-    // Get subscription details with error handling
     const subscriptionDetails = await getSubscriptionDetailsWithErrorHandling();
 
     return (
@@ -48,7 +47,6 @@ export default async function SettingsPage() {
       </>
     );
   } catch (error) {
-    // Re-throw redirect errors
     if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }

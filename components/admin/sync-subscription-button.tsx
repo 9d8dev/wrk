@@ -44,7 +44,7 @@ export function SyncSubscriptionButton() {
       className="gap-2"
     >
       <RefreshCcw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-      {isLoading ? "Syncing..." : "Sync Subscription"}
+      {isLoading ? "Restoring..." : "Restore Subscription"}
     </Button>
   );
 }
