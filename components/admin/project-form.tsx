@@ -27,7 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FileInput, FileUploader } from "@/components/ui/file-upload";
 import { UploadProgress } from "@/components/ui/upload-progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -419,33 +418,136 @@ interface EmptyImageStateProps {
 }
 
 function EmptyImageState({ onAddImages }: EmptyImageStateProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget === e.target) {
+      setIsDragOver(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+      if (imageFiles.length > 0) {
+        onAddImages(imageFiles);
+      }
+    },
+    [onAddImages]
+  );
+
+  const handleClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        const imageFiles = Array.from(files).filter((file) =>
+          file.type.startsWith("image/")
+        );
+        if (imageFiles.length > 0) {
+          onAddImages(imageFiles);
+        }
+      }
+      // Reset the input value so the same file can be selected again
+      e.target.value = "";
+    },
+    [onAddImages]
+  );
+
   return (
-    <FileUploader
-      value={[]}
-      onValueChange={(files) => files && onAddImages(files)}
-      dropzoneOptions={IMAGE_CONFIG}
-    >
-      <FileInput>
-        <div className="border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50 group cursor-pointer rounded-lg border-2 border-dashed p-12 text-center transition-all">
-          <div className="flex flex-col items-center gap-4">
-            <div className="bg-muted group-hover:bg-primary/10 rounded-full p-4 transition-colors">
-              <ImageIcon className="text-muted-foreground group-hover:text-primary h-12 w-12 transition-colors" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-muted-foreground group-hover:text-foreground text-lg font-medium transition-colors">
-                No images added yet
-              </p>
-              <p className="text-muted-foreground text-sm">
-                Click here or drag and drop images to get started
-              </p>
-              <p className="text-muted-foreground text-xs">
-                Supports PNG, JPG, WEBP, and GIF files up to 15MB
-              </p>
-            </div>
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+        accept="image/*"
+        multiple
+      />
+      <div
+        role="button"
+        tabIndex={0}
+        className={cn(
+          "group cursor-pointer rounded-lg border-2 border-dashed p-12 text-center transition-all",
+          isDragOver
+            ? "border-primary bg-primary/5"
+            : "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50"
+        )}
+        onClick={handleClick}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+        aria-label="Upload images - drag and drop or click to browse"
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className={cn(
+              "rounded-full p-4 transition-colors",
+              isDragOver
+                ? "bg-primary/10"
+                : "bg-muted group-hover:bg-primary/10"
+            )}
+          >
+            <ImageIcon
+              className={cn(
+                "h-12 w-12 transition-colors",
+                isDragOver
+                  ? "text-primary"
+                  : "text-muted-foreground group-hover:text-primary"
+              )}
+            />
+          </div>
+          <div className="space-y-2">
+            <p
+              className={cn(
+                "text-lg font-medium transition-colors",
+                isDragOver
+                  ? "text-foreground"
+                  : "text-muted-foreground group-hover:text-foreground"
+              )}
+            >
+              No images added yet
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Click here or drag and drop images to get started
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Supports PNG, JPG, WEBP, and GIF files up to 15MB
+            </p>
           </div>
         </div>
-      </FileInput>
-    </FileUploader>
+      </div>
+    </>
   );
 }
 
@@ -527,8 +629,9 @@ function SquareFileUploader({
         accept="image/*"
         multiple
       />
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         className={cn(
           "group relative aspect-square w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed transition-all",
           "flex flex-col items-center justify-center gap-2",
@@ -567,7 +670,7 @@ function SquareFileUploader({
         >
           Add Images
         </span>
-      </button>
+      </div>
     </>
   );
 }
