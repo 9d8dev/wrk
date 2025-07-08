@@ -105,7 +105,10 @@ export async function middleware(request: NextRequest) {
 	const pathname = request.nextUrl.pathname;
 	const host = request.headers.get("host") || "";
 
-	// Get session using the same method as server components
+	if (pathname === "/") {
+		return NextResponse.next();
+	}
+
 	let session: Awaited<ReturnType<typeof auth.api.getSession>> | null;
 	try {
 		session = await auth.api.getSession({
@@ -116,9 +119,7 @@ export async function middleware(request: NextRequest) {
 		session = null;
 	}
 
-	// Handle main domain routing (app functionality)
 	if (isMainDomain(host)) {
-		// Handle upload API route separately - requires authentication
 		if (pathname === "/api/upload") {
 			if (!session?.user) {
 				return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -127,10 +128,9 @@ export async function middleware(request: NextRequest) {
 		}
 
 		// Redirect authenticated users from homepage to admin dashboard
-		// Commented out to always show homepage
-		// if (pathname === "/" && session?.user) {
-		// 	return NextResponse.redirect(new URL("/admin", request.url));
-		// }
+		if (pathname === "/" && session?.user) {
+			return NextResponse.redirect(new URL("/admin", request.url));
+		}
 
 		// Always public routes (no authentication required)
 		const alwaysPublicRoutes = ["/sign-in", "/", "/privacy", "/terms"];
