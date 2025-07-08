@@ -9,7 +9,8 @@
 		"lint": "next lint",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:push": "drizzle-kit push"
+		"db:push": "drizzle-kit push",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
 		"@ai-sdk/groq": "^1.2.9",
