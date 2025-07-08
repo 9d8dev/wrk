@@ -83,15 +83,11 @@ export default async function PortfolioPage({ params }: Props) {
 
   const projectsResult = await getProjectsByUsername(username);
 
-  if (!projectsResult.success || projectsResult.data.items.length === 0) {
-    return notFound();
-  }
-
   const userTheme = await getThemeByUsername(username);
   const gridType = userTheme?.gridType || "masonry";
 
   const projects = await Promise.all(
-    projectsResult.data.items.map(async (project) => {
+    (projectsResult.data?.items ?? []).map(async (project) => {
       const featuredImageResult = await getFeaturedImageByProjectId(project.id);
       const allImagesResult = await getAllProjectImages(project.id);
 
@@ -105,6 +101,9 @@ export default async function PortfolioPage({ params }: Props) {
   );
 
   const renderGrid = () => {
+    if (!projects.length) {
+      return <h2>Portfolio coming soon</h2>;
+    }
     switch (gridType) {
       case "masonry":
         return <MasonryGrid projects={projects} username={username} />;
@@ -120,12 +119,12 @@ export default async function PortfolioPage({ params }: Props) {
   };
 
   return (
-    <>
+    <main className="flex flex-col min-h-screen">
       <ProfileHeader username={username} />
-      <Section>
+      <Section className="flex-1">
         <Container>{renderGrid()}</Container>
       </Section>
       <ProfileFooter username={username} />
-    </>
+    </main>
   );
 }
