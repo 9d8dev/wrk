@@ -17,12 +17,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Initial Setup:**
 1. `pnpm install` - Install dependencies
-2. Create `.env.local` file with required environment variables (see Environment Variables section below)
+2. Copy `.env.example` to `.env.local` and fill in required environment variables (see Environment Variables section below for complete list)
 3. `pnpm db:generate` - Generate initial schema
 4. `pnpm db:migrate` - Apply migrations
 5. `pnpm dev` - Start development server on http://localhost:3000
 
-**Note:** No `.env.example` file exists. Refer to the Environment Variables section for all required variables.
+**Note:** The `.env.example` file provides a template, but refer to the Environment Variables section below for the complete list of all available variables including optional ones.
 
 ## Architecture Overview
 
