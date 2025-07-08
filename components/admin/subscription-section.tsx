@@ -12,17 +12,39 @@ import { SubscriptionDetails, ProductConfig } from "@/types/subscription";
 
 interface SubscriptionSectionProps {
   subscriptionDetails: SubscriptionDetails;
+  isLoading?: boolean;
 }
 
 export function SubscriptionSection({
   subscriptionDetails,
+  isLoading = false,
 }: SubscriptionSectionProps) {
   const isActiveSubscription = hasActiveSubscription(subscriptionDetails);
   const proProduct = polarConfig.products.find((p) => p.slug === "wrk-pro");
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Subscription</h2>
+          <div className="flex gap-2">
+            <div className="bg-muted h-9 w-16 animate-pulse rounded"></div>
+            <div className="bg-muted h-9 w-24 animate-pulse rounded"></div>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-muted/30 animate-pulse rounded border p-4">
+            <div className="bg-muted h-6 w-32 rounded"></div>
+            <div className="bg-muted mt-2 h-4 w-48 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <div className="mb-4 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Subscription</h2>
         <div className="flex gap-2">
           <SyncSubscriptionButton />
@@ -42,7 +64,7 @@ export function SubscriptionSection({
       ) : (
         <FreeSubscriptionDisplay proProduct={proProduct} />
       )}
-    </>
+    </div>
   );
 }
 

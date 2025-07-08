@@ -329,8 +329,19 @@ export function DomainManagement() {
             Custom Domain
           </h2>
           <p className="text-muted-foreground text-sm">
-            Loading domain settings...
+            Use your own domain for your portfolio
           </p>
+        </div>
+        <div className="space-y-4">
+          {/* Loading skeleton to prevent layout shift */}
+          <div className="bg-muted/30 animate-pulse rounded border p-4">
+            <div className="bg-muted h-4 w-48 rounded"></div>
+            <div className="bg-muted mt-2 h-3 w-32 rounded"></div>
+          </div>
+          <div className="bg-muted/30 animate-pulse rounded border p-4">
+            <div className="bg-muted h-4 w-64 rounded"></div>
+            <div className="bg-muted mt-2 h-3 w-80 rounded"></div>
+          </div>
         </div>
       </div>
     );
