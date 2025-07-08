@@ -313,7 +313,7 @@ export function QuickCreateProject() {
   return (
     <div
       className={cn(
-        "relative rounded-lg border-2 border-dashed transition-all",
+        "bg-accent/20 relative rounded border border-dashed transition-all",
         isDragging
           ? "border-primary bg-primary/5"
           : "border-muted-foreground/20 hover:border-muted-foreground/40",
