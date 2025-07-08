@@ -95,7 +95,7 @@ export default function ProfileImageUpload({
           </div>
         </div>
       </FormControl>
-      <FormDescription className="text-center">
+      <FormDescription className="mx-auto mt-2 max-w-xs text-center text-balance">
         Click to upload a new profile image (max 1MB, JPG/PNG/WebP)
       </FormDescription>
       <FormMessage />
