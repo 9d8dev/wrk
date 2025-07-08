@@ -9,109 +9,109 @@ import { getAllProjects } from "@/lib/data/project";
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import {
-  getFeaturedImageByProjectId,
-  getAllProjectImages,
+	getFeaturedImageByProjectId,
+	getAllProjectImages,
 } from "@/lib/data/media";
 
 export const dynamic = "force-dynamic";
 
 async function getAdminData(userId: string) {
-  try {
-    // Check profile completion
-    const profileResult = await getProfileByUserId(userId);
-    if (!profileResult.success || !profileResult.data) {
-      return { needsOnboarding: true };
-    }
+	try {
+		// Check profile completion
+		const profileResult = await getProfileByUserId(userId);
+		if (!profileResult.success || !profileResult.data) {
+			return { needsOnboarding: true };
+		}
 
-    // Get projects
-    const projectsResult = await getAllProjects(userId);
-    if (!projectsResult.success) {
-      console.error("Error fetching projects:", projectsResult.error);
-      return { projects: [] };
-    }
+		// Get projects
+		const projectsResult = await getAllProjects(userId);
+		if (!projectsResult.success) {
+			console.error("Error fetching projects:", projectsResult.error);
+			return { projects: [] };
+		}
 
-    // Get images for each project
-    const projectsWithImages = await Promise.all(
-      projectsResult.data.items.map(async (project) => {
-        try {
-          const [featuredImageResult, allImagesResult] = await Promise.all([
-            getFeaturedImageByProjectId(project.id),
-            getAllProjectImages(project.id),
-          ]);
+		// Get images for each project
+		const projectsWithImages = await Promise.all(
+			projectsResult.data.items.map(async (project) => {
+				try {
+					const [featuredImageResult, allImagesResult] = await Promise.all([
+						getFeaturedImageByProjectId(project.id),
+						getAllProjectImages(project.id),
+					]);
 
-          const featuredImage = featuredImageResult.success
-            ? featuredImageResult.data
-            : null;
-          const allImages = allImagesResult.success ? allImagesResult.data : [];
+					const featuredImage = featuredImageResult.success
+						? featuredImageResult.data
+						: null;
+					const allImages = allImagesResult.success ? allImagesResult.data : [];
 
-          const additionalImages = featuredImage
-            ? allImages.filter((img) => img.id !== featuredImage.id)
-            : allImages;
+					const additionalImages = featuredImage
+						? allImages.filter((img) => img.id !== featuredImage.id)
+						: allImages;
 
-          return {
-            project,
-            featuredImage,
-            additionalImages,
-          };
-        } catch (error) {
-          console.error(
-            `Failed to load images for project ${project.id}:`,
-            error
-          );
-          return {
-            project,
-            featuredImage: null,
-            additionalImages: [],
-          };
-        }
-      })
-    );
+					return {
+						project,
+						featuredImage,
+						additionalImages,
+					};
+				} catch (error) {
+					console.error(
+						`Failed to load images for project ${project.id}:`,
+						error,
+					);
+					return {
+						project,
+						featuredImage: null,
+						additionalImages: [],
+					};
+				}
+			}),
+		);
 
-    return { projects: projectsWithImages };
-  } catch (error) {
-    console.error("Error fetching admin data:", error);
-    return { projects: [] };
-  }
+		return { projects: projectsWithImages };
+	} catch (error) {
+		console.error("Error fetching admin data:", error);
+		return { projects: [] };
+	}
 }
 
 export default async function AdminPage() {
-  const session = await getSession();
+	const session = await getSession();
 
-  if (!session?.user) {
-    redirect("/sign-in");
-  }
+	if (!session?.user) {
+		redirect("/sign-in");
+	}
 
-  if (!session.user.username) {
-    redirect("/onboarding");
-  }
+	if (!session.user.username) {
+		redirect("/onboarding");
+	}
 
-  const data = await getAdminData(session.user.id);
+	const data = await getAdminData(session.user.id);
 
-  if (data.needsOnboarding) {
-    redirect("/onboarding");
-  }
+	if (data.needsOnboarding) {
+		redirect("/onboarding");
+	}
 
-  const projects = data.projects || [];
+	const projects = data.projects || [];
 
-  return (
-    <>
-      <AdminHeader pageTitle="Projects">
-        <CreateProject />
-      </AdminHeader>
+	return (
+		<>
+			<AdminHeader pageTitle="Projects">
+				<CreateProject />
+			</AdminHeader>
 
-      <PageWrapper>
-        <div className="space-y-8 max-w-3xl mx-auto">
-          <QuickCreateProject />
-          {projects.length > 0 ? (
-            <ProjectList
-              projectsWithImages={projects}
-              username={session.user.username}
-            />
-          ) : (
-            <div>No projects found.</div>
-          )}
-        </div>
-      </PageWrapper>
-    </>
-  );
+			<PageWrapper>
+				<div className="space-y-8 max-w-3xl mx-auto">
+					<QuickCreateProject />
+					{projects.length > 0 ? (
+						<ProjectList
+							projectsWithImages={projects}
+							username={session.user.username}
+						/>
+					) : (
+						<div>No projects found.</div>
+					)}
+				</div>
+			</PageWrapper>
+		</>
+	);
 }

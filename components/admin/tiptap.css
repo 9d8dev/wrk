@@ -2,22 +2,22 @@
 
 /* Placeholder styling */
 .ProseMirror p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: #adb5bd;
-  pointer-events: none;
-  height: 0;
+	content: attr(data-placeholder);
+	float: left;
+	color: #adb5bd;
+	pointer-events: none;
+	height: 0;
 }
 
 /* Ensure the editor has a minimum height */
 .ProseMirror {
-  min-height: 200px;
+	min-height: 200px;
 }
 
 /* Style for images in the editor */
 .ProseMirror img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-  margin: 1rem 0;
+	max-width: 100%;
+	height: auto;
+	border-radius: 4px;
+	margin: 1rem 0;
 }

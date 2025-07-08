@@ -1,31 +1,31 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(pnpm lint:*)",
-      "Bash(npx next lint:*)",
-      "Bash(pnpm add:*)",
-      "WebFetch(domain:www.better-auth.com)",
-      "Bash(npm run lint)",
-      "WebFetch(domain:docs.polar.sh)",
-      "Bash(pnpm build:*)",
-      "WebFetch(domain:nextjs.org)",
-      "Bash(rm:*)",
-      "Bash(pnpm list:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(pnpm run:*)",
-      "WebFetch(domain:vercel.com)",
-      "Bash(mkdir:*)",
-      "Bash(pnpm dev:*)",
-      "Bash(pkill:*)",
-      "Bash(true)",
-      "Bash(curl:*)",
-      "Bash(node:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(pnpm install:*)"
-    ],
-    "deny": []
-  },
-  "enableAllProjectMcpServers": false
+	"permissions": {
+		"allow": [
+			"Bash(pnpm lint:*)",
+			"Bash(npx next lint:*)",
+			"Bash(pnpm add:*)",
+			"WebFetch(domain:www.better-auth.com)",
+			"Bash(npm run lint)",
+			"WebFetch(domain:docs.polar.sh)",
+			"Bash(pnpm build:*)",
+			"WebFetch(domain:nextjs.org)",
+			"Bash(rm:*)",
+			"Bash(pnpm list:*)",
+			"Bash(grep:*)",
+			"Bash(find:*)",
+			"Bash(pnpm run:*)",
+			"WebFetch(domain:vercel.com)",
+			"Bash(mkdir:*)",
+			"Bash(pnpm dev:*)",
+			"Bash(pkill:*)",
+			"Bash(true)",
+			"Bash(curl:*)",
+			"Bash(node:*)",
+			"Bash(git add:*)",
+			"Bash(git commit:*)",
+			"Bash(pnpm install:*)"
+		],
+		"deny": []
+	},
+	"enableAllProjectMcpServers": false
 }

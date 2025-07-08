@@ -7,6 +7,6 @@ export type Profile = typeof profile.$inferSelect;
 export type SocialLink = typeof socialLink.$inferSelect;
 
 export interface ProjectWithMedia extends Project {
-  featuredMedia?: Media;
-  additionalMedia?: Media[];
+	featuredMedia?: Media;
+	additionalMedia?: Media[];
 }
