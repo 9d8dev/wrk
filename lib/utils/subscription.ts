@@ -5,9 +5,11 @@ import { SubscriptionDetails } from "@/types/subscription";
 export function hasActiveSubscription(
   subscriptionDetails: SubscriptionDetails
 ): boolean {
+  if (!subscriptionDetails) return false;
+
   return (
-    subscriptionDetails?.subscriptionStatus === "active" &&
-    subscriptionDetails?.subscriptionCurrentPeriodEnd &&
+    subscriptionDetails.subscriptionStatus === "active" &&
+    subscriptionDetails.subscriptionCurrentPeriodEnd != null &&
     subscriptionDetails.subscriptionCurrentPeriodEnd > new Date()
   );
 }
