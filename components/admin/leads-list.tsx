@@ -242,6 +242,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 
 									<div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
 										<button
+											type="button"
 											onClick={() => handleEmailClick(lead.email)}
 											className="flex items-center gap-1 hover:text-primary transition-colors"
 										>
@@ -259,6 +260,7 @@ export function LeadsList({ userId, leads: initialLeads }: LeadsListProps) {
 
 									<div className="space-y-2">
 										<button
+											type="button"
 											onClick={() => toggleExpanded(lead.id)}
 											className="text-left w-full"
 										>

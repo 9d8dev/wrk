@@ -74,6 +74,123 @@ export function QuickCreateProject() {
 		}
 	}, [projectImages, title, hasManuallyEditedTitle]);
 
+	// Moved handleClear before its use in useEffect
+	const handleClear = useCallback(() => {
+		setProjectImages([]);
+		setTitle("");
+		setSlug("");
+		setAbout("");
+		setExternalLink("");
+		setShowAdvanced(false);
+		setFeaturedImageIndex(0);
+		setHasManuallyEditedTitle(false);
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	}, []);
+
+	// Moved handleSubmit before its use in useEffect
+	const handleSubmit = useCallback(async () => {
+		if (!title || !slug || projectImages.length === 0) {
+			toast.error("Please add images and fill in required fields");
+			return;
+		}
+
+		try {
+			setIsSubmitting(true);
+
+			// Upload all images
+			const uploadedImageIds: string[] = [];
+
+			// Initialize upload progress
+			setUploadProgress({
+				phase: "compressing",
+				current: 0,
+				total: projectImages.length,
+				percent: 0,
+			});
+
+			// Upload all images
+			const uploadResults = await uploadMultipleImages(
+				projectImages,
+				(completed, total, currentFile) => {
+					const percent = (completed / total) * 100;
+					setUploadProgress({
+						phase: completed === total ? "complete" : "uploading",
+						current: completed,
+						total,
+						percent,
+						currentFile,
+					});
+				},
+			);
+
+			// Check for failed uploads
+			const failedUploads = uploadResults
+				.map((result, index) => ({
+					...result,
+					fileName: projectImages[index].name,
+				}))
+				.filter((r) => !r.success);
+
+			if (failedUploads.length > 0) {
+				const errorMessages = failedUploads
+					.map((f) => `${f.fileName}: ${f.error}`)
+					.join("\n");
+				setUploadProgress({
+					phase: "error",
+					current: uploadResults.length,
+					total: uploadResults.length,
+					percent: 100,
+					error: errorMessages,
+				});
+				throw new Error(`Failed to upload some images:\n${errorMessages}`);
+			}
+
+			// Process results and collect successful uploads
+			uploadResults.forEach((result) => {
+				if (result.success && result.mediaId) {
+					uploadedImageIds.push(result.mediaId);
+				}
+			});
+
+			// Clear progress after a short delay
+			setTimeout(() => setUploadProgress(null), 1500);
+
+			// Create project with featured image being the selected one
+			const projectData = {
+				title,
+				externalLink: externalLink || "",
+				about: about || undefined,
+				featuredImageId: uploadedImageIds[featuredImageIndex] || undefined,
+				imageIds: uploadedImageIds,
+			};
+
+			const result = await createProject(projectData);
+
+			if (!result.success) {
+				throw new Error(result.error || "Failed to create project");
+			}
+			toast.success("Project created successfully!");
+
+			// Clear form
+			handleClear();
+		} catch (error) {
+			console.error("Error creating project:", error);
+			toast.error("Failed to create project");
+		} finally {
+			setIsSubmitting(false);
+		}
+	}, [
+		title,
+		slug,
+		projectImages,
+		externalLink,
+		about,
+		featuredImageIndex,
+		handleClear,
+	]);
+
 	// Keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -95,7 +212,6 @@ export function QuickCreateProject() {
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [projectImages, handleClear, handleSubmit]);
 
 	const preventDefaults = useCallback((e: React.DragEvent) => {
@@ -192,113 +308,6 @@ export function QuickCreateProject() {
 		}
 	};
 
-	const handleClear = () => {
-		setProjectImages([]);
-		setTitle("");
-		setSlug("");
-		setAbout("");
-		setExternalLink("");
-		setShowAdvanced(false);
-		setFeaturedImageIndex(0);
-		setHasManuallyEditedTitle(false);
-		if (fileInputRef.current) {
-			fileInputRef.current.value = "";
-		}
-	};
-
-	const handleSubmit = async () => {
-		if (!title || !slug || projectImages.length === 0) {
-			toast.error("Please add images and fill in required fields");
-			return;
-		}
-
-		try {
-			setIsSubmitting(true);
-
-			// Upload all images
-			const uploadedImageIds: string[] = [];
-
-			// Initialize upload progress
-			setUploadProgress({
-				phase: "compressing",
-				current: 0,
-				total: projectImages.length,
-				percent: 0,
-			});
-
-			// Upload all images
-			const uploadResults = await uploadMultipleImages(
-				projectImages,
-				(completed, total, currentFile) => {
-					const percent = (completed / total) * 100;
-					setUploadProgress({
-						phase: completed === total ? "complete" : "uploading",
-						current: completed,
-						total,
-						percent,
-						currentFile,
-					});
-				},
-			);
-
-			// Check for failed uploads
-			const failedUploads = uploadResults
-				.map((result, index) => ({
-					...result,
-					fileName: projectImages[index].name,
-				}))
-				.filter((r) => !r.success);
-
-			if (failedUploads.length > 0) {
-				const errorMessages = failedUploads
-					.map((f) => `${f.fileName}: ${f.error}`)
-					.join("\n");
-				setUploadProgress({
-					phase: "error",
-					current: uploadResults.length,
-					total: uploadResults.length,
-					percent: 100,
-					error: errorMessages,
-				});
-				throw new Error(`Failed to upload some images:\n${errorMessages}`);
-			}
-
-			// Process results and collect successful uploads
-			uploadResults.forEach((result) => {
-				if (result.success && result.mediaId) {
-					uploadedImageIds.push(result.mediaId);
-				}
-			});
-
-			// Clear progress after a short delay
-			setTimeout(() => setUploadProgress(null), 1500);
-
-			// Create project with featured image being the selected one
-			const projectData = {
-				title,
-				externalLink: externalLink || "",
-				about: about || undefined,
-				featuredImageId: uploadedImageIds[featuredImageIndex] || undefined,
-				imageIds: uploadedImageIds,
-			};
-
-			const result = await createProject(projectData);
-
-			if (!result.success) {
-				throw new Error(result.error || "Failed to create project");
-			}
-			toast.success("Project created successfully!");
-
-			// Clear form
-			handleClear();
-		} catch (error) {
-			console.error("Error creating project:", error);
-			toast.error("Failed to create project");
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
-
 	return (
 		<div
 			className={cn(
@@ -356,7 +365,7 @@ export function QuickCreateProject() {
 						<div className="grid grid-cols-5 gap-2">
 							{previewUrls.map((url, index) => (
 								<div
-									key={index}
+									key={`preview-${projectImages[index]?.name || index}-${index}`}
 									className={cn(
 										"relative group cursor-pointer rounded overflow-hidden border-2",
 										featuredImageIndex === index

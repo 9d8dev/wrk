@@ -50,7 +50,10 @@ export const DeleteProject = ({ project, onSuccess }: DeleteProjectProps) => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<button className="flex items-center gap-1 cursor-pointer text-sm text-muted-foreground hover:text-destructive transition-all">
+				<button
+					type="button"
+					className="flex items-center gap-1 cursor-pointer text-sm text-muted-foreground hover:text-destructive transition-all"
+				>
 					<Trash2 size={12} />
 					Delete
 				</button>

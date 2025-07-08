@@ -5,12 +5,24 @@ import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
+// Validate required environment variables at module level
+const R2_ENDPOINT = process.env.R2_ENDPOINT;
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
+const R2_BUCKET = process.env.R2_BUCKET;
+
+if (!R2_ENDPOINT || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET) {
+	throw new Error(
+		"Missing required R2 environment variables: R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, or R2_BUCKET",
+	);
+}
+
 const s3 = new S3Client({
 	region: "auto",
-	endpoint: process.env.R2_ENDPOINT,
+	endpoint: R2_ENDPOINT,
 	credentials: {
-		accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-		secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+		accessKeyId: R2_ACCESS_KEY_ID,
+		secretAccessKey: R2_SECRET_ACCESS_KEY,
 	},
 });
 
@@ -68,7 +80,7 @@ export async function POST(request: NextRequest) {
 		const key = `uploads/${randomUUID()}-${fileName}`;
 
 		const command = new PutObjectCommand({
-			Bucket: process.env.R2_BUCKET!,
+			Bucket: R2_BUCKET,
 			Key: key,
 			ContentType: fileType,
 		});

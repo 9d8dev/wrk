@@ -41,7 +41,7 @@ export async function generateStaticParams() {
 		return users
 			.filter((u) => u.username) // Extra safety check
 			.map((u) => ({
-				username: u.username!,
+				username: u.username,
 			}));
 	} catch (error) {
 		console.error("Error generating static params for username pages:", error);

@@ -30,7 +30,7 @@ async function getProfileData(userId: string) {
 		}
 
 		// Get profile image URL if profile image exists
-		let profileImageUrl;
+		let profileImageUrl: string | undefined;
 		if (profile?.profileImageId) {
 			const [profileImage] = await db
 				.select()

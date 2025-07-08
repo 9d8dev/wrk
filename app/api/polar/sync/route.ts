@@ -24,9 +24,19 @@ export async function POST() {
 
 		console.log("🔄 Starting manual sync for user:", session.user.id);
 
+		// Validate environment variable
+		const polarAccessToken = process.env.POLAR_ACCESS_TOKEN;
+		if (!polarAccessToken) {
+			console.error("❌ POLAR_ACCESS_TOKEN environment variable is not set");
+			return NextResponse.json(
+				{ error: "Polar integration not configured" },
+				{ status: 500 },
+			);
+		}
+
 		// Initialize Polar client
 		const polarClient = new Polar({
-			accessToken: process.env.POLAR_ACCESS_TOKEN!,
+			accessToken: polarAccessToken,
 			server: "production",
 		});
 

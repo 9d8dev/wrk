@@ -11,7 +11,7 @@ import {
 	Settings,
 	Shield,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { usePostHogEvents } from "@/components/analytics";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -47,12 +47,7 @@ export function DomainManagement() {
 		trackCustomDomainRemoved,
 	} = usePostHogEvents();
 
-	// Load current domain status
-	useEffect(() => {
-		fetchDomainStatus();
-	}, [fetchDomainStatus]);
-
-	const fetchDomainStatus = async () => {
+	const fetchDomainStatus = useCallback(async () => {
 		try {
 			setIsLoadingStatus(true);
 			const response = await fetch("/api/pro/domain");
@@ -70,7 +65,12 @@ export function DomainManagement() {
 		} finally {
 			setIsLoadingStatus(false);
 		}
-	};
+	}, []);
+
+	// Load current domain status
+	useEffect(() => {
+		fetchDomainStatus();
+	}, [fetchDomainStatus]);
 
 	const addDomain = async () => {
 		if (!newDomain.trim()) {

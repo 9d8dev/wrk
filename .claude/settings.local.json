@@ -25,7 +25,9 @@
 			"Bash(git commit:*)",
 			"Bash(pnpm install:*)",
 			"Bash(pnpm check:*)",
-			"Bash(pnpm exec biome check:*)"
+			"Bash(pnpm exec biome check:*)",
+			"Bash(pnpm exec tsc:*)",
+			"Bash(pnpm exec biome lint:*)"
 		],
 		"deny": []
 	},

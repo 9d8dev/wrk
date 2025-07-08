@@ -264,8 +264,8 @@ export function ProfileForm({
 							<div>
 								<h3 className="font-medium mb-2">Social Links</h3>
 								<div className="space-y-2">
-									{socialLinks.map((link, index) => (
-										<div key={index}>
+									{socialLinks.map((link) => (
+										<div key={`${link.platform}-${link.url}`}>
 											<p className="text-sm text-muted-foreground">
 												{link.platform}
 											</p>
@@ -354,7 +354,11 @@ export function ProfileForm({
 												{profileImageFile && profileImageFile.length > 0 && (
 													<FileUploaderContent className="mt-2">
 														{profileImageFile.map((file, i) => (
-															<FileUploaderItem key={i} index={i} file={file}>
+															<FileUploaderItem
+																key={`${file.name}-${file.size}`}
+																index={i}
+																file={file}
+															>
 																{file.name}
 															</FileUploaderItem>
 														))}

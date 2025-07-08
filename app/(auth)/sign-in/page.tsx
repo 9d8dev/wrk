@@ -541,9 +541,9 @@ const SignUpForm = () => {
 									</span>
 								</div>
 								<div className="flex space-x-1">
-									{[...Array(5)].map((_, i) => (
+									{Array.from({ length: 5 }, (_, i) => (
 										<div
-											key={`strength-bar-${i}`}
+											key={`strength-segment-${i + 1}`}
 											className={`h-2 flex-1 rounded-full ${
 												i < passwordStrength.score
 													? passwordStrength.color === "green"

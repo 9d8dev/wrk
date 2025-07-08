@@ -83,8 +83,8 @@ export function UpgradePlanCard({ productInfo }: UpgradePlanCardProps) {
 			<p>Upgrade to {productInfo.name}</p>
 			<p className="text-muted-foreground text-xs">{productInfo.description}</p>
 			<ul className="space-y-1 text-xs mt-2 mb-4">
-				{productInfo.features.slice(0, 3).map((feature, index) => (
-					<li key={index}>
+				{productInfo.features.slice(0, 3).map((feature) => (
+					<li key={feature}>
 						<Check className="inline" size={12} /> {feature}
 					</li>
 				))}

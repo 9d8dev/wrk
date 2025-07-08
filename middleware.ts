@@ -105,7 +105,7 @@ export async function middleware(request: NextRequest) {
 	const host = request.headers.get("host") || "";
 
 	// Get session using the same method as server components
-	let session;
+	let session: Awaited<ReturnType<typeof auth.api.getSession>> | null;
 	try {
 		session = await auth.api.getSession({
 			headers: request.headers,
