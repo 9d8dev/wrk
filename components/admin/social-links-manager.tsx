@@ -1,10 +1,8 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
 import { Control, useFieldArray } from "react-hook-form";
+import { Plus, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   FormControl,
   FormField,
@@ -12,6 +10,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface SocialLinksManagerProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

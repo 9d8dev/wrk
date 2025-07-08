@@ -4,8 +4,8 @@ import { headers } from "next/headers";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { DomainManagement } from "@/components/admin/domain-management";
 import { DangerZone } from "@/components/admin/danger-zone";
+import { DomainManagement } from "@/components/admin/domain-management";
 import { SubscriptionSection } from "@/components/admin/subscription-section";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 

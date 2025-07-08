@@ -11,7 +11,7 @@ import {
   Star,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
@@ -41,13 +41,6 @@ import { cn } from "@/lib/utils";
 import { GenerateDescription } from "../ai/generate-description";
 
 // Constants
-const IMAGE_CONFIG = {
-  maxFiles: 5,
-  maxSize: 15 * 1024 * 1024, // 15MB
-  accept: {
-    "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif"],
-  },
-};
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const MAX_IMAGES = 5;
@@ -766,7 +759,7 @@ function ImageUploadSection({
 }
 
 interface ProjectDetailsFormProps {
-  form: any;
+  form: ReturnType<typeof useForm<ProjectFormValues>>;
   isEditing: boolean;
   images: ProjectImage[];
 }
@@ -898,7 +891,7 @@ function ProjectDetailsForm({
 }
 
 interface AdvancedOptionsSectionProps {
-  form: any;
+  form: ReturnType<typeof useForm<ProjectFormValues>>;
   showAdvanced: boolean;
   onToggleAdvanced: () => void;
 }

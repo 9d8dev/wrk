@@ -1,7 +1,7 @@
 "use client";
 
-import { toast } from "sonner";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 
 import { GitHubIcon } from "@/components/icons/github";
 import { GoogleIcon } from "@/components/icons/google";

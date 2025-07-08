@@ -1,5 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function AdminLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center">

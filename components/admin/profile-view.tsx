@@ -1,11 +1,8 @@
 "use client";
 
-import { Edit } from "lucide-react";
-import Image from "next/image";
-
-import { Button } from "@/components/ui/button";
-
 import type { Profile, SocialLink } from "@/types";
+
+import Image from "next/image";
 
 type SessionUser = {
   id: string;
@@ -20,7 +17,6 @@ interface ProfileViewProps {
   profile: Profile | null;
   socialLinks: SocialLink[];
   profileImageUrl?: string;
-  onEdit: () => void;
 }
 
 export default function ProfileView({
@@ -28,7 +24,6 @@ export default function ProfileView({
   profile,
   socialLinks,
   profileImageUrl,
-  onEdit,
 }: ProfileViewProps) {
   const hasImage = !!profileImageUrl;
   const userInitial =

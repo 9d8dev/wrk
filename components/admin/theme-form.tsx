@@ -2,17 +2,13 @@
 
 import type { StaticImageData } from "next/image";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Edit, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 import * as z from "zod";
-
-import Masonry from "@/public/examples/masonry.jpg";
-import Minimal from "@/public/examples/minimal.jpg";
-import Square from "@/public/examples/square.jpg";
-import Grid from "@/public/examples/grid.jpg";
 
 import {
   Form,
@@ -27,8 +23,12 @@ import { Button } from "@/components/ui/button";
 import { updateTheme } from "@/lib/actions/theme";
 import { cn } from "@/lib/utils";
 
+import Masonry from "@/public/examples/masonry.jpg";
+import Minimal from "@/public/examples/minimal.jpg";
+import Square from "@/public/examples/square.jpg";
+import Grid from "@/public/examples/grid.jpg";
+
 import { gridTypes, type Theme } from "@/db/schema";
-import Image from "next/image";
 
 // Types
 type SessionUser = {
@@ -133,13 +133,7 @@ function ThemeOptionCard({
 }
 
 // Read-only theme display component
-function ThemeDisplay({
-  theme,
-  onEdit,
-}: {
-  theme: Theme | null;
-  onEdit: () => void;
-}) {
+function ThemeDisplay({ theme }: { theme: Theme | null }) {
   const currentOption =
     THEME_OPTIONS.find(
       (option) => option.gridType === (theme?.gridType || "grid")
@@ -310,7 +304,6 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
 
   useThemeFormKeyboard(isEditing, setIsEditing);
 
-  const handleEditStart = () => setIsEditing(true);
   const handleEditEnd = () => setIsEditing(false);
 
   if (isEditing) {
@@ -324,5 +317,5 @@ export function ThemeForm({ user, theme }: ThemeFormProps) {
     );
   }
 
-  return <ThemeDisplay theme={theme} onEdit={handleEditStart} />;
+  return <ThemeDisplay theme={theme} />;
 }

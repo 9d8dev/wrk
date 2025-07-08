@@ -2,9 +2,9 @@
 
 import { X } from "lucide-react";
 
+import type { Profile, SocialLink } from "@/types";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -14,14 +14,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+import { useProfileForm } from "@/hooks/use-profile-form";
 
 import ProfileImageUpload from "./profile-image-upload";
 import ProfileUsernameField from "./profile-username-field";
 import SocialLinksManager from "./social-links-manager";
-
-import { useProfileForm } from "@/hooks/use-profile-form";
-
-import type { Profile, SocialLink } from "@/types";
 
 type SessionUser = {
   id: string;
@@ -59,7 +59,15 @@ export default function ProfileEditForm({
     onSubmit,
   } = useProfileForm({ user, profile, socialLinks });
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: {
+    name: string;
+    username: string;
+    title?: string;
+    bio?: string;
+    location?: string;
+    socialLinks?: Array<{ platform: string; url: string }>;
+    profileImage?: File;
+  }) => {
     const success = await onSubmit(values);
     if (success) {
       onSuccess();

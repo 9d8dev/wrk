@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 
-import ProfileView from "./profile-view";
-import ProfileEditForm from "./profile-edit-form";
+import type { Profile, SocialLink } from "@/types";
 
 import { useProfileKeyboardShortcuts } from "@/hooks/use-profile-keyboard-shortcuts";
 
-import type { Profile, SocialLink } from "@/types";
+import ProfileEditForm from "./profile-edit-form";
+import ProfileView from "./profile-view";
 
 type SessionUser = {
   id: string;
@@ -61,7 +61,6 @@ export function ProfileForm({
       profile={profile}
       socialLinks={socialLinks}
       profileImageUrl={profileImageUrl}
-      onEdit={handleEdit}
     />
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { Loader2, Lock, Mail, UserCircle } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
