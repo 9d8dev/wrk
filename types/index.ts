@@ -1,4 +1,4 @@
-import { project, media, user, profile, socialLink } from "@/db/schema";
+import type { media, profile, project, socialLink, user } from "@/db/schema";
 
 export type Project = typeof project.$inferSelect;
 export type Media = typeof media.$inferSelect;

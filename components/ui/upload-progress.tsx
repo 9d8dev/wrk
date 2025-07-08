@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -7,7 +8,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
 interface UploadProgressProps {
 	open: boolean;

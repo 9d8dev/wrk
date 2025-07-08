@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {

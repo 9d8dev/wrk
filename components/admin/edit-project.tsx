@@ -1,9 +1,8 @@
 "use client";
 
-import { ProjectForm } from "@/components/admin/project-form";
 import { Edit } from "lucide-react";
-
 import { useState } from "react";
+import { ProjectForm } from "@/components/admin/project-form";
 
 import {
 	Drawer,
@@ -14,7 +13,7 @@ import {
 	DrawerTrigger,
 } from "@/components/ui/drawer";
 
-import type { Project, Media } from "@/db/schema";
+import type { Media, Project } from "@/db/schema";
 
 interface EditProjectProps {
 	project: Project;

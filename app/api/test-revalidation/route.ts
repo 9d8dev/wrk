@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { revalidateUserProfile } from "@/lib/utils/revalidation";
 

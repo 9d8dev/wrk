@@ -1,9 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef } from "react";
-import Lenis from "lenis";
-
 import type { LenisOptions } from "lenis";
+import Lenis from "lenis";
+import { createContext, useContext, useEffect, useRef } from "react";
 
 const LenisContext = createContext<Lenis | null>(null);
 
@@ -20,7 +19,7 @@ export function LenisProvider({
 		const lenis = new Lenis({
 			autoRaf: true,
 			duration: 1.2,
-			easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+			easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)),
 			touchMultiplier: 2,
 			infinite: false,
 			anchors: true,

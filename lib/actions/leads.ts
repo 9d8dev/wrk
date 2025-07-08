@@ -1,10 +1,10 @@
 "use server";
 
-import { db } from "@/db/drizzle";
-import { lead, leadStatuses } from "@/db/schema";
+import crypto from "crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import crypto from "crypto";
+import { db } from "@/db/drizzle";
+import { lead, type leadStatuses } from "@/db/schema";
 
 export async function getLeadsByUserId(userId: string) {
 	try {

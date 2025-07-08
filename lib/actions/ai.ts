@@ -1,7 +1,7 @@
 "use server";
 
-import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
+import { generateText } from "ai";
 
 export const generateDescription = async (imageUrl: string) => {
 	const result = await generateText({

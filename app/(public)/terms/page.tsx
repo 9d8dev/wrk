@@ -1,16 +1,16 @@
-import { Section, Container } from "@/components/ds";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
 import {
-	ArrowLeft,
-	FileText,
 	AlertTriangle,
-	Scale,
+	ArrowLeft,
 	CreditCard,
+	FileText,
+	Scale,
 } from "lucide-react";
+import Link from "next/link";
+import { Container, Section } from "@/components/ds";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function TermsOfUse() {
 	return (

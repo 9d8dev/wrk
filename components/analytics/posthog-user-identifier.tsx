@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePostHog } from "posthog-js/react";
+import { useEffect } from "react";
 
 interface PostHogUserIdentifierProps {
 	user: {

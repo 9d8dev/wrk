@@ -1,12 +1,11 @@
-import { ProfileForm } from "@/components/admin/profile-form";
-import { PageWrapper } from "@/components/admin/page-wrapper";
-import { AdminHeader } from "@/components/admin/admin-header";
-
-import { getSession } from "@/lib/actions/auth";
-import { redirect } from "next/navigation";
-import { media } from "@/db/schema";
-import { db } from "@/db/drizzle";
 import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+import { ProfileForm } from "@/components/admin/profile-form";
+import { db } from "@/db/drizzle";
+import { media } from "@/db/schema";
+import { getSession } from "@/lib/actions/auth";
 import {
 	getProfileByUserId,
 	getSocialLinksByProfileId,

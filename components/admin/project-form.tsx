@@ -1,30 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { createProject, editProject } from "@/lib/actions/project";
-import { uploadMultipleImages } from "@/lib/utils/upload";
-import { UploadProgress } from "@/components/ui/upload-progress";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { z } from "zod";
-
 import {
-	Image as ImageIcon,
 	ChevronDown,
 	ChevronUp,
+	Image as ImageIcon,
 	Loader2,
 	Plus,
 	Star,
 	X,
 } from "lucide-react";
-import { FileUploader, FileInput } from "@/components/ui/file-upload";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
+import { FileInput, FileUploader } from "@/components/ui/file-upload";
 import {
 	Form,
 	FormControl,
@@ -34,11 +27,14 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-
-import Image from "next/image";
-
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { UploadProgress } from "@/components/ui/upload-progress";
 import type { Media, Project } from "@/db/schema";
 import { deleteMediaWithCleanup } from "@/lib/actions/media";
+import { createProject, editProject } from "@/lib/actions/project";
+import { cn } from "@/lib/utils";
+import { uploadMultipleImages } from "@/lib/utils/upload";
 import { GenerateDescription } from "../ai/generate-description";
 
 const formSchema = z.object({

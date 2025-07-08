@@ -1,11 +1,11 @@
 import { relations } from "drizzle-orm";
 import {
+	boolean,
+	integer,
+	json,
 	pgTable,
 	text,
 	timestamp,
-	boolean,
-	json,
-	integer,
 	unique,
 } from "drizzle-orm/pg-core";
 

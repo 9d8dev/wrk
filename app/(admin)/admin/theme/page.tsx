@@ -1,9 +1,9 @@
+import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { PageWrapper } from "@/components/admin/page-wrapper";
 import { ThemeForm } from "@/components/admin/theme-form";
-import { redirect } from "next/navigation";
-import { getThemeByUserId } from "@/lib/actions/theme";
 import { getSession } from "@/lib/actions/auth";
+import { getThemeByUserId } from "@/lib/actions/theme";
 
 export const dynamic = "force-dynamic";
 

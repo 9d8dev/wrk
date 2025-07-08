@@ -1,12 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
-import * as z from "zod";
+import {
+	AlertCircle,
+	CheckCircle,
+	Edit,
+	Loader2,
+	Plus,
+	Trash2,
+	Upload,
+	X,
+} from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+	FileInput,
+	FileUploader,
+	FileUploaderContent,
+	FileUploaderItem,
+} from "@/components/ui/file-upload";
 import {
 	Form,
 	FormControl,
@@ -18,27 +35,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateProfile } from "@/lib/actions/profile";
-import { Profile, SocialLink } from "@/types";
-import {
-	Edit,
-	X,
-	Plus,
-	Trash2,
-	Upload,
-	CheckCircle,
-	AlertCircle,
-	Loader2,
-} from "lucide-react";
-import {
-	FileUploader,
-	FileInput,
-	FileUploaderContent,
-	FileUploaderItem,
-} from "@/components/ui/file-upload";
-import Image from "next/image";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import { useRouter } from "next/navigation";
+import { updateProfile } from "@/lib/actions/profile";
+import type { Profile, SocialLink } from "@/types";
 
 const formSchema = z.object({
 	name: z.string().min(1, { message: "Name is required" }),

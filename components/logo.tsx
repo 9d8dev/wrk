@@ -1,7 +1,7 @@
-import LogoLightMode from "@/public/logo.svg";
-import LogoDarkMode from "@/public/logo-white.svg";
 import Image from "next/image";
 import Link from "next/link";
+import LogoLightMode from "@/public/logo.svg";
+import LogoDarkMode from "@/public/logo-white.svg";
 
 export const Logo = ({
 	href = "/",

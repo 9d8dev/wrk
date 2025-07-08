@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 
-import { useState, useEffect } from "react";
-import { isAnimatedImage } from "@/lib/utils/media";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isAnimatedImage } from "@/lib/utils/media";
 
 interface AsyncImageProps {
 	src: string;

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export function SyncSubscriptionButton() {
 	const [isLoading, setIsLoading] = useState(false);

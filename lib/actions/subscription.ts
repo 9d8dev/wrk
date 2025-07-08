@@ -1,11 +1,11 @@
 "use server";
 
-import { user, subscriptionHistory } from "@/db/schema";
-import { headers } from "next/headers";
-import { nanoid } from "nanoid";
-import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
+import { subscriptionHistory, user } from "@/db/schema";
+import { auth } from "@/lib/auth";
 
 export async function isProUser(userId: string) {
 	const userData = await db

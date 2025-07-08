@@ -1,32 +1,31 @@
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { nextCookies } from "better-auth/next-js";
-import { betterAuth } from "better-auth";
-import { username } from "better-auth/plugins";
 import {
-	polar,
 	checkout,
+	polar,
 	portal,
 	usage,
 	webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { db } from "@/db/drizzle";
-import { polarConfig } from "@/lib/config/polar";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { username } from "better-auth/plugins";
 import { nanoid } from "nanoid";
+import { db } from "@/db/drizzle";
+import * as schema from "@/db/schema";
 import {
-	getUserByPolarCustomerId,
 	getUserByEmail,
-	updateUserSubscription,
-	updateUserPolarCustomerId,
+	getUserByPolarCustomerId,
 	logSubscriptionEvent,
+	updateUserPolarCustomerId,
+	updateUserSubscription,
 } from "@/lib/actions/subscription";
+import { polarConfig } from "@/lib/config/polar";
 import {
 	generateUniqueUsername,
 	generateUsernameFromEmail,
 	generateUsernameFromName,
 } from "@/lib/utils/username";
-
-import * as schema from "@/db/schema";
 
 const polarClient = new Polar({
 	accessToken: process.env.POLAR_ACCESS_TOKEN!,

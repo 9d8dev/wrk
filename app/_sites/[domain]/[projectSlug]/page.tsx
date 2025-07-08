@@ -1,19 +1,17 @@
-import { Container, Section } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
-import { AsyncImage } from "@/components/ui/async-image";
-
-import { getProjectByUsernameAndSlug } from "@/lib/data/project";
-import { getUserByCustomDomain } from "@/lib/data/user";
-import { notFound } from "next/navigation";
-import {
-	getFeaturedImageByProjectId,
-	getAllProjectImages,
-} from "@/lib/data/media";
-
+import { ArrowUpLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpLeft } from "lucide-react";
+import { notFound } from "next/navigation";
+import { Container, Section } from "@/components/ds";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { AsyncImage } from "@/components/ui/async-image";
+import {
+	getAllProjectImages,
+	getFeaturedImageByProjectId,
+} from "@/lib/data/media";
+import { getProjectByUsernameAndSlug } from "@/lib/data/project";
+import { getUserByCustomDomain } from "@/lib/data/user";
 
 type Props = {
 	params: Promise<{ domain: string; projectSlug: string }>;

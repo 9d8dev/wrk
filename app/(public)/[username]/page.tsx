@@ -1,28 +1,25 @@
-import { Section, Container } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
+import { isNotNull } from "drizzle-orm";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Container, Section } from "@/components/ds";
 import {
 	MasonryGrid,
-	StandardGrid,
 	MinimalGrid,
 	SquareGrid,
+	StandardGrid,
 } from "@/components/profile/grids";
-
-import { getProjectsByUsername } from "@/lib/data/project";
-import { getProfileByUsername } from "@/lib/data/profile";
-import { getUserByUsername } from "@/lib/data/user";
-import { getThemeByUsername } from "@/lib/actions/theme";
-import { isNotNull } from "drizzle-orm";
-import { notFound } from "next/navigation";
-import { user } from "@/db/schema";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ProfileHeader } from "@/components/profile/profile-header";
 import { db } from "@/db/drizzle";
-
-import type { Metadata } from "next";
-
+import { user } from "@/db/schema";
+import { getThemeByUsername } from "@/lib/actions/theme";
 import {
-	getFeaturedImageByProjectId,
 	getAllProjectImages,
+	getFeaturedImageByProjectId,
 } from "@/lib/data/media";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getProjectsByUsername } from "@/lib/data/project";
+import { getUserByUsername } from "@/lib/data/user";
 
 type Props = {
 	params: Promise<{ username: string }>;

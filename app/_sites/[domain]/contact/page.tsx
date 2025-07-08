@@ -1,13 +1,11 @@
-import { getUserByCustomDomain } from "@/lib/data/user";
-import { getProfileByUsername } from "@/lib/data/profile";
-import { notFound } from "next/navigation";
-
-import { Container, Section } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
-import { ContactForm } from "@/components/profile/contact-form";
-
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Container, Section } from "@/components/ds";
+import { ContactForm } from "@/components/profile/contact-form";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getUserByCustomDomain } from "@/lib/data/user";
 
 type Props = {
 	params: Promise<{ domain: string }>;

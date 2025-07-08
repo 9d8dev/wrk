@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+	AlertTriangle,
+	CheckCircle,
+	Clock,
+	Copy,
+	ExternalLink,
+	Globe,
+	RefreshCw,
+	Settings,
+	Shield,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { usePostHogEvents } from "@/components/analytics";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -12,20 +24,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-	Copy,
-	ExternalLink,
-	AlertTriangle,
-	CheckCircle,
-	Clock,
-	Globe,
-	Settings,
-	Shield,
-	RefreshCw,
-} from "lucide-react";
-import { toast } from "sonner";
-import { usePostHogEvents } from "@/components/analytics";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface DomainStatus {
 	domain: string | null;

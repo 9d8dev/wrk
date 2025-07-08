@@ -1,24 +1,24 @@
 "use server";
 
-import { project, media, user } from "@/db/schema";
-import { db } from "@/db/drizzle";
-import { eq, and, sql, asc, inArray } from "drizzle-orm";
-import {
-	DataResponse,
-	PaginatedResponse,
-	withErrorHandling,
-	calculatePagination,
-	getPaginationOffset,
-	dedupe,
-} from "./utils";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
+import { db } from "@/db/drizzle";
+import type { Media, Project, User } from "@/db/schema";
+import { media, project, user } from "@/db/schema";
 import {
+	paginationSchema,
+	projectSlugSchema,
 	userIdSchema,
 	usernameSchema,
-	projectSlugSchema,
-	paginationSchema,
 } from "./schemas";
-import type { Project, Media, User } from "@/db/schema";
+import {
+	calculatePagination,
+	type DataResponse,
+	dedupe,
+	getPaginationOffset,
+	type PaginatedResponse,
+	withErrorHandling,
+} from "./utils";
 
 /**
  * Project with related data

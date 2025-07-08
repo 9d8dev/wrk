@@ -1,17 +1,17 @@
-import { PageWrapper } from "@/components/admin/page-wrapper";
-import { AdminHeader } from "@/components/admin/admin-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getUserSubscriptionDetails } from "@/lib/actions/subscription";
-import { ManageSubscriptionButton } from "@/components/admin/manage-subscription-button";
-import { UpgradeButton } from "@/components/admin/upgrade-button";
-import { polarConfig } from "@/lib/config/polar";
-import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { DeleteAccountButton } from "@/components/admin/delete-account-button";
 import { DomainManagement } from "@/components/admin/domain-management";
+import { ManageSubscriptionButton } from "@/components/admin/manage-subscription-button";
+import { PageWrapper } from "@/components/admin/page-wrapper";
+import { SyncSubscriptionButton } from "@/components/admin/sync-subscription-button";
+import { UpgradeButton } from "@/components/admin/upgrade-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getUserSubscriptionDetails } from "@/lib/actions/subscription";
+import { auth } from "@/lib/auth";
+import { polarConfig } from "@/lib/config/polar";
 
 export const dynamic = "force-dynamic";
 

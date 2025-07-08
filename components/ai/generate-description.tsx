@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { generateDescription } from "@/lib/actions/ai";
 import { Button } from "@/components/ui/button";
+import { generateDescription } from "@/lib/actions/ai";
 
 interface GenerateDescriptionProps {
 	imageUrl?: string;

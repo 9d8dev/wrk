@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { createHmac } from "crypto";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import {
-	updateUserSubscription,
-	getUserByPolarCustomerId,
 	getUserByEmail,
-	updateUserPolarCustomerId,
+	getUserByPolarCustomerId,
 	logSubscriptionEvent,
+	updateUserPolarCustomerId,
+	updateUserSubscription,
 } from "@/lib/actions/subscription";
 import type { PolarWebhookEventType } from "@/lib/types/polar-webhook-types";
 

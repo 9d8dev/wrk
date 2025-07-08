@@ -1,10 +1,10 @@
 "use client";
 
-import { CreateProject } from "./create-project";
 import { Upload } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { CreateProject } from "./create-project";
 
 type AcceptedFileTypes = string[];
 

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { isUsernameAvailable } from "@/lib/data/user";
 
 export async function GET(request: NextRequest) {

@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
-import sharp from "sharp";
-import { createMedia } from "@/lib/data/media";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
+import { auth } from "@/lib/auth";
+import { createMedia } from "@/lib/data/media";
 
 const s3 = new S3Client({
 	region: "auto",

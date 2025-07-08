@@ -1,11 +1,10 @@
 "use client";
 
-import { deleteAccount } from "@/lib/actions/auth";
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { Trash2, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,7 +16,8 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { deleteAccount } from "@/lib/actions/auth";
 
 export const DeleteAccountButton = () => {
 	const [isDeleting, setIsDeleting] = useState(false);

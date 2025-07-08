@@ -1,9 +1,9 @@
 "use server";
 
-import { db } from "@/db/drizzle";
-import { theme, gridTypes } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { eq } from "drizzle-orm";
+import { db } from "@/db/drizzle";
+import { type gridTypes, theme } from "@/db/schema";
 import { revalidateUserTheme } from "@/lib/utils/revalidation";
 
 type GridType = (typeof gridTypes)[number];

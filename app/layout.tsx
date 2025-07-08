@@ -1,12 +1,11 @@
 import "./globals.css";
 import "lenis/dist/lenis.css";
 
-import { Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
-import { PostHogWrapper, PostHogPageView } from "@/components/analytics";
-import { Suspense } from "react";
-
 import type { Metadata } from "next";
+import { Geist_Mono as FontMono, Geist as FontSans } from "next/font/google";
+import { Suspense } from "react";
+import { PostHogPageView, PostHogWrapper } from "@/components/analytics";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const fontSans = FontSans({

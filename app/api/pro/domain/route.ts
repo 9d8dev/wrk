@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/db/drizzle";
 import { user } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { removeDomainFromVercel } from "@/lib/vercel-api";
 
 // Domain validation schema

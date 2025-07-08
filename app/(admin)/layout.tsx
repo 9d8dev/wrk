@@ -1,16 +1,15 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { eq } from "drizzle-orm";
 import { AlertTriangle } from "lucide-react";
-
+import { redirect } from "next/navigation";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { PostHogUserIdentifier } from "@/components/analytics/posthog-user-identifier";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { db } from "@/db/drizzle";
+import { user } from "@/db/schema";
 import { getSession } from "@/lib/actions/auth";
 import { hasActiveProSubscription } from "@/lib/actions/polar";
 import { polarConfig } from "@/lib/config/polar";
-import { redirect } from "next/navigation";
-import { PostHogUserIdentifier } from "@/components/analytics/posthog-user-identifier";
-import { db } from "@/db/drizzle";
-import { user } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 /**
  * Error Boundary Component for Admin Layout

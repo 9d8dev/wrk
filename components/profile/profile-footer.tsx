@@ -1,17 +1,14 @@
 import { ArrowUpRight, MapPin } from "lucide-react";
-import { Section, Container } from "@/components/ds";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-
 import Link from "next/link";
-
-import { getUserByUsername } from "@/lib/data/user";
+import { Container, Section } from "@/components/ds";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+import type { Profile } from "@/db/schema";
 import { isProUser } from "@/lib/actions/subscription";
 import {
 	getProfileByUsername,
 	getSocialLinksByProfileId,
 } from "@/lib/data/profile";
-
-import type { Profile } from "@/db/schema";
+import { getUserByUsername } from "@/lib/data/user";
 
 export const ProfileFooter = async ({ username }: { username: string }) => {
 	const profileResult = await getProfileByUsername(username);

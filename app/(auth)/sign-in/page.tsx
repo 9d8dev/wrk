@@ -1,34 +1,31 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	Mail,
-	Lock,
-	UserCircle,
-	Hash,
-	CheckCircle,
 	AlertCircle,
+	CheckCircle,
+	Hash,
 	Loader2,
+	Lock,
+	Mail,
+	UserCircle,
 } from "lucide-react";
-import { GoogleIcon } from "@/components/icons/google";
-import { GitHubIcon } from "@/components/icons/github";
-import { Container } from "@/components/ds";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import { usePasswordStrength } from "@/hooks/use-password-strength";
-
-import { motion, AnimatePresence } from "motion/react";
-import { useState, useEffect, Suspense } from "react";
-import { toast } from "sonner";
-import { useSearchParams, useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { handlePostSignup } from "@/lib/actions/auth";
-
-import Water from "@/public/water.webp";
+import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Container } from "@/components/ds";
+import { GitHubIcon } from "@/components/icons/github";
+import { GoogleIcon } from "@/components/icons/google";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
+import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { handlePostSignup } from "@/lib/actions/auth";
+import { authClient } from "@/lib/auth-client";
+import Water from "@/public/water.webp";
 
 function SignInPageContent() {
 	const searchParams = useSearchParams();

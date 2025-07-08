@@ -1,19 +1,17 @@
 "use client";
 
-import Link from "next/link";
-
 import {
 	Layout,
+	Settings,
 	SquareArrowDownLeft,
 	SquareAsterisk,
 	SquareUser,
-	Settings,
 } from "lucide-react";
+import Link from "next/link";
 
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 const nav_links = [
 	{

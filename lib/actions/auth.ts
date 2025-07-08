@@ -1,26 +1,26 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { notifyNewUserSignup } from "@/lib/utils/discord";
-import { ActionResponse } from "./utils";
-import { db } from "@/db/drizzle";
+import { Polar } from "@polar-sh/sdk";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { db } from "@/db/drizzle";
 import {
-	user,
+	account,
+	lead,
+	media,
 	profile,
 	project,
-	media,
-	theme,
-	lead,
-	subscriptionHistory,
-	account,
 	socialLink,
+	subscriptionHistory,
+	theme,
+	user,
 } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { notifyNewUserSignup } from "@/lib/utils/discord";
 import { deleteMediaBatchWithCleanup } from "./media";
-import { revalidatePath } from "next/cache";
-import { Polar } from "@polar-sh/sdk";
+import type { ActionResponse } from "./utils";
 
 /**
  * Get the current user session

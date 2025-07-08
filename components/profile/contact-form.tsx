@@ -1,18 +1,13 @@
 "use client";
 
-import { CheckCircle } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createLead } from "@/lib/actions/leads";
+import { CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { usePostHogEvents } from "@/components/analytics";
-
+import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
@@ -21,6 +16,9 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { createLead } from "@/lib/actions/leads";
 
 const formSchema = z.object({
 	name: z.string().min(2, { message: "Name must be at least 2 characters" }),

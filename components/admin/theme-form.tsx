@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, Edit, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { toast } from "sonner";
-
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -15,9 +15,8 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { gridTypes, type Theme } from "@/db/schema";
 import { updateTheme } from "@/lib/actions/theme";
-import { Theme, gridTypes } from "@/db/schema";
-import { Edit, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({

@@ -386,7 +386,7 @@ class UploadQueue {
 
 			if (upload.retries < upload.maxRetries) {
 				// Exponential backoff: wait 2^retries seconds
-				const delay = Math.pow(2, upload.retries) * 1000;
+				const delay = 2 ** upload.retries * 1000;
 				setTimeout(() => {
 					this.queue.unshift(upload); // Add back to front of queue
 					this.process();

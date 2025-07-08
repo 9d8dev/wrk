@@ -1,18 +1,18 @@
 "use server";
 
-import { user } from "@/db/schema";
+import { desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "@/db/drizzle";
-import { eq, sql, ilike, desc } from "drizzle-orm";
-import {
-	DataResponse,
-	PaginatedResponse,
-	withErrorHandling,
-	calculatePagination,
-	getPaginationOffset,
-	dedupe,
-} from "./utils";
-import { userIdSchema, usernameSchema, paginationSchema } from "./schemas";
 import type { User } from "@/db/schema";
+import { user } from "@/db/schema";
+import { paginationSchema, userIdSchema, usernameSchema } from "./schemas";
+import {
+	calculatePagination,
+	type DataResponse,
+	dedupe,
+	getPaginationOffset,
+	type PaginatedResponse,
+	withErrorHandling,
+} from "./utils";
 
 /**
  * Get all users with pagination

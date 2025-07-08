@@ -1,9 +1,8 @@
-import { AsyncImage } from "@/components/ui/async-image";
 import { ArrowUpRight } from "lucide-react";
-
 import Link from "next/link";
+import { AsyncImage } from "@/components/ui/async-image";
 
-import type { Project, Media } from "@/db/schema";
+import type { Media, Project } from "@/db/schema";
 
 interface StandardGridProps {
 	projects: Array<{

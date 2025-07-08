@@ -1,13 +1,10 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
-
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
 import type { User } from "@/db/schema";
+import { cn } from "@/lib/utils";
 
 export const ProfileNav = ({ user, isPro }: { user: User; isPro: boolean }) => {
 	const pathname = usePathname();

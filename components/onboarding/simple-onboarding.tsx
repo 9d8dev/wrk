@@ -1,28 +1,27 @@
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import {
-	Loader2,
-	Upload,
-	CheckCircle,
 	AlertCircle,
-	Hash,
-	MapPin,
 	Briefcase,
+	CheckCircle,
+	Hash,
+	Loader2,
+	MapPin,
+	Upload,
 } from "lucide-react";
-
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { createProfile } from "@/lib/actions/profile";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import Image from "next/image";
+import { createProfile } from "@/lib/actions/profile";
 
 const formSchema = z.object({
 	username: z
@@ -137,7 +136,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 			}
 
 			// Improved logic for determining username to use
-			let usernameToUse: string | undefined = undefined;
+			let usernameToUse: string | undefined;
 
 			// Case 1: User needs a username (new user without one)
 			if (needsUsername && values.username) {

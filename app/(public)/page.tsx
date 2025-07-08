@@ -1,17 +1,15 @@
-import { Section, Container } from "@/components/ds";
 import { YouTubeEmbed } from "@next/third-parties/google";
 import { ArrowUpRight } from "lucide-react";
-import { Logo } from "@/components/logo";
-
-import Link from "next/link";
 import Image from "next/image";
-
-import Minimal from "@/public/examples/minimal.jpg";
-import Masonry from "@/public/examples/masonry.jpg";
-import Square from "@/public/examples/square.jpg";
-import Grid from "@/public/examples/grid.jpg";
-import Bg from "@/public/home.webp";
+import Link from "next/link";
+import { Container, Section } from "@/components/ds";
+import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import Grid from "@/public/examples/grid.jpg";
+import Masonry from "@/public/examples/masonry.jpg";
+import Minimal from "@/public/examples/minimal.jpg";
+import Square from "@/public/examples/square.jpg";
+import Bg from "@/public/home.webp";
 
 const examples = [
 	{

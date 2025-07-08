@@ -1,11 +1,8 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import { AdminNav } from "./admin-nav";
-import { Logo } from "../logo";
-import { UpgradePlanCard } from "./upgrade-button";
-import { ProPlanCard } from "./manage-subscription-button";
-
 import {
 	Sidebar,
 	SidebarContent,
@@ -13,8 +10,10 @@ import {
 	SidebarGroup,
 	SidebarHeader,
 } from "@/components/ui/sidebar";
-import { ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Logo } from "../logo";
+import { AdminNav } from "./admin-nav";
+import { ProPlanCard } from "./manage-subscription-button";
+import { UpgradePlanCard } from "./upgrade-button";
 
 export function AdminSidebar({
 	name,

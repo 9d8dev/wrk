@@ -1,28 +1,25 @@
-import { Container, Section } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
-import { AsyncImage } from "@/components/ui/async-image";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
-
-import { getProfileByUsername } from "@/lib/data/profile";
-import { getUserByUsername } from "@/lib/data/user";
 import { isNotNull } from "drizzle-orm";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { user } from "@/db/schema";
+import { Container, Section } from "@/components/ds";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { AsyncImage } from "@/components/ui/async-image";
 import { db } from "@/db/drizzle";
-
+import type { Media, Project } from "@/db/schema";
+import { user } from "@/db/schema";
+import {
+	getAllProjectImages,
+	getFeaturedImageByProjectId,
+} from "@/lib/data/media";
+import { getProfileByUsername } from "@/lib/data/profile";
 import {
 	getProjectByUsernameAndSlug,
 	getProjectsByUsername,
 } from "@/lib/data/project";
-import {
-	getFeaturedImageByProjectId,
-	getAllProjectImages,
-} from "@/lib/data/media";
-import Link from "next/link";
-
-import type { Project, Media } from "@/db/schema";
-import type { Metadata } from "next";
+import { getUserByUsername } from "@/lib/data/user";
 
 type Props = {
 	params: Promise<{ username: string; projectSlug: string }>;

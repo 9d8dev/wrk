@@ -1,25 +1,22 @@
-import { Section, Container } from "@/components/ds";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileFooter } from "@/components/profile/profile-footer";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Container, Section } from "@/components/ds";
 import {
 	MasonryGrid,
-	StandardGrid,
 	MinimalGrid,
 	SquareGrid,
+	StandardGrid,
 } from "@/components/profile/grids";
-
-import { getProjectsByUsername } from "@/lib/data/project";
-import { getProfileByUsername } from "@/lib/data/profile";
-import { getUserByCustomDomain } from "@/lib/data/user";
+import { ProfileFooter } from "@/components/profile/profile-footer";
+import { ProfileHeader } from "@/components/profile/profile-header";
 import { getThemeByUsername } from "@/lib/actions/theme";
-import { notFound } from "next/navigation";
-
-import type { Metadata } from "next";
-
 import {
-	getFeaturedImageByProjectId,
 	getAllProjectImages,
+	getFeaturedImageByProjectId,
 } from "@/lib/data/media";
+import { getProfileByUsername } from "@/lib/data/profile";
+import { getProjectsByUsername } from "@/lib/data/project";
+import { getUserByCustomDomain } from "@/lib/data/user";
 
 type Props = {
 	params: Promise<{ domain: string }>;

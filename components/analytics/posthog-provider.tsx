@@ -1,8 +1,8 @@
 "use client";
 
-import { ReactNode } from "react";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+import type { ReactNode } from "react";
 
 // Initialize PostHog only on client side
 if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
+import { useEffect } from "react";
 
 export function PostHogPageView() {
 	const pathname = usePathname();
@@ -38,7 +38,7 @@ export function PostHogPageView() {
 			if (host === mainDomain || host === `www.${mainDomain}`) {
 				domainType = "main";
 				// Check if it's a username route like /username
-				const usernameMatch = pathname.match(/^\/([^\/]+)$/);
+				const usernameMatch = pathname.match(/^\/([^/]+)$/);
 				if (
 					usernameMatch &&
 					!["privacy", "terms", "sign-in", "admin", "api"].includes(

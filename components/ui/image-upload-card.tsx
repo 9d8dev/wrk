@@ -1,9 +1,9 @@
+import { AlertCircle, CheckCircle, RotateCcw, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
-import { X, RotateCcw, CheckCircle, AlertCircle, Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import { Progress } from "./progress";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface ImageUploadCardProps {
 	file: File;

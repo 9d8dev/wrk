@@ -1,10 +1,9 @@
-import { AdminHeader } from "@/components/admin/admin-header";
-import { PageWrapper } from "@/components/admin/page-wrapper";
-import { LeadsList } from "@/components/admin/leads-list";
-
 import { redirect } from "next/navigation";
-import { getLeadsByUserId } from "@/lib/actions/leads";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { LeadsList } from "@/components/admin/leads-list";
+import { PageWrapper } from "@/components/admin/page-wrapper";
 import { getSession } from "@/lib/actions/auth";
+import { getLeadsByUserId } from "@/lib/actions/leads";
 
 export const dynamic = "force-dynamic";
 

@@ -1,13 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Lead, leadStatuses } from "@/db/schema";
+import { formatDistanceToNow } from "date-fns";
 import {
-	updateLeadStatus,
-	deleteLead,
-	getLeadsByUserId,
-} from "@/lib/actions/leads";
+	Archive,
+	Check,
+	Clock,
+	ExternalLink,
+	Mail,
+	MessageCircle,
+	MoreHorizontal,
+	RefreshCw,
+	Trash2,
+} from "lucide-react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -16,19 +23,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { type Lead, leadStatuses } from "@/db/schema";
 import {
-	MoreHorizontal,
-	Trash2,
-	Mail,
-	Check,
-	Clock,
-	Archive,
-	RefreshCw,
-	ExternalLink,
-	MessageCircle,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+	deleteLead,
+	getLeadsByUserId,
+	updateLeadStatus,
+} from "@/lib/actions/leads";
 import { cn } from "@/lib/utils";
 
 type LeadsListProps = {

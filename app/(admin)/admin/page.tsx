@@ -1,17 +1,16 @@
-import { QuickCreateProject } from "@/components/admin/quick-create-project";
-import { CreateProject } from "@/components/admin/create-project";
+import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { ProjectList } from "@/components/admin/project-list";
+import { CreateProject } from "@/components/admin/create-project";
 import { PageWrapper } from "@/components/admin/page-wrapper";
-
+import { ProjectList } from "@/components/admin/project-list";
+import { QuickCreateProject } from "@/components/admin/quick-create-project";
+import { getSession } from "@/lib/actions/auth";
+import {
+	getAllProjectImages,
+	getFeaturedImageByProjectId,
+} from "@/lib/data/media";
 import { getProfileByUserId } from "@/lib/data/profile";
 import { getAllProjects } from "@/lib/data/project";
-import { getSession } from "@/lib/actions/auth";
-import { redirect } from "next/navigation";
-import {
-	getFeaturedImageByProjectId,
-	getAllProjectImages,
-} from "@/lib/data/media";
 
 export const dynamic = "force-dynamic";
 

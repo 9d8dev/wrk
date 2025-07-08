@@ -1,13 +1,13 @@
 "use server";
 
-import { db } from "@/db/drizzle";
-import { media, project } from "@/db/schema";
 import { eq, inArray, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { nanoid } from "nanoid";
-import { DataResponse, withErrorHandling, dedupe } from "./utils";
-import { mediaIdSchema, projectIdSchema } from "./schemas";
+import { revalidatePath } from "next/cache";
+import { db } from "@/db/drizzle";
 import type { Media, Project } from "@/db/schema";
+import { media, project } from "@/db/schema";
+import { mediaIdSchema, projectIdSchema } from "./schemas";
+import { type DataResponse, dedupe, withErrorHandling } from "./utils";
 
 /**
  * Media with related project

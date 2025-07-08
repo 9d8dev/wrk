@@ -1,7 +1,6 @@
+import type { MetadataRoute } from "next";
 import { getProjectsByUsername } from "@/lib/data/project";
 import { getAllUsers } from "@/lib/data/user";
-
-import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const baseUrls = [

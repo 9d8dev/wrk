@@ -1,11 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-
 import { useRouter } from "next/navigation";
-import { signOut } from "@/lib/actions/auth";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { signOut } from "@/lib/actions/auth";
 
 interface SignOutButtonProps {
 	variant?:

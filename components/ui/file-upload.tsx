@@ -1,26 +1,26 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Trash2 as RemoveIcon } from "lucide-react";
+import NextImage from "next/image";
 import {
-	Dispatch,
-	SetStateAction,
 	createContext,
+	type Dispatch,
 	forwardRef,
+	type SetStateAction,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
 import {
+	type DropzoneOptions,
+	type DropzoneState,
+	type FileRejection,
 	useDropzone,
-	DropzoneState,
-	FileRejection,
-	DropzoneOptions,
 } from "react-dropzone";
-import NextImage from "next/image";
 import { toast } from "sonner";
-import { Trash2 as RemoveIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 // Types
 type DirectionOptions = "rtl" | "ltr" | undefined;

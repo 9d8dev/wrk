@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
 
 interface ManageSubscriptionButtonProps {
 	className?: string;

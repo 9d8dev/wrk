@@ -1,9 +1,8 @@
 "use client";
 
-import { ShortcutButton } from "@/components/admin/shortcut-button";
+import { useEffect, useState } from "react";
 import { ProjectForm } from "@/components/admin/project-form";
-
-import { useState, useEffect } from "react";
+import { ShortcutButton } from "@/components/admin/shortcut-button";
 
 import {
 	Drawer,

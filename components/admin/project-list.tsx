@@ -1,29 +1,14 @@
 "use client";
 
-import { ExternalLink, GripVertical } from "lucide-react";
-import { DeleteProject } from "./delete-project";
-import { EditProject } from "./edit-project";
-
-import { useState, useEffect } from "react";
-import { updateProjectOrder } from "@/lib/actions/project";
-import { toast } from "sonner";
-
-import { CSS } from "@dnd-kit/utilities";
-
-import Image from "next/image";
-
-import type { Project, Media } from "@/db/schema";
-
 import {
-	DndContext,
 	closestCenter,
+	DndContext,
+	type DragEndEvent,
 	KeyboardSensor,
 	PointerSensor,
 	useSensor,
 	useSensors,
-	DragEndEvent,
 } from "@dnd-kit/core";
-
 import {
 	arrayMove,
 	SortableContext,
@@ -31,6 +16,15 @@ import {
 	useSortable,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { ExternalLink, GripVertical } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import type { Media, Project } from "@/db/schema";
+import { updateProjectOrder } from "@/lib/actions/project";
+import { DeleteProject } from "./delete-project";
+import { EditProject } from "./edit-project";
 
 export function ProjectList({
 	projectsWithImages,
