@@ -163,7 +163,6 @@ export const ProjectForm = ({
 
 		initializeImages();
 	}, [
-		project?.id,
 		existingFeaturedImage,
 		stableExistingAdditionalImages,
 		stableInitialImages,
@@ -285,7 +284,7 @@ export const ProjectForm = ({
 				// Collect existing image IDs
 				const existingImageIds = images
 					.filter((img) => img.type === "existing")
-					.map((img) => img.media!.id);
+					.map((img) => img.media?.id);
 
 				// Upload new images
 				const newImages = images.filter((img) => img.type === "new");
@@ -753,10 +752,10 @@ interface ImageCardProps {
 
 const ImageCard = ({ image, onSetFeatured, onRemove }: ImageCardProps) => {
 	const imageSrc =
-		image.type === "existing" ? image.media!.url : image.previewUrl!;
+		image.type === "existing" ? image.media?.url : image.previewUrl!;
 	const imageAlt =
 		image.type === "existing"
-			? image.media!.alt || "Project image"
+			? image.media?.alt || "Project image"
 			: "New image";
 
 	return (

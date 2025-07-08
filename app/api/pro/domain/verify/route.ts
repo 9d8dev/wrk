@@ -1,4 +1,4 @@
-import { promises as dns } from "dns";
+import { promises as dns } from "node:dns";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

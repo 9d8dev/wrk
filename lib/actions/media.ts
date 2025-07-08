@@ -1,12 +1,12 @@
 "use server";
 
+import { Buffer } from "node:buffer";
+import { randomUUID } from "node:crypto";
 import {
 	DeleteObjectCommand,
 	PutObjectCommand,
 	S3Client,
 } from "@aws-sdk/client-s3";
-import { Buffer } from "buffer";
-import { randomUUID } from "crypto";
 import sharp from "sharp";
 import {
 	createMedia,

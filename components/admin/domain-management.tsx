@@ -50,7 +50,7 @@ export function DomainManagement() {
 	// Load current domain status
 	useEffect(() => {
 		fetchDomainStatus();
-	}, []);
+	}, [fetchDomainStatus]);
 
 	const fetchDomainStatus = async () => {
 		try {

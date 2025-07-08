@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		}`,
 		description:
 			(project.about && project.about.length > 160
-				? project.about.substring(0, 157) + "..."
+				? `${project.about.substring(0, 157)}...`
 				: project.about) ||
 			`${project.title} created by ${user.name}. Portfolio created using Wrk.so.`,
 		openGraph: ogImage
@@ -182,7 +182,7 @@ const ProjectDescription = ({ project }: { project: Project }) => {
 				{project.about && (
 					<div className="text-muted-foreground space-y-3">
 						{project.about.split("\n\n").map((paragraph, index) => (
-							<p key={index}>{paragraph}</p>
+							<p key={`${paragraph.substring(0, 20)}-${index}`}>{paragraph}</p>
 						))}
 					</div>
 				)}

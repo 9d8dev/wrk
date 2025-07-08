@@ -1,6 +1,6 @@
 "use server";
 
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/drizzle";
 import { type gridTypes, theme } from "@/db/schema";

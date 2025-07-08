@@ -136,7 +136,7 @@ export async function middleware(request: NextRequest) {
 		// Check for always public routes
 		if (
 			alwaysPublicRoutes.some(
-				(route) => pathname === route || pathname.startsWith(route + "/"),
+				(route) => pathname === route || pathname.startsWith(`${route}/`),
 			)
 		) {
 			return NextResponse.next();

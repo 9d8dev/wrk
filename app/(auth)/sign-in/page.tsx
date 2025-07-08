@@ -543,7 +543,7 @@ const SignUpForm = () => {
 								<div className="flex space-x-1">
 									{[...Array(5)].map((_, i) => (
 										<div
-											key={i}
+											key={`strength-bar-${i}`}
 											className={`h-2 flex-1 rounded-full ${
 												i < passwordStrength.score
 													? passwordStrength.color === "green"
@@ -567,8 +567,8 @@ const SignUpForm = () => {
 								<div className="text-xs text-muted-foreground">
 									<p className="mb-1">To strengthen your password:</p>
 									<ul className="list-disc list-inside space-y-0.5">
-										{passwordStrength.feedback.slice(0, 3).map((tip, i) => (
-											<li key={i}>{tip}</li>
+										{passwordStrength.feedback.slice(0, 3).map((tip) => (
+											<li key={tip}>{tip}</li>
 										))}
 									</ul>
 								</div>

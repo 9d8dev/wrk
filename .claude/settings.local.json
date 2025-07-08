@@ -23,7 +23,9 @@
 			"Bash(node:*)",
 			"Bash(git add:*)",
 			"Bash(git commit:*)",
-			"Bash(pnpm install:*)"
+			"Bash(pnpm install:*)",
+			"Bash(pnpm check:*)",
+			"Bash(pnpm exec biome check:*)"
 		],
 		"deny": []
 	},

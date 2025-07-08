@@ -96,7 +96,7 @@ export function QuickCreateProject() {
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [projectImages, title, slug]);
+	}, [projectImages, handleClear, handleSubmit]);
 
 	const preventDefaults = useCallback((e: React.DragEvent) => {
 		e.preventDefault();

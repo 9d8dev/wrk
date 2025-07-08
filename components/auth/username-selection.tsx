@@ -177,11 +177,9 @@ export function UsernameSelection({
 										</span>
 									</>
 								) : (
-									<>
-										<span className="text-red-600">
-											{usernameAvailability.message}
-										</span>
-									</>
+									<span className="text-red-600">
+										{usernameAvailability.message}
+									</span>
 								)}
 							</div>
 						)}

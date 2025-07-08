@@ -269,7 +269,6 @@ export function DropZone({
 					onChange={handleFileInputChange}
 					accept={accept.join(",")}
 					multiple={maxFiles > 1}
-					aria-hidden="true"
 				/>
 
 				<div

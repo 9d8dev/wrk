@@ -20,11 +20,11 @@ export function PostHogPageView() {
 			const origin =
 				typeof window !== "undefined"
 					? window.location.origin ||
-						window.location.protocol + "//" + window.location.host
+						`${window.location.protocol}//${window.location.host}`
 					: "";
 			let url = origin + pathname;
 			if (searchParams.toString()) {
-				url = url + `?${searchParams.toString()}`;
+				url = `${url}?${searchParams.toString()}`;
 			}
 
 			// Determine the domain type for multi-tenant analytics

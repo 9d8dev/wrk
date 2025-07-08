@@ -1,5 +1,5 @@
+import { randomUUID } from "node:crypto";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { randomUUID } from "crypto";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";

@@ -12,7 +12,7 @@ if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 	} catch {
 		// Not initialized yet, so initialize it
 		posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-			api_host: window.location.origin + "/ingest",
+			api_host: `${window.location.origin}/ingest`,
 			person_profiles: "identified_only", // Create profiles only for identified users
 			capture_pageview: false, // We'll handle pageviews manually for better control
 			capture_pageleave: true, // Track when users leave pages

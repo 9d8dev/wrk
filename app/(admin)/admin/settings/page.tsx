@@ -85,8 +85,8 @@ function SubscriptionSection({
 						<div className="mt-4 space-y-2">
 							<h4 className="text-sm font-medium">Pro Benefits:</h4>
 							<ul className="text-sm text-muted-foreground space-y-1">
-								{proProduct?.features.map((feature, i) => (
-									<li key={i}>✓ {feature}</li>
+								{proProduct?.features.map((feature) => (
+									<li key={feature}>✓ {feature}</li>
 								))}
 							</ul>
 						</div>
@@ -108,8 +108,8 @@ function SubscriptionSection({
 										{proProduct.description}
 									</p>
 									<ul className="space-y-1 text-sm mb-4">
-										{proProduct.features.map((feature, i) => (
-											<li key={i}>✓ {feature}</li>
+										{proProduct.features.map((feature) => (
+											<li key={feature}>✓ {feature}</li>
 										))}
 									</ul>
 									<UpgradeButton

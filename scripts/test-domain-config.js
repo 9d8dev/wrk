@@ -5,7 +5,7 @@
  * Run with: node scripts/test-domain-config.js
  */
 
-const https = require("https");
+const https = require("node:https");
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN;
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID;
@@ -49,12 +49,14 @@ function testVercelAPI() {
 
 		const req = https.request(options, (res) => {
 			let data = "";
-			res.on("data", (chunk) => (data += chunk));
+			res.on("data", (chunk) => {
+				data += chunk;
+			});
 			res.on("end", () => {
 				try {
 					const parsed = JSON.parse(data);
 					resolve({ status: res.statusCode, data: parsed });
-				} catch (e) {
+				} catch (_e) {
 					resolve({ status: res.statusCode, data: data });
 				}
 			});

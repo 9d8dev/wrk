@@ -23,11 +23,11 @@ export function StandardGrid({ projects, username }: StandardGridProps) {
 					className="group p-4 hover:bg-accent/30 transition-colors border-r border-b border-border space-y-2"
 				>
 					<AsyncImage
-						src={project.featuredImage!.url}
+						src={project.featuredImage?.url}
 						alt={project.project.title}
 						placeholder="shimmer"
-						width={project.featuredImage!.width}
-						height={project.featuredImage!.height}
+						width={project.featuredImage?.width}
+						height={project.featuredImage?.height}
 					/>
 					<h3 className="text-sm line-clamp-1 leading-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 justify-between">
 						{project.project.title}{" "}

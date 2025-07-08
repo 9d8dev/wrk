@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		title: `Contact ${user.name} | ${profile?.title || "Wrk.so"}`,
 		description: `Get in touch with ${user.name}. ${
 			profile?.bio && profile.bio.length > 160
-				? profile.bio.substring(0, 120) + "..."
+				? `${profile.bio.substring(0, 120)}...`
 				: profile?.bio || ""
 		}`.trim(),
 		openGraph: imageSrc
