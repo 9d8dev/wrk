@@ -1,198 +1,186 @@
-import { type NextRequest, NextResponse } from "next/server";
+// middleware.ts  (Node runtime)
+
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
-// Cache the main domain to avoid recalculating
-const getMainDomain = (() => {
-	let cachedDomain: string | null = null;
-	return () => {
-		if (cachedDomain === null) {
-			cachedDomain =
-				process.env.NEXT_PUBLIC_APP_URL?.replace(/https?:\/\//, "") || "wrk.so";
-		}
-		return cachedDomain;
-	};
-})();
+/* ------------------------------------------------------------------ */
+/* Configuration                                                      */
+/* ------------------------------------------------------------------ */
 
-// Reserved usernames that should not be treated as user routes
-const RESERVED_USERNAMES = [
-	"admin",
-	"posts",
-	"privacy-policy",
-	"terms-of-use",
-	"about",
-	"contact",
-	"dashboard",
-	"featured",
-	"network",
-	"login",
-	"sign-in",
-	"sign-up",
-	"sign-out",
-	"api",
-	"onboarding",
-	"_next",
-	"_sites",
-	"privacy",
-	"terms",
-];
+const CONFIG = {
+	mainDomain:
+		process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, "") || "wrk.so",
 
-// Helper function to determine if this is the main domain
+	reservedUsernames: [
+		"admin",
+		"posts",
+		"privacy-policy",
+		"terms-of-use",
+		"about",
+		"contact",
+		"dashboard",
+		"featured",
+		"network",
+		"login",
+		"sign-in",
+		"sign-up",
+		"sign-out",
+		"api",
+		"onboarding",
+		"_next",
+		"_sites",
+		"privacy",
+		"terms",
+	] as const,
+
+	publicRoutes: ["/", "/sign-in", "/privacy", "/terms"] as const,
+	protectedRoutes: ["/admin", "/onboarding"] as const,
+} as const;
+
+type RouteType = "public" | "protected" | "username" | "api" | "api-upload";
+
+/* ------------------------------------------------------------------ */
+/* Helper utilities                                                   */
+/* ------------------------------------------------------------------ */
+
+const getMainDomain = () => CONFIG.mainDomain;
+
 function isMainDomain(host: string): boolean {
-	const mainDomain = getMainDomain();
-	return host === mainDomain || host === `www.${mainDomain}`;
-}
-
-// Helper function to extract subdomain
-function getSubdomain(host: string): string | null {
-	const mainDomain = getMainDomain();
-
-	if (host === mainDomain || host === `www.${mainDomain}`) {
-		return null;
-	}
-
-	// Check if it's a subdomain of the main domain
-	if (host.endsWith(`.${mainDomain}`)) {
-		return host.replace(`.${mainDomain}`, "");
-	}
-
-	// Otherwise, it's a custom domain
-	return null;
-}
-
-// Helper function to check if it's a custom domain
-function isCustomDomain(host: string): boolean {
-	const mainDomain = getMainDomain();
+	const main = getMainDomain();
 	return (
-		!host.endsWith(`.${mainDomain}`) &&
-		host !== mainDomain &&
-		host !== `www.${mainDomain}`
+		host === main ||
+		host === `www.${main}` ||
+		host.startsWith("localhost") || // dev
+		host.endsWith(".vercel.app") // preview
 	);
 }
 
-// Helper function to check if a path is a username-based route
-function isUsernameRoute(pathname: string): boolean {
-	const segments = pathname.split("/").filter(Boolean);
-
-	if (segments.length === 0) return false;
-
-	const firstSegment = segments[0];
-
-	// Skip reserved routes
-	if (RESERVED_USERNAMES.includes(firstSegment)) {
-		return false;
-	}
-
-	// Valid username patterns:
-	// /username -> portfolio page
-	// /username/contact -> contact page
-	// /username/project-slug -> project page
-	if (segments.length === 1) {
-		// Just username: /brijr
-		return /^[a-zA-Z0-9_-]{3,20}$/.test(firstSegment);
-	} else if (segments.length === 2) {
-		// Username with subpage: /brijr/contact or /brijr/project-name
-		return (
-			/^[a-zA-Z0-9_-]{3,20}$/.test(firstSegment) &&
-			/^[a-zA-Z0-9_-]+$/.test(segments[1])
-		);
-	}
-
-	return false;
+function getSubdomain(host: string): string | null {
+	const main = getMainDomain();
+	if (host === main || host === `www.${main}`) return null;
+	return host.endsWith(`.${main}`) ? host.slice(0, -`.${main}`.length) : null;
 }
+
+function isCustomDomain(host: string): boolean {
+	const main = getMainDomain();
+	return (
+		!host.endsWith(`.${main}`) &&
+		host !== main &&
+		host !== `www.${main}` &&
+		!host.startsWith("localhost") &&
+		!host.endsWith(".vercel.app")
+	);
+}
+
+const isValidUsername = (u: string) => /^[a-zA-Z0-9_-]{3,20}$/.test(u);
+const isValidProjectSlug = (s: string) => /^[a-zA-Z0-9_-]+$/.test(s);
+
+function classifyRoute(pathname: string): RouteType {
+	if (pathname === "/") return "public";
+	if (pathname.startsWith("/api"))
+		return pathname === "/api/upload" ? "api-upload" : "api";
+
+	if (
+		CONFIG.publicRoutes.includes(pathname as any) ||
+		CONFIG.publicRoutes.some((r) => pathname.startsWith(`${r}/`))
+	)
+		return "public";
+
+	if (CONFIG.protectedRoutes.some((r) => pathname.startsWith(r)))
+		return "protected";
+
+	const [first, second] = pathname.split("/").filter(Boolean);
+	if (
+		first &&
+		!CONFIG.reservedUsernames.includes(first as any) &&
+		isValidUsername(first) &&
+		(!second || isValidProjectSlug(second))
+	)
+		return "username";
+
+	return "public";
+}
+
+async function getSession(request: NextRequest) {
+	try {
+		return await auth.api.getSession({ headers: request.headers });
+	} catch (e) {
+		console.error("[middleware] session error", e);
+		return null;
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Main middleware function                                           */
+/* ------------------------------------------------------------------ */
 
 export async function middleware(request: NextRequest) {
-	const pathname = request.nextUrl.pathname;
-	const host = request.headers.get("host") || "";
+	const { pathname } = request.nextUrl;
+	const host = request.nextUrl.hostname; // Node & Edge safe
 
-	if (pathname === "/") {
+	/* ---------- Sub-domain / custom-domain routing ---------- */
+
+	if (!isMainDomain(host)) {
+		const sub = getSubdomain(host);
+		if (sub) {
+			// username.wrk.so  →  /username
+			if (!pathname.startsWith(`/${sub}`)) {
+				const url = request.nextUrl.clone();
+				url.pathname = `/${sub}${pathname}`;
+				return NextResponse.rewrite(url);
+			}
+			return NextResponse.next();
+		}
+
+		if (isCustomDomain(host)) {
+			const url = request.nextUrl.clone();
+			url.pathname = `/_sites/${host}${pathname}`;
+			return NextResponse.rewrite(url);
+		}
+
 		return NextResponse.next();
 	}
 
-	let session: Awaited<ReturnType<typeof auth.api.getSession>> | null;
-	try {
-		session = await auth.api.getSession({
-			headers: request.headers,
-		});
-	} catch (error) {
-		console.error("Middleware session check failed:", error);
-		session = null;
+	/* ---------- Main-domain routing ---------- */
+
+	const routeType = classifyRoute(pathname);
+
+	let session: Awaited<ReturnType<typeof getSession>> | null = null;
+	if (routeType === "protected" || routeType === "api-upload") {
+		session = await getSession(request);
 	}
 
-	if (isMainDomain(host)) {
-		if (pathname === "/api/upload") {
-			if (!session?.user) {
+	switch (routeType) {
+		case "api-upload":
+			if (!session?.user)
 				return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-			}
 			return NextResponse.next();
-		}
 
-		// Redirect authenticated users from homepage to admin dashboard
-		if (pathname === "/" && session?.user) {
-			return NextResponse.redirect(new URL("/admin", request.url));
-		}
-
-		// Always public routes (no authentication required)
-		const alwaysPublicRoutes = ["/sign-in", "/", "/privacy", "/terms"];
-
-		// Check for always public routes
-		if (
-			alwaysPublicRoutes.some(
-				(route) => pathname === route || pathname.startsWith(`${route}/`),
-			)
-		) {
+		case "api":
+		case "public":
+		case "username":
 			return NextResponse.next();
-		}
 
-		// API routes (except upload which is handled above)
-		if (pathname.startsWith("/api")) {
-			return NextResponse.next();
-		}
-
-		// Username-based portfolio routes - these are public
-		if (isUsernameRoute(pathname)) {
-			return NextResponse.next();
-		}
-
-		// Protect admin routes and onboarding - require authentication
-		if (pathname.startsWith("/admin") || pathname.startsWith("/onboarding")) {
-			if (!session?.user) {
+		case "protected":
+			if (!session?.user)
 				return NextResponse.redirect(new URL("/sign-in", request.url));
+
+			if (pathname.startsWith("/admin") && !session.user.username) {
+				return NextResponse.redirect(new URL("/onboarding", request.url));
 			}
-		}
-
-		return NextResponse.next();
+			return NextResponse.next();
 	}
-
-	// Handle subdomain routing (username.wrk.so -> portfolio)
-	const subdomain = getSubdomain(host);
-	if (subdomain) {
-		const url = request.nextUrl.clone();
-		url.pathname = `/${subdomain}${pathname}`;
-		return NextResponse.rewrite(url);
-	}
-
-	// Handle custom domain routing (Pro feature)
-	if (isCustomDomain(host)) {
-		// Rewrite to special route for database lookup and Pro subscription validation
-		const url = request.nextUrl.clone();
-		url.pathname = `/_sites/${host}${pathname}`;
-		return NextResponse.rewrite(url);
-	}
-
-	// Default fallback
-	return NextResponse.next();
 }
+
+/* ------------------------------------------------------------------ */
+/* Config: Node runtime + matcher                                     */
+/* ------------------------------------------------------------------ */
 
 export const config = {
 	matcher: [
-		/*
-		 * Match all request paths except for the ones starting with:
-		 * - _next/static (static files)
-		 * - _next/image (image optimization files)
-		 * - favicon.ico (favicon file)
-		 * - ingest (PostHog analytics)
-		 */
-		"/((?!_next/static|_next/image|favicon.ico|ingest).*)",
+		// Skip static assets & HMR
+		"/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|ingest).*)",
 	],
-	runtime: "nodejs",
+	runtime: "nodejs", // 👈 critical
 };
