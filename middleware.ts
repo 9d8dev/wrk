@@ -15,6 +15,7 @@ const getMainDomain = (() => {
 
 // Reserved usernames that should not be treated as user routes
 const RESERVED_USERNAMES = [
+	"",
 	"admin",
 	"posts",
 	"privacy-policy",
@@ -126,9 +127,10 @@ export async function middleware(request: NextRequest) {
 		}
 
 		// Redirect authenticated users from homepage to admin dashboard
-		if (pathname === "/" && session?.user) {
-			return NextResponse.redirect(new URL("/admin", request.url));
-		}
+		// Commented out to always show homepage
+		// if (pathname === "/" && session?.user) {
+		// 	return NextResponse.redirect(new URL("/admin", request.url));
+		// }
 
 		// Always public routes (no authentication required)
 		const alwaysPublicRoutes = ["/sign-in", "/", "/privacy", "/terms"];
