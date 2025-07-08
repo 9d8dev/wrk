@@ -343,8 +343,7 @@ export function QuickCreateProject() {
       />
 
       {projectImages.length === 0 ? (
-        <button
-          type="button"
+        <div
           className="w-full cursor-pointer p-12 text-center"
           onClick={() => fileInputRef.current?.click()}
           onKeyDown={(e) => {
@@ -362,7 +361,7 @@ export function QuickCreateProject() {
           <p className="text-muted-foreground mt-2 text-xs">
             Auto-generates title and slug from filename
           </p>
-        </button>
+        </div>
       ) : (
         <div className="space-y-4 p-6">
           {/* Image Preview Grid */}
@@ -382,9 +381,8 @@ export function QuickCreateProject() {
             </div>
             <div className="grid grid-cols-5 gap-2">
               {previewUrls.map((url, index) => (
-                <button
+                <div
                   key={`preview-${projectImages[index]?.name || index}-${index}`}
-                  type="button"
                   className={cn(
                     "group relative cursor-pointer overflow-hidden rounded border-2",
                     featuredImageIndex === index
@@ -398,6 +396,8 @@ export function QuickCreateProject() {
                       setFeaturedImageIndex(index);
                     }
                   }}
+                  tabIndex={0}
+                  role="button"
                   aria-label={`Set ${projectImages[index]?.name || `image ${index + 1}`} as featured image`}
                 >
                   <div className="relative aspect-square">
@@ -424,7 +424,7 @@ export function QuickCreateProject() {
                   >
                     <X size={14} />
                   </button>
-                </button>
+                </div>
               ))}
             </div>
             <p className="text-muted-foreground text-xs">
