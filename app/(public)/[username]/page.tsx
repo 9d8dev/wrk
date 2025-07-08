@@ -72,7 +72,7 @@ export default async function PortfolioPage({ params }: Props) {
   const { projects, gridType } = await getPortfolioData(username);
 
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="flex min-h-screen flex-col">
       <ProfileHeader username={username} />
       <Section className="flex-1">
         <Container>
