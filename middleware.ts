@@ -15,7 +15,6 @@ const getMainDomain = (() => {
 
 // Reserved usernames that should not be treated as user routes
 const RESERVED_USERNAMES = [
-	"",
 	"admin",
 	"posts",
 	"privacy-policy",
