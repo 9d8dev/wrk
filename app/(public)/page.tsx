@@ -112,12 +112,12 @@ export default function Home() {
         <Container className="border-x !p-0">
           <div className="grid md:grid-cols-2">
             <div className="border-r p-6">
-              <h3 className="mb-8 text-2xl font-bold uppercase">
+              <h3 className="mb-4 text-2xl font-bold uppercase">
                 A Creative-first Portfolio site so you can show your work.
               </h3>
               <div className="space-y-6 text-lg">
                 <div>
-                  <h4 className="mb-3 font-bold uppercase">For Creatives</h4>
+                  <h4 className="mb-1 font-bold uppercase">For Creatives</h4>
                   <ul className="space-y-1">
                     <li>- Four unique grid layouts</li>
                     <li>- Drag & drop project reordering</li>
@@ -128,13 +128,12 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h4 className="mb-3 font-bold uppercase">Smart Features</h4>
+                  <h4 className="mb-1 font-bold uppercase">Smart Features</h4>
                   <ul className="space-y-1">
                     <li>- AI-powered description generation</li>
                     <li>- Advanced analytics & insights</li>
                     <li>- Contact forms & lead management</li>
                     <li>- SEO optimization built-in</li>
-                    <li>- GitHub & Google OAuth</li>
                   </ul>
                 </div>
               </div>
