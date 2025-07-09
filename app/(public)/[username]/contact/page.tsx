@@ -109,7 +109,13 @@ export default async function ContactPage({ params }: Props) {
     <>
       <ProfileHeader username={username} />
       <Section>
-        <Container>
+        <Container className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_2fr]">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Contact {user.name}</h1>
+            <p className="text-muted-foreground">
+              Send a message to {user.name}.
+            </p>
+          </div>
           <ContactForm userId={user.id} portfolioOwner={username} />
         </Container>
       </Section>
