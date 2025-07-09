@@ -88,7 +88,7 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
                       placeholder="shimmer"
                     />
 
-                    <div className="from-foreground/40 absolute bottom-0 left-0 flex aspect-square h-full w-full items-end bg-gradient-to-tr via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="absolute bottom-0 left-0 flex aspect-square h-full w-full items-end bg-gradient-to-tr from-stone-900/40 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <h3 className="font-medium text-white">
                         {project.project.title}
                       </h3>
