@@ -9,8 +9,7 @@ import { Suspense } from "react";
 
 import {
   PostHogPageView,
-  PostHogWrapper,
-  PostHogDebug,
+  PostHogClientProvider,
 } from "@/components/analytics";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
@@ -35,11 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <PostHogWrapper>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${fontSans.variable} ${fontMono.variable} font-sans leading-tight font-light antialiased`}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fontSans.variable} ${fontMono.variable} font-sans leading-tight font-light antialiased`}
+      >
+        <PostHogClientProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -50,11 +49,10 @@ export default function RootLayout({
               <PostHogPageView />
             </Suspense>
             {children}
-            <PostHogDebug />
             <Analytics />
           </ThemeProvider>
-        </body>
-      </html>
-    </PostHogWrapper>
+        </PostHogClientProvider>
+      </body>
+    </html>
   );
 }
