@@ -15,7 +15,7 @@ import { notifyNewUserSignup } from "@/lib/utils/discord";
 import { uploadImage } from "@/lib/actions/media";
 import { auth } from "@/lib/auth";
 
-import { account, profile, socialLink, user } from "@/db/schema";
+import { account, profile, socialLink, user, theme } from "@/db/schema";
 import { db } from "@/db/drizzle";
 
 import { updateProfileSchema } from "./schemas";
@@ -344,6 +344,25 @@ export async function createProfile(
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    // Automatically create theme with masonry layout for new users
+    // Check if theme already exists (defensive check)
+    const existingTheme = await db
+      .select()
+      .from(theme)
+      .where(eq(theme.userId, userId))
+      .limit(1);
+
+    if (existingTheme.length === 0) {
+      const themeId = nanoid();
+      await db.insert(theme).values({
+        id: themeId,
+        userId,
+        gridType: "masonry",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
 
     // Check if this is an OAuth user and send Discord notification
     const userAccounts = await db

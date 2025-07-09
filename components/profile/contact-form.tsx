@@ -66,11 +66,15 @@ export function ContactForm({ userId, portfolioOwner }: ContactFormProps) {
       if (result.success) {
         setSuccess(true);
         toast.success("Message sent successfully");
-        portfolioOwner && trackContactFormSubmission(portfolioOwner, true);
+        if (portfolioOwner) {
+          trackContactFormSubmission(portfolioOwner, true);
+        }
         form.reset();
       } else {
         toast.error("Failed to send message");
-        portfolioOwner && trackContactFormSubmission(portfolioOwner, false);
+        if (portfolioOwner) {
+          trackContactFormSubmission(portfolioOwner, false);
+        }
       }
     } catch {
       toast.error("An error occurred");

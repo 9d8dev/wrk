@@ -3,6 +3,7 @@
 ## Issue Description
 
 After changing username during onboarding, two problems occurred:
+
 1. **Admin Sidebar**: The new username was not showing on the admin sidebar
 2. **Portfolio Link**: The "View your portfolio" link was still pointing to the old username
 
@@ -19,18 +20,21 @@ The issue was caused by **session caching** in the Better Auth system:
 ### 1. Admin Layout Data Source Fix (`app/(admin)/layout.tsx`)
 
 **Before**: Used cached session data for username
+
 ```typescript
 // Potentially stale session data
 userUsername: session.user.username || "",
 ```
 
 **After**: Use fresh database data for username
+
 ```typescript
 // Always use fresh DB data for username
 userUsername: userData.username || "",
 ```
 
 **Changes Made**:
+
 - Moved username validation to use database data: `if (!userData.username)`
 - Prioritized database user data over session data for all user fields
 - Added fallbacks to session data only when database data is not available
@@ -47,6 +51,7 @@ This ensures that when usernames change, the admin layout cache is properly inva
 ### 3. Documentation (`components/onboarding/simple-onboarding.tsx`)
 
 Added clarifying comment:
+
 ```typescript
 router.refresh(); // Refresh to ensure admin layout gets updated session data
 ```
@@ -56,6 +61,7 @@ router.refresh(); // Refresh to ensure admin layout gets updated session data
 ### Session vs Database Data Priority
 
 The fix establishes this priority order for user data in admin layout:
+
 1. **Username**: Always from database (most critical for accuracy)
 2. **Name**: Database first, fallback to session
 3. **Email**: Database first, fallback to session
@@ -66,7 +72,7 @@ The fix establishes this priority order for user data in admin layout:
 2. Database updated with new username
 3. Enhanced revalidation invalidates:
    - User profile caches
-   - Username-specific caches  
+   - Username-specific caches
    - **Admin layout cache** (newly added)
 4. Admin layout refetches fresh data from database
 

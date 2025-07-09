@@ -10,10 +10,9 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { SignOutButton } from "@/components/auth/sign-out-button";
-
-import { AdminNav } from "@/components/admin/admin-nav";
 import { UpgradePlanCard } from "@/components/admin/upgrade-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { AdminNav } from "@/components/admin/admin-nav";
 import { Logo } from "@/components/logo";
 
 export function AdminSidebar({

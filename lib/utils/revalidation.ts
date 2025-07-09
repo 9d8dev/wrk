@@ -16,10 +16,10 @@ export async function revalidateUserProfile(username: string, userId?: string) {
       revalidateTag(`projects:${userId}`);
     }
 
-      // Only revalidate specific paths that are critical
-  revalidatePath(`/${username}`);
-  revalidatePath("/admin/profile");
-  revalidatePath("/admin"); // Also revalidate admin layout
+    // Only revalidate specific paths that are critical
+    revalidatePath(`/${username}`);
+    revalidatePath("/admin/profile");
+    revalidatePath("/admin"); // Also revalidate admin layout
   } catch (error) {
     console.error(`Failed to revalidate profile for ${username}:`, error);
   }

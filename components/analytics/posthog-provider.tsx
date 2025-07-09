@@ -6,8 +6,14 @@ import { PostHogProvider } from "posthog-js/react";
 import posthog from "posthog-js";
 
 // Get environment variables safely in client component
-const POSTHOG_KEY = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_POSTHOG_KEY : undefined;
-const POSTHOG_HOST = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_POSTHOG_HOST : undefined;
+const POSTHOG_KEY =
+  typeof window !== "undefined"
+    ? process.env.NEXT_PUBLIC_POSTHOG_KEY
+    : undefined;
+const POSTHOG_HOST =
+  typeof window !== "undefined"
+    ? process.env.NEXT_PUBLIC_POSTHOG_HOST
+    : undefined;
 
 // Initialize PostHog only on client side
 if (typeof window !== "undefined" && POSTHOG_KEY) {
@@ -25,7 +31,10 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
         // Enable debug mode in development
         if (process.env.NODE_ENV === "development") {
           posthog.debug();
-          console.log("PostHog initialized successfully with key:", POSTHOG_KEY?.slice(0, 10) + "...");
+          console.log(
+            "PostHog initialized successfully with key:",
+            POSTHOG_KEY?.slice(0, 10) + "..."
+          );
         }
       },
       autocapture: {
@@ -56,7 +65,9 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
     });
   }
 } else if (typeof window !== "undefined") {
-  console.warn("PostHog not initialized: NEXT_PUBLIC_POSTHOG_KEY environment variable is missing");
+  console.warn(
+    "PostHog not initialized: NEXT_PUBLIC_POSTHOG_KEY environment variable is missing"
+  );
 }
 
 interface PostHogWrapperProps {
@@ -66,8 +77,13 @@ interface PostHogWrapperProps {
 export function PostHogWrapper({ children }: PostHogWrapperProps) {
   // Only render provider if PostHog is configured
   if (!POSTHOG_KEY) {
-    if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-      console.warn("PostHog is not configured. Add NEXT_PUBLIC_POSTHOG_KEY to your environment variables.");
+    if (
+      typeof window !== "undefined" &&
+      process.env.NODE_ENV === "development"
+    ) {
+      console.warn(
+        "PostHog is not configured. Add NEXT_PUBLIC_POSTHOG_KEY to your environment variables."
+      );
     }
     return <>{children}</>;
   }
