@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import React from "react";
 
 import { PostHogUserIdentifier } from "@/components/analytics/posthog-user-identifier";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -16,16 +17,17 @@ async function getAdminData() {
     redirect("/sign-in");
   }
 
-  if (!session.user.username) {
-    redirect("/onboarding");
-  }
-
   const userResult = await getUserById(session.user.id);
   if (!userResult.success || !userResult.data) {
     redirect("/sign-in");
   }
 
   const userData = userResult.data;
+
+  // Use fresh data from database instead of potentially cached session data
+  if (!userData.username) {
+    redirect("/onboarding");
+  }
 
   let isPro = false;
 
@@ -49,9 +51,9 @@ async function getAdminData() {
     userData,
     isPro,
     productInfo,
-    userName: session.user.name || "User",
-    userEmail: session.user.email || "",
-    userUsername: session.user.username || "",
+    userName: userData.name || session.user.name || "User",
+    userEmail: userData.email || session.user.email || "",
+    userUsername: userData.username || "", // Always use fresh DB data for username
   };
 }
 
