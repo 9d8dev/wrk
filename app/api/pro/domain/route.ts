@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -109,6 +110,9 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       })
       .where(eq(user.id, session.user.id));
+
+    // Revalidate domain lookup cache
+    revalidateTag("domain-lookup");
 
     return NextResponse.json({
       success: true,
@@ -221,6 +225,9 @@ export async function DELETE(request: NextRequest) {
         // Don't fail the entire operation if Vercel removal fails
       }
     }
+
+    // Revalidate domain lookup cache
+    revalidateTag("domain-lookup");
 
     return NextResponse.json({
       success: true,

@@ -3,6 +3,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getUsernameByDomain } from "@/lib/data/domain";
 
 /* ------------------------------------------------------------------ */
 /* Configuration                                                      */
@@ -134,9 +135,18 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isCustomDomain(host)) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/_sites/${host}${pathname}`;
-      return NextResponse.rewrite(url);
+      // Look up the username associated with this custom domain
+      const username = await getUsernameByDomain(host);
+      
+      if (username) {
+        // Rewrite to the user's portfolio page
+        const url = request.nextUrl.clone();
+        url.pathname = `/${username}${pathname}`;
+        return NextResponse.rewrite(url);
+      }
+      
+      // If domain not found, return 404
+      return new NextResponse("Domain not found", { status: 404 });
     }
 
     return NextResponse.next();

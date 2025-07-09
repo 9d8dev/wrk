@@ -1,6 +1,7 @@
 import { promises as dns } from "node:dns";
 
 import { type NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
