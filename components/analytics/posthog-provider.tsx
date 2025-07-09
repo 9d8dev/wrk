@@ -1,8 +1,8 @@
 "use client";
 
 import { PostHogProvider } from "posthog-js/react";
-import posthog from "posthog-js";
 import { ReactNode } from "react";
+import posthog from "posthog-js";
 
 // Initialize PostHog on the client side
 if (typeof window !== "undefined") {
@@ -15,7 +15,7 @@ if (typeof window !== "undefined") {
       person_profiles: "identified_only",
       capture_pageview: false, // We'll handle this manually
       capture_pageleave: true,
-      loaded: (posthog) => {
+      loaded: () => {
         if (process.env.NODE_ENV === "development") {
           console.log("PostHog initialized successfully");
         }

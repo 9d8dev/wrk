@@ -7,10 +7,7 @@ import { Geist_Mono as FontMono, Geist as FontSans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 
-import {
-  PostHogPageView,
-  PostHogClientProvider,
-} from "@/components/analytics";
+import { PostHogPageView, PostHogClientProvider } from "@/components/analytics";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const fontSans = FontSans({
