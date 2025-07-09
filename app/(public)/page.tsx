@@ -184,8 +184,8 @@ export default function Home() {
         </Container>
 
         <Container className="grid border-x !p-0 md:grid-cols-[auto_1fr]">
-          <div className="bg-accent/50 max-w-lg space-y-3 p-6">
-            <h3 className="text-4xl font-bold uppercase">
+          <div className="bg-accent/50 space-y-3 p-6 md:max-w-lg">
+            <h3 className="text-4xl font-bold text-balance uppercase">
               Watch a demo of the platform in action.
             </h3>
             <p className="text-muted-foreground text-2xl font-semibold">
