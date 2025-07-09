@@ -17,13 +17,13 @@ import Image from "next/image";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { ImproveWriting } from "@/components/ai/improve-writing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import { ImproveWriting } from "@/components/ai/improve-writing";
 
 import { createProfile } from "@/lib/actions/profile";
 

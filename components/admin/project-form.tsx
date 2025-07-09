@@ -2,15 +2,7 @@
 
 import type { Media, Project } from "@/db/schema";
 
-import {
-  ChevronDown,
-  ChevronUp,
-  Image as ImageIcon,
-  Loader2,
-  Plus,
-  Star,
-  X,
-} from "lucide-react";
+import { Image as ImageIcon, Loader2, Plus, Star, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -968,7 +960,6 @@ export const ProjectForm = ({
 }: ProjectFormProps) => {
   const isEditing = !!project;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(formSchema),

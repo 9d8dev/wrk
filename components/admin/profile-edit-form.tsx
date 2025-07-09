@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ImproveWriting } from "@/components/ai/improve-writing";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,6 @@ import { useProfileForm } from "@/hooks/use-profile-form";
 import ProfileUsernameField from "./profile-username-field";
 import ProfileImageUpload from "./profile-image-upload";
 import SocialLinksManager from "./social-links-manager";
-import { ImproveWriting } from "@/components/ai/improve-writing";
 
 type SessionUser = {
   id: string;
