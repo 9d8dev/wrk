@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import {
   addDomainToVercel,
+  checkDomainExists,
   getDomainStatus,
   verifyDomainInVercel,
 } from "@/lib/vercel-api";
@@ -221,27 +222,34 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(user.id, session.user.id));
 
-    // Step 3: Add domain to Vercel project
-    const addResult = await addDomainToVercel(domain);
-    if (!addResult.success) {
-      await db
-        .update(user)
-        .set({
-          domainStatus: "error",
-          domainErrorMessage: `Failed to add domain to Vercel: ${addResult.error}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, session.user.id));
+    // Step 3: Check if domain already exists in Vercel, then add if needed
+    const existsCheck = await checkDomainExists(domain);
+    
+    if (!existsCheck.exists) {
+      // Domain doesn't exist, add it
+      const addResult = await addDomainToVercel(domain);
+      if (!addResult.success) {
+        await db
+          .update(user)
+          .set({
+            domainStatus: "error",
+            domainErrorMessage: `Failed to add domain to Vercel: ${addResult.error}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, session.user.id));
 
-      return NextResponse.json({
-        success: false,
-        verified: false,
-        domain,
-        status: "error",
-        error: `Failed to configure domain in Vercel: ${addResult.error}`,
-        message:
-          "DNS is configured correctly, but there was an issue setting up the domain in Vercel.",
-      });
+        return NextResponse.json({
+          success: false,
+          verified: false,
+          domain,
+          status: "error",
+          error: `Failed to configure domain in Vercel: ${addResult.error}`,
+          message:
+            "DNS is configured correctly, but there was an issue setting up the domain in Vercel.",
+        });
+      }
+    } else {
+      console.log(`Domain ${domain} already exists in Vercel, skipping add step`);
     }
 
     // Step 4: Update status to vercel_pending while we wait for SSL

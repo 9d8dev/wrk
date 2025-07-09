@@ -36,6 +36,48 @@ export interface VercelDomainStatus {
 }
 
 /**
+ * Check if a domain already exists in the Vercel project
+ */
+export async function checkDomainExists(
+  domain: string
+): Promise<{ exists: boolean; error?: string }> {
+  try {
+    const configCheck = validateVercelConfig();
+    if (!configCheck.isValid) {
+      return {
+        exists: false,
+        error: `Vercel API configuration error: ${configCheck.error}`,
+      };
+    }
+
+    const response = await fetch(
+      `https://api.vercel.com/v9/projects/${projectId}/domains${teamId ? `?teamId=${teamId}` : ""}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return { exists: false, error: "Failed to check existing domains" };
+    }
+
+    const data = await response.json();
+    const domains = data.domains || [];
+    const exists = domains.some((d: { name: string }) => d.name === domain);
+
+    return { exists };
+  } catch (error) {
+    console.error("Error checking domain existence:", error);
+    return {
+      exists: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
  * Add a domain to the Vercel project
  */
 export async function addDomainToVercel(
@@ -67,8 +109,15 @@ export async function addDomainToVercel(
 
     if (!response.ok) {
       const error = await response.json();
-      // Domain might already exist, which is okay
-      if (error.error?.code === "domain_already_exists") {
+      
+      // Domain already exists in some form - this is okay
+      if (
+        error.error?.code === "domain_already_exists" ||
+        error.error?.code === "domain_taken" ||
+        (error.error?.message && 
+         error.error.message.includes("already in use")) ||
+        response.status === 409
+      ) {
         return { success: true };
       }
 
@@ -87,6 +136,13 @@ export async function addDomainToVercel(
           error: "Vercel API access denied. Please check project permissions.",
         };
       }
+
+      // Log the full error for debugging
+      console.error("Vercel API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: error,
+      });
 
       return {
         success: false,
