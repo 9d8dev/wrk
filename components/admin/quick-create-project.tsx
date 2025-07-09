@@ -6,6 +6,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 import { GenerateDescription } from "@/components/ai/generate-description";
+import { ImproveWriting } from "@/components/ai/improve-writing";
 import { UploadProgress } from "@/components/ui/upload-progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -360,14 +361,23 @@ function ProjectFormFields({
                 onChange={(e) => onUpdateField("about", e.target.value)}
                 rows={3}
               />
-              {featuredImage && (
-                <GenerateDescription
-                  file={featuredImage}
+              <div className="flex gap-2">
+                {featuredImage && (
+                  <GenerateDescription
+                    file={featuredImage}
+                    field={{
+                      onChange: (value: string) =>
+                        onUpdateField("about", value),
+                    }}
+                  />
+                )}
+                <ImproveWriting
+                  value={formData.about}
                   field={{
                     onChange: (value: string) => onUpdateField("about", value),
                   }}
                 />
-              )}
+              </div>
             </div>
             <Input
               placeholder="External link (optional)"

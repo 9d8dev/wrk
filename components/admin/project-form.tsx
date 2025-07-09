@@ -39,6 +39,7 @@ import { uploadMultipleImages } from "@/lib/utils/upload";
 import { cn } from "@/lib/utils";
 
 import { GenerateDescription } from "../ai/generate-description";
+import { ImproveWriting } from "../ai/improve-writing";
 
 // Constants
 
@@ -861,19 +862,22 @@ function ProjectDetailsForm({
                 if (!featuredImage) return null;
 
                 return (
-                  <GenerateDescription
-                    imageUrl={
-                      featuredImage.type === "existing"
-                        ? featuredImage.media?.url
-                        : undefined
-                    }
-                    file={
-                      featuredImage.type === "new"
-                        ? featuredImage.file
-                        : undefined
-                    }
-                    field={field}
-                  />
+                  <div className="flex gap-2">
+                    <GenerateDescription
+                      imageUrl={
+                        featuredImage.type === "existing"
+                          ? featuredImage.media?.url
+                          : undefined
+                      }
+                      file={
+                        featuredImage.type === "new"
+                          ? featuredImage.file
+                          : undefined
+                      }
+                      field={field}
+                    />
+                    <ImproveWriting value={field.value} field={field} />
+                  </div>
                 );
               })()}
 

@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { ImproveWriting } from "@/components/ai/improve-writing";
 
 import { createProfile } from "@/lib/actions/profile";
 
@@ -360,6 +361,10 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
               {...form.register("bio")}
               placeholder="Tell us about yourself and what you do..."
               className="min-h-[100px] resize-none"
+            />
+            <ImproveWriting
+              value={form.watch("bio") || ""}
+              field={{ onChange: (v) => form.setValue("bio", v) }}
             />
             <div className="text-muted-foreground flex justify-between text-xs">
               <span>A brief introduction for your portfolio</span>

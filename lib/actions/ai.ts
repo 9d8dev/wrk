@@ -31,7 +31,7 @@ export const generateDescription = async (imageUrl: string) => {
   return result.text;
 };
 
-export const improveWriting = async () => {
+export const improveWriting = async (text: string) => {
   const result = await generateText({
     model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
     messages: [
@@ -40,7 +40,7 @@ export const improveWriting = async () => {
         content: [
           {
             type: "text",
-            text: "Improve this writing while keeping about the same length. Focus on the writing style, grammar, and tone.",
+            text: `Improve this writing while keeping about the same length. Focus on the writing style, grammar, and tone.\n\n${text}`,
           },
         ],
       },

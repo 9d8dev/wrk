@@ -22,6 +22,7 @@ import { useProfileForm } from "@/hooks/use-profile-form";
 import ProfileUsernameField from "./profile-username-field";
 import ProfileImageUpload from "./profile-image-upload";
 import SocialLinksManager from "./social-links-manager";
+import { ImproveWriting } from "@/components/ai/improve-writing";
 
 type SessionUser = {
   id: string;
@@ -162,6 +163,7 @@ export default function ProfileEditForm({
                     {...field}
                   />
                 </FormControl>
+                <ImproveWriting value={field.value} field={field} />
                 <FormMessage />
               </FormItem>
             )}
