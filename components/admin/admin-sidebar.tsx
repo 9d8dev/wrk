@@ -71,7 +71,7 @@ const User = ({
   return (
     <div className="text-muted-foreground mb-8 text-xs">
       <p className="text-foreground mb-2">
-        Welcome back, {name} {isPro && "⭐"}
+        Welcome back, {name} {isPro && " *"}
       </p>
       <p>username: {username}</p>
       <p>email: {email}</p>

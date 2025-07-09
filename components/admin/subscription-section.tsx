@@ -84,7 +84,7 @@ function ActiveSubscriptionDisplay({
             <p className="text-muted-foreground text-sm">Active subscription</p>
           </div>
           <span className="bg-primary/10 text-primary rounded px-2 py-1 text-xs">
-            ⭐ PRO
+            * PRO
           </span>
         </div>
 
