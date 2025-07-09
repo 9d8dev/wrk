@@ -137,14 +137,14 @@ export async function middleware(request: NextRequest) {
     if (isCustomDomain(host)) {
       // Look up the username associated with this custom domain
       const username = await getUsernameByDomain(host);
-      
+
       if (username) {
         // Rewrite to the user's portfolio page
         const url = request.nextUrl.clone();
         url.pathname = `/${username}${pathname}`;
         return NextResponse.rewrite(url);
       }
-      
+
       // If domain not found, return 404
       return new NextResponse("Domain not found", { status: 404 });
     }

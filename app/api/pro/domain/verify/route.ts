@@ -292,6 +292,9 @@ export async function POST(request: NextRequest) {
           })
           .where(eq(user.id, session.user.id));
 
+        // Revalidate domain lookup cache when domain becomes active
+        revalidateTag("domain-lookup");
+
         return NextResponse.json({
           success: true,
           verified: true,
@@ -334,6 +337,9 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       })
       .where(eq(user.id, session.user.id));
+
+    // Revalidate domain lookup cache
+    revalidateTag("domain-lookup");
 
     return NextResponse.json({
       success: true,
