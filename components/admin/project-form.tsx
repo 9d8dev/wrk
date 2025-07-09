@@ -876,7 +876,7 @@ function ProjectDetailsForm({
                       }
                       field={field}
                     />
-                    <ImproveWriting value={field.value} field={field} />
+                    <ImproveWriting value={field.value || ""} field={field} />
                   </div>
                 );
               })()}
