@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { toast } from "sonner";
 
+import { usePostHogEvents } from "@/components/analytics";
 import { GitHubIcon } from "@/components/icons/github";
 import { GoogleIcon } from "@/components/icons/google";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,13 @@ interface SocialLoginButtonsProps {
 export default function SocialLoginButtons({
   isLoading,
 }: SocialLoginButtonsProps) {
+  const { trackSignIn } = usePostHogEvents();
+
   const handleSocialLogin = async (provider: "google" | "github") => {
     try {
+      // Track the sign in attempt
+      trackSignIn(provider);
+
       await authClient.signIn.social({
         provider,
         callbackURL: "/onboarding",

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { isNotNull } from "drizzle-orm";
 import Link from "next/link";
 
+import { ProjectPageClient } from "@/components/portfolio/project-page-client";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { AsyncImage } from "@/components/ui/async-image";
@@ -165,6 +166,7 @@ export default async function ProjectPage({ params }: Props) {
 
   return (
     <>
+      <ProjectPageClient username={username} projectTitle={project.title} />
       <ProfileHeader username={username} />
       <Section>
         <FeaturedImage

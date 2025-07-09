@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { usePostHogEvents } from "@/components/analytics";
 import { authClient } from "@/lib/auth-client";
 
 export function useSignInForm() {
@@ -10,6 +11,7 @@ export function useSignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { trackSignIn } = usePostHogEvents();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,6 +41,9 @@ export function useSignInForm() {
           throw new Error(error.message || "Failed to sign in");
         }
       }
+
+      // Track successful sign in
+      trackSignIn("email");
 
       // Successful login - redirect to admin
       router.push("/admin");

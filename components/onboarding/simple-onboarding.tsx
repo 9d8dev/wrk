@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { ImproveWriting } from "@/components/ai/improve-writing";
+import { usePostHogEvents } from "@/components/analytics";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
     user.image || null
   );
+  const { trackOnboardingCompleted } = usePostHogEvents();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -168,6 +170,9 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
       if (!profileResult.success) {
         throw new Error(profileResult.error);
       }
+
+      // Track onboarding completion
+      trackOnboardingCompleted();
 
       toast.success("Welcome to Wrk.so! 🎉");
       router.push("/admin");

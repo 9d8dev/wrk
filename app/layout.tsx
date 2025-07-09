@@ -7,7 +7,11 @@ import { Geist_Mono as FontMono, Geist as FontSans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 
-import { PostHogPageView, PostHogWrapper } from "@/components/analytics";
+import {
+  PostHogPageView,
+  PostHogWrapper,
+  PostHogDebug,
+} from "@/components/analytics";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const fontSans = FontSans({
@@ -46,6 +50,7 @@ export default function RootLayout({
               <PostHogPageView />
             </Suspense>
             {children}
+            <PostHogDebug />
             <Analytics />
           </ThemeProvider>
         </body>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { isNotNull } from "drizzle-orm";
 
+import { PortfolioPageClient } from "@/components/portfolio/portfolio-page-client";
 import { PortfolioGrid } from "@/components/profile/portfolio-grid";
 import { ProfileFooter } from "@/components/profile/profile-footer";
 import { ProfileHeader } from "@/components/profile/profile-header";
@@ -78,6 +79,7 @@ export default async function PortfolioPage({ params }: Props) {
 
   return (
     <main className="flex min-h-screen flex-col">
+      <PortfolioPageClient username={username} />
       <ProfileHeader username={username} />
       <Section className="flex-1">
         <Container>

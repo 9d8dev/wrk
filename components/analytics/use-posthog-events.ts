@@ -20,10 +20,9 @@ export function usePostHogEvents() {
 
   // Portfolio-specific events
   const trackPortfolioView = useCallback(
-    (username: string, domainType: "main" | "subdomain" | "custom") => {
+    (username: string) => {
       trackEvent("portfolio_viewed", {
         portfolio_owner: username,
-        domain_type: domainType,
         timestamp: new Date().toISOString(),
       });
     },
@@ -31,10 +30,10 @@ export function usePostHogEvents() {
   );
 
   const trackProjectView = useCallback(
-    (projectSlug: string, portfolioOwner: string) => {
+    (username: string, projectTitle: string) => {
       trackEvent("project_viewed", {
-        project_slug: projectSlug,
-        portfolio_owner: portfolioOwner,
+        portfolio_owner: username,
+        project_title: projectTitle,
         timestamp: new Date().toISOString(),
       });
     },
