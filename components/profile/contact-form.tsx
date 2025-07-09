@@ -108,8 +108,10 @@ export function ContactForm({ userId, portfolioOwner }: ContactFormProps) {
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="contact-name">Name</FormLabel>
+            <FormItem className="gap-0">
+              <FormLabel htmlFor="contact-name" className="mb-2">
+                Name
+              </FormLabel>
               <FormControl>
                 <Input id="contact-name" placeholder="Your name" {...field} />
               </FormControl>
