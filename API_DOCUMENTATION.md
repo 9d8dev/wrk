@@ -25,7 +25,7 @@ The authentication system uses Better Auth with OAuth providers and email/passwo
 #### `auth` - Main Authentication Instance
 
 ```typescript
-import { auth } from '@/lib/auth';
+import { auth } from "@/lib/auth";
 
 // Usage in API routes
 const session = await auth.api.getSession({ headers: await headers() });
@@ -35,6 +35,7 @@ const { data: session } = await auth.api.getSession();
 ```
 
 **Features:**
+
 - GitHub OAuth
 - Google OAuth
 - Email/password authentication
@@ -43,6 +44,7 @@ const { data: session } = await auth.api.getSession();
 - 30-day session duration
 
 **Environment Variables Required:**
+
 ```env
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
@@ -60,19 +62,19 @@ Client-side authentication utilities.
 #### `authClient` - Client Authentication Instance
 
 ```typescript
-import { authClient, signIn, signUp, useSession } from '@/lib/auth-client';
+import { authClient, signIn, signUp, useSession } from "@/lib/auth-client";
 
 // Sign in
 await signIn.email({
-  email: 'user@example.com',
-  password: 'password123'
+  email: "user@example.com",
+  password: "password123",
 });
 
 // Sign up
 await signUp.email({
-  email: 'user@example.com',
-  password: 'password123',
-  name: 'John Doe'
+  email: "user@example.com",
+  password: "password123",
+  name: "John Doe",
 });
 
 // Use session hook
@@ -107,7 +109,13 @@ type User = {
   subscriptionCurrentPeriodEnd?: Date;
   // Custom domain fields (Pro only)
   customDomain?: string;
-  domainStatus?: 'pending' | 'dns_configured' | 'vercel_pending' | 'ssl_pending' | 'active' | 'error';
+  domainStatus?:
+    | "pending"
+    | "dns_configured"
+    | "vercel_pending"
+    | "ssl_pending"
+    | "active"
+    | "error";
   domainErrorMessage?: string;
   domainVerifiedAt?: Date;
 };
@@ -173,7 +181,7 @@ type Media = {
 type Theme = {
   id: string;
   userId: string;
-  gridType: 'masonry' | 'grid' | 'minimal' | 'square';
+  gridType: "masonry" | "grid" | "minimal" | "square";
   createdAt: Date;
   updatedAt: Date;
 };
@@ -191,6 +199,7 @@ export const { GET, POST } = toNextJsHandler(auth.handler);
 ```
 
 **Endpoints:**
+
 - `POST /api/auth/sign-in` - Email/password sign in
 - `POST /api/auth/sign-up` - Email/password sign up
 - `GET /api/auth/session` - Get current session
@@ -205,12 +214,12 @@ Direct file upload endpoint with authentication and validation.
 ```typescript
 // POST /api/upload
 const formData = new FormData();
-formData.append('file', file);
-formData.append('projectId', 'optional-project-id');
+formData.append("file", file);
+formData.append("projectId", "optional-project-id");
 
-const response = await fetch('/api/upload', {
-  method: 'POST',
-  body: formData
+const response = await fetch("/api/upload", {
+  method: "POST",
+  body: formData,
 });
 
 const result = await response.json();
@@ -218,6 +227,7 @@ const result = await response.json();
 ```
 
 **Features:**
+
 - File size limit: 20MB
 - Supported formats: JPEG, PNG, WebP, GIF
 - Automatic image optimization
@@ -230,14 +240,14 @@ Generate presigned URLs for client-side uploads.
 
 ```typescript
 // POST /api/upload/presigned
-const response = await fetch('/api/upload/presigned', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/upload/presigned", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    fileName: 'image.jpg',
-    fileType: 'image/jpeg',
-    fileSize: 1024000
-  })
+    fileName: "image.jpg",
+    fileType: "image/jpeg",
+    fileSize: 1024000,
+  }),
 });
 
 const { presignedUrl, fields } = await response.json();
@@ -249,10 +259,10 @@ Media management endpoint.
 
 ```typescript
 // DELETE /api/media
-const response = await fetch('/api/media', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ mediaId: 'media-id' })
+const response = await fetch("/api/media", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ mediaId: "media-id" }),
 });
 ```
 
@@ -267,30 +277,30 @@ const response = await fetch('/api/media', {
 Update user profile with validation.
 
 ```typescript
-import { updateProfile } from '@/lib/actions/profile';
+import { updateProfile } from "@/lib/actions/profile";
 
 const result = await updateProfile({
   profileData: {
-    title: 'Senior Designer',
-    bio: 'Passionate about creating beautiful digital experiences.',
-    location: 'San Francisco, CA'
+    title: "Senior Designer",
+    bio: "Passionate about creating beautiful digital experiences.",
+    location: "San Francisco, CA",
   },
   userData: {
-    name: 'John Doe',
-    username: 'johndoe',
-    email: 'john@example.com'
+    name: "John Doe",
+    username: "johndoe",
+    email: "john@example.com",
   },
   socialLinks: [
-    { platform: 'twitter', url: 'https://twitter.com/johndoe' },
-    { platform: 'linkedin', url: 'https://linkedin.com/in/johndoe' }
+    { platform: "twitter", url: "https://twitter.com/johndoe" },
+    { platform: "linkedin", url: "https://linkedin.com/in/johndoe" },
   ],
-  profileImageFormData: formData // Optional
+  profileImageFormData: formData, // Optional
 });
 
 if (result.success) {
-  console.log('Profile updated:', result.data);
+  console.log("Profile updated:", result.data);
 } else {
-  console.error('Error:', result.error);
+  console.error("Error:", result.error);
 }
 ```
 
@@ -299,15 +309,15 @@ if (result.success) {
 Create a new profile for authenticated user.
 
 ```typescript
-import { createProfile } from '@/lib/actions/profile';
+import { createProfile } from "@/lib/actions/profile";
 
 const result = await createProfile({
   profileData: {
-    title: 'Designer',
-    bio: 'Hello world!',
-    location: 'New York'
+    title: "Designer",
+    bio: "Hello world!",
+    location: "New York",
   },
-  username: 'newusername' // Optional username change
+  username: "newusername", // Optional username change
 });
 ```
 
@@ -316,9 +326,9 @@ const result = await createProfile({
 Update username with validation and availability check.
 
 ```typescript
-import { updateUsername } from '@/lib/actions/profile';
+import { updateUsername } from "@/lib/actions/profile";
 
-const result = await updateUsername('newusername');
+const result = await updateUsername("newusername");
 ```
 
 ### Project Actions (`lib/actions/project.ts`)
@@ -328,18 +338,18 @@ const result = await updateUsername('newusername');
 Create a new project with automatic slug generation.
 
 ```typescript
-import { createProject } from '@/lib/actions/project';
+import { createProject } from "@/lib/actions/project";
 
 const result = await createProject({
-  title: 'My Awesome Project',
-  about: 'A detailed description of my project.',
-  externalLink: 'https://example.com',
-  imageIds: ['media-id-1', 'media-id-2'],
-  featuredImageId: 'media-id-1'
+  title: "My Awesome Project",
+  about: "A detailed description of my project.",
+  externalLink: "https://example.com",
+  imageIds: ["media-id-1", "media-id-2"],
+  featuredImageId: "media-id-1",
 });
 
 if (result.success) {
-  console.log('Project created:', result.data);
+  console.log("Project created:", result.data);
   // { id: 'project-id', slug: 'my-awesome-project', title: 'My Awesome Project' }
 }
 ```
@@ -349,11 +359,11 @@ if (result.success) {
 Update an existing project with ownership validation.
 
 ```typescript
-import { updateProject } from '@/lib/actions/project';
+import { updateProject } from "@/lib/actions/project";
 
-const result = await updateProject('project-id', {
-  title: 'Updated Project Title',
-  about: 'Updated description'
+const result = await updateProject("project-id", {
+  title: "Updated Project Title",
+  about: "Updated description",
 });
 ```
 
@@ -362,9 +372,9 @@ const result = await updateProject('project-id', {
 Delete a project and associated media.
 
 ```typescript
-import { deleteProject } from '@/lib/actions/project';
+import { deleteProject } from "@/lib/actions/project";
 
-const result = await deleteProject('project-id');
+const result = await deleteProject("project-id");
 ```
 
 #### `updateProjectOrder(projectIds: string[])`
@@ -372,12 +382,12 @@ const result = await deleteProject('project-id');
 Reorder projects by providing array of project IDs in desired order.
 
 ```typescript
-import { updateProjectOrder } from '@/lib/actions/project';
+import { updateProjectOrder } from "@/lib/actions/project";
 
 const result = await updateProjectOrder([
-  'project-id-3',
-  'project-id-1',
-  'project-id-2'
+  "project-id-3",
+  "project-id-1",
+  "project-id-2",
 ]);
 ```
 
@@ -388,15 +398,15 @@ const result = await updateProjectOrder([
 Upload image with automatic optimization and validation.
 
 ```typescript
-import { uploadImage } from '@/lib/actions/media';
+import { uploadImage } from "@/lib/actions/media";
 
 const formData = new FormData();
-formData.append('file', file);
+formData.append("file", file);
 
-const result = await uploadImage(formData, 'optional-project-id');
+const result = await uploadImage(formData, "optional-project-id");
 
 if (result.success) {
-  console.log('Image uploaded:', result.mediaId);
+  console.log("Image uploaded:", result.mediaId);
 }
 ```
 
@@ -407,12 +417,12 @@ if (result.success) {
 Generate AI description for images using Groq.
 
 ```typescript
-import { generateDescription } from '@/lib/actions/ai';
+import { generateDescription } from "@/lib/actions/ai";
 
-const result = await generateDescription('https://example.com/image.jpg');
+const result = await generateDescription("https://example.com/image.jpg");
 
 if (result.success) {
-  console.log('Generated description:', result.data);
+  console.log("Generated description:", result.data);
 }
 ```
 
@@ -423,11 +433,11 @@ if (result.success) {
 Get current user session.
 
 ```typescript
-import { getSession } from '@/lib/actions/auth';
+import { getSession } from "@/lib/actions/auth";
 
 const session = await getSession();
 if (session) {
-  console.log('User:', session.user);
+  console.log("User:", session.user);
 }
 ```
 
@@ -436,7 +446,7 @@ if (session) {
 Sign out current user.
 
 ```typescript
-import { signOut } from '@/lib/actions/auth';
+import { signOut } from "@/lib/actions/auth";
 
 await signOut(); // Redirects to sign-in page
 ```
@@ -446,7 +456,7 @@ await signOut(); // Redirects to sign-in page
 Delete user account and all associated data.
 
 ```typescript
-import { deleteAccount } from '@/lib/actions/auth';
+import { deleteAccount } from "@/lib/actions/auth";
 
 const result = await deleteAccount();
 ```
@@ -478,6 +488,7 @@ import { Button } from '@/components/ui/button';
 ```
 
 **Props:**
+
 - `variant`: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
 - `size`: 'default' | 'sm' | 'lg' | 'icon'
 
@@ -507,14 +518,18 @@ import { Input } from '@/components/ui/input';
 Drag-and-drop file upload component.
 
 ```tsx
-import { FileUploader, FileUploaderContent, FileUploaderItem } from '@/components/ui/file-upload';
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/ui/file-upload";
 
 <FileUploader
   value={files}
   onValueChange={setFiles}
   dropzoneOptions={{
-    accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] },
-    maxSize: 20 * 1024 * 1024 // 20MB
+    accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
+    maxSize: 20 * 1024 * 1024, // 20MB
   }}
 >
   <FileUploaderContent>
@@ -524,7 +539,7 @@ import { FileUploader, FileUploaderContent, FileUploaderItem } from '@/component
       </FileUploaderItem>
     ))}
   </FileUploaderContent>
-</FileUploader>
+</FileUploader>;
 ```
 
 #### `AsyncImage`
@@ -532,7 +547,7 @@ import { FileUploader, FileUploaderContent, FileUploaderItem } from '@/component
 Optimized image component with loading states.
 
 ```tsx
-import { AsyncImage } from '@/components/ui/async-image';
+import { AsyncImage } from "@/components/ui/async-image";
 
 <AsyncImage
   src="/path/to/image.jpg"
@@ -540,7 +555,7 @@ import { AsyncImage } from '@/components/ui/async-image';
   width={400}
   height={300}
   className="rounded-lg"
-/>
+/>;
 ```
 
 ### Profile Components (`components/profile/`)
@@ -550,16 +565,13 @@ import { AsyncImage } from '@/components/ui/async-image';
 Main portfolio grid component with multiple layout options.
 
 ```tsx
-import { PortfolioGrid } from '@/components/profile/portfolio-grid';
+import { PortfolioGrid } from "@/components/profile/portfolio-grid";
 
-<PortfolioGrid
-  projects={projects}
-  username="johndoe"
-  gridType="masonry"
-/>
+<PortfolioGrid projects={projects} username="johndoe" gridType="masonry" />;
 ```
 
 **Grid Types:**
+
 - `masonry` - Pinterest-style variable heights
 - `grid` - Standard uniform grid
 - `minimal` - Clean minimal layout
@@ -570,12 +582,9 @@ import { PortfolioGrid } from '@/components/profile/portfolio-grid';
 Lead generation contact form.
 
 ```tsx
-import { ContactForm } from '@/components/profile/contact-form';
+import { ContactForm } from "@/components/profile/contact-form";
 
-<ContactForm
-  userId="user-id"
-  portfolioOwner="John Doe"
-/>
+<ContactForm userId="user-id" portfolioOwner="John Doe" />;
 ```
 
 #### `ProfileHeader`
@@ -583,9 +592,9 @@ import { ContactForm } from '@/components/profile/contact-form';
 User profile header with avatar and basic info.
 
 ```tsx
-import { ProfileHeader } from '@/components/profile/profile-header';
+import { ProfileHeader } from "@/components/profile/profile-header";
 
-<ProfileHeader username="johndoe" />
+<ProfileHeader username="johndoe" />;
 ```
 
 ### Admin Components (`components/admin/`)
@@ -615,13 +624,13 @@ import { ProjectForm } from '@/components/admin/project-form';
 Profile editing form with image upload.
 
 ```tsx
-import { ProfileForm } from '@/components/admin/profile-form';
+import { ProfileForm } from "@/components/admin/profile-form";
 
 <ProfileForm
   user={user}
   profile={profile}
-  onSuccess={() => console.log('Profile updated')}
-/>
+  onSuccess={() => console.log("Profile updated")}
+/>;
 ```
 
 #### `ThemeForm`
@@ -629,12 +638,9 @@ import { ProfileForm } from '@/components/admin/profile-form';
 Theme customization form.
 
 ```tsx
-import { ThemeForm } from '@/components/admin/theme-form';
+import { ThemeForm } from "@/components/admin/theme-form";
 
-<ThemeForm
-  user={user}
-  theme={theme}
-/>
+<ThemeForm user={user} theme={theme} />;
 ```
 
 ### Authentication Components (`components/auth/`)
@@ -644,9 +650,9 @@ import { ThemeForm } from '@/components/admin/theme-form';
 Complete sign-in form with validation.
 
 ```tsx
-import SignInForm from '@/components/auth/sign-in-form';
+import SignInForm from "@/components/auth/sign-in-form";
 
-<SignInForm />
+<SignInForm />;
 ```
 
 #### `SignUpForm`
@@ -654,9 +660,9 @@ import SignInForm from '@/components/auth/sign-in-form';
 Complete sign-up form with validation.
 
 ```tsx
-import SignUpForm from '@/components/auth/sign-up-form';
+import SignUpForm from "@/components/auth/sign-up-form";
 
-<SignUpForm />
+<SignUpForm />;
 ```
 
 #### `SocialLoginButtons`
@@ -664,12 +670,12 @@ import SignUpForm from '@/components/auth/sign-up-form';
 OAuth login buttons for GitHub and Google.
 
 ```tsx
-import SocialLoginButtons from '@/components/auth/social-login-buttons';
+import SocialLoginButtons from "@/components/auth/social-login-buttons";
 
 <SocialLoginButtons
   mode="signin" // or "signup"
-  onSuccess={() => console.log('Logged in')}
-/>
+  onSuccess={() => console.log("Logged in")}
+/>;
 ```
 
 ---
@@ -683,22 +689,17 @@ import SocialLoginButtons from '@/components/auth/social-login-buttons';
 Sign-up form state management with validation.
 
 ```tsx
-import { useSignUpForm } from '@/hooks/use-sign-up-form';
+import { useSignUpForm } from "@/hooks/use-sign-up-form";
 
 function SignUpPage() {
-  const {
-    form,
-    isLoading,
-    passwordStrength,
-    handleSubmit
-  } = useSignUpForm();
+  const { form, isLoading, passwordStrength, handleSubmit } = useSignUpForm();
 
   return (
     <form onSubmit={handleSubmit}>
-      <input {...form.register('name')} />
-      <input {...form.register('email')} />
-      <input {...form.register('password')} />
-      <input {...form.register('username')} />
+      <input {...form.register("name")} />
+      <input {...form.register("email")} />
+      <input {...form.register("password")} />
+      <input {...form.register("username")} />
       <button disabled={isLoading}>Sign Up</button>
     </form>
   );
@@ -710,15 +711,15 @@ function SignUpPage() {
 Sign-in form state management.
 
 ```tsx
-import { useSignInForm } from '@/hooks/use-sign-in-form';
+import { useSignInForm } from "@/hooks/use-sign-in-form";
 
 function SignInPage() {
   const { form, isLoading, handleSubmit } = useSignInForm();
 
   return (
     <form onSubmit={handleSubmit}>
-      <input {...form.register('email')} />
-      <input {...form.register('password')} />
+      <input {...form.register("email")} />
+      <input {...form.register("password")} />
       <button disabled={isLoading}>Sign In</button>
     </form>
   );
@@ -730,7 +731,7 @@ function SignInPage() {
 Profile form with optimistic updates.
 
 ```tsx
-import { useProfileForm } from '@/hooks/use-profile-form';
+import { useProfileForm } from "@/hooks/use-profile-form";
 
 function ProfileEditPage() {
   const {
@@ -739,16 +740,12 @@ function ProfileEditPage() {
     socialLinks,
     handleSubmit,
     addSocialLink,
-    removeSocialLink
+    removeSocialLink,
   } = useProfileForm(initialProfile, (data) => {
-    console.log('Profile saved:', data);
+    console.log("Profile saved:", data);
   });
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* Form fields */}
-    </form>
-  );
+  return <form onSubmit={handleSubmit}>{/* Form fields */}</form>;
 }
 ```
 
@@ -759,21 +756,18 @@ function ProfileEditPage() {
 Check username availability in real-time.
 
 ```tsx
-import { useUsernameAvailability } from '@/hooks/use-username-availability';
+import { useUsernameAvailability } from "@/hooks/use-username-availability";
 
 function UsernameField() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const { isAvailable, isLoading, error } = useUsernameAvailability(username);
 
   return (
     <div>
-      <input
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+      <input value={username} onChange={(e) => setUsername(e.target.value)} />
       {isLoading && <span>Checking...</span>}
       {!isLoading && username && (
-        <span>{isAvailable ? '✓ Available' : '✗ Taken'}</span>
+        <span>{isAvailable ? "✓ Available" : "✗ Taken"}</span>
       )}
     </div>
   );
@@ -785,10 +779,10 @@ function UsernameField() {
 Password strength calculation.
 
 ```tsx
-import { usePasswordStrength } from '@/hooks/use-password-strength';
+import { usePasswordStrength } from "@/hooks/use-password-strength";
 
 function PasswordField() {
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const { score, feedback, isValid } = usePasswordStrength(password);
 
   return (
@@ -810,16 +804,12 @@ function PasswordField() {
 Mobile device detection.
 
 ```tsx
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function ResponsiveComponent() {
   const isMobile = useIsMobile();
 
-  return (
-    <div>
-      {isMobile ? <MobileLayout /> : <DesktopLayout />}
-    </div>
-  );
+  return <div>{isMobile ? <MobileLayout /> : <DesktopLayout />}</div>;
 }
 ```
 
@@ -834,9 +824,9 @@ function ResponsiveComponent() {
 Clean and validate username format.
 
 ```typescript
-import { cleanUsername } from '@/lib/utils/username';
+import { cleanUsername } from "@/lib/utils/username";
 
-const clean = cleanUsername('John Doe!'); // Returns: 'johndoe'
+const clean = cleanUsername("John Doe!"); // Returns: 'johndoe'
 ```
 
 #### `generateUsernameFromEmail(email: string)`
@@ -844,9 +834,9 @@ const clean = cleanUsername('John Doe!'); // Returns: 'johndoe'
 Generate username from email address.
 
 ```typescript
-import { generateUsernameFromEmail } from '@/lib/utils/username';
+import { generateUsernameFromEmail } from "@/lib/utils/username";
 
-const username = generateUsernameFromEmail('john.doe@example.com'); // Returns: 'johndoe'
+const username = generateUsernameFromEmail("john.doe@example.com"); // Returns: 'johndoe'
 ```
 
 #### `generateUsernameFromName(name: string)`
@@ -854,9 +844,9 @@ const username = generateUsernameFromEmail('john.doe@example.com'); // Returns: 
 Generate username from display name.
 
 ```typescript
-import { generateUsernameFromName } from '@/lib/utils/username';
+import { generateUsernameFromName } from "@/lib/utils/username";
 
-const username = generateUsernameFromName('John Doe'); // Returns: 'johndoe'
+const username = generateUsernameFromName("John Doe"); // Returns: 'johndoe'
 ```
 
 ### Media Utilities (`lib/utils/media.ts`)
@@ -866,9 +856,9 @@ const username = generateUsernameFromName('John Doe'); // Returns: 'johndoe'
 Detect image type from URL or file extension.
 
 ```typescript
-import { detectImageType } from '@/lib/utils/media';
+import { detectImageType } from "@/lib/utils/media";
 
-const type = detectImageType('image.gif'); // Returns: 'gif'
+const type = detectImageType("image.gif"); // Returns: 'gif'
 ```
 
 #### `isAnimatedImage(src: string)`
@@ -876,9 +866,9 @@ const type = detectImageType('image.gif'); // Returns: 'gif'
 Check if image is animated (GIF/WebP).
 
 ```typescript
-import { isAnimatedImage } from '@/lib/utils/media';
+import { isAnimatedImage } from "@/lib/utils/media";
 
-const isAnimated = isAnimatedImage('animation.gif'); // Returns: true
+const isAnimated = isAnimatedImage("animation.gif"); // Returns: true
 ```
 
 #### `getImageLoadingSettings(src: string)`
@@ -886,9 +876,9 @@ const isAnimated = isAnimatedImage('animation.gif'); // Returns: true
 Get optimized loading settings for images.
 
 ```typescript
-import { getImageLoadingSettings } from '@/lib/utils/media';
+import { getImageLoadingSettings } from "@/lib/utils/media";
 
-const settings = getImageLoadingSettings('large-image.jpg');
+const settings = getImageLoadingSettings("large-image.jpg");
 // Returns: { loading: 'lazy', priority: false, quality: 85 }
 ```
 
@@ -899,7 +889,7 @@ const settings = getImageLoadingSettings('large-image.jpg');
 Check if user has active subscription.
 
 ```typescript
-import { hasActiveSubscription } from '@/lib/utils/subscription';
+import { hasActiveSubscription } from "@/lib/utils/subscription";
 
 const isActive = hasActiveSubscription(user);
 ```
@@ -909,7 +899,7 @@ const isActive = hasActiveSubscription(user);
 Format subscription renewal date for display.
 
 ```typescript
-import { formatRenewalDate } from '@/lib/utils/subscription';
+import { formatRenewalDate } from "@/lib/utils/subscription";
 
 const formatted = formatRenewalDate(renewalDate); // Returns: 'December 25, 2024'
 ```
@@ -921,11 +911,11 @@ const formatted = formatRenewalDate(renewalDate); // Returns: 'December 25, 2024
 Compress image file for optimization.
 
 ```typescript
-import { compressImage } from '@/lib/utils/image-compression';
+import { compressImage } from "@/lib/utils/image-compression";
 
 const compressedFile = await compressImage(originalFile, {
   maxSize: 1024 * 1024, // 1MB
-  quality: 0.8
+  quality: 0.8,
 });
 ```
 
@@ -940,9 +930,9 @@ const compressedFile = await compressImage(originalFile, {
 Get user by ID with caching.
 
 ```typescript
-import { getUserById } from '@/lib/data/user';
+import { getUserById } from "@/lib/data/user";
 
-const user = await getUserById('user-id');
+const user = await getUserById("user-id");
 ```
 
 #### `getUserByUsername(username: string)`
@@ -950,9 +940,9 @@ const user = await getUserById('user-id');
 Get user by username with caching.
 
 ```typescript
-import { getUserByUsername } from '@/lib/data/user';
+import { getUserByUsername } from "@/lib/data/user";
 
-const user = await getUserByUsername('johndoe');
+const user = await getUserByUsername("johndoe");
 ```
 
 #### `getUserByCustomDomain(domain: string)`
@@ -960,9 +950,9 @@ const user = await getUserByUsername('johndoe');
 Get user by custom domain.
 
 ```typescript
-import { getUserByCustomDomain } from '@/lib/data/user';
+import { getUserByCustomDomain } from "@/lib/data/user";
 
-const user = await getUserByCustomDomain('johndoe.com');
+const user = await getUserByCustomDomain("johndoe.com");
 ```
 
 ### Project Data (`lib/data/project.ts`)
@@ -972,9 +962,9 @@ const user = await getUserByCustomDomain('johndoe.com');
 Get all projects for a user with caching.
 
 ```typescript
-import { getProjectsByUsername } from '@/lib/data/project';
+import { getProjectsByUsername } from "@/lib/data/project";
 
-const projects = await getProjectsByUsername('johndoe');
+const projects = await getProjectsByUsername("johndoe");
 ```
 
 #### `getProjectByUsernameAndSlug(username: string, slug: string)`
@@ -982,9 +972,9 @@ const projects = await getProjectsByUsername('johndoe');
 Get specific project by username and slug.
 
 ```typescript
-import { getProjectByUsernameAndSlug } from '@/lib/data/project';
+import { getProjectByUsernameAndSlug } from "@/lib/data/project";
 
-const project = await getProjectByUsernameAndSlug('johndoe', 'my-project');
+const project = await getProjectByUsernameAndSlug("johndoe", "my-project");
 ```
 
 #### `getProjectCount(userId: string)`
@@ -992,9 +982,9 @@ const project = await getProjectByUsernameAndSlug('johndoe', 'my-project');
 Get total project count for user.
 
 ```typescript
-import { getProjectCount } from '@/lib/data/project';
+import { getProjectCount } from "@/lib/data/project";
 
-const count = await getProjectCount('user-id');
+const count = await getProjectCount("user-id");
 ```
 
 ### Profile Data (`lib/data/profile.ts`)
@@ -1004,9 +994,9 @@ const count = await getProjectCount('user-id');
 Get profile by username with social links.
 
 ```typescript
-import { getProfileByUsername } from '@/lib/data/profile';
+import { getProfileByUsername } from "@/lib/data/profile";
 
-const profile = await getProfileByUsername('johndoe');
+const profile = await getProfileByUsername("johndoe");
 ```
 
 #### `getProfileByUserId(userId: string)`
@@ -1014,9 +1004,9 @@ const profile = await getProfileByUsername('johndoe');
 Get profile by user ID.
 
 ```typescript
-import { getProfileByUserId } from '@/lib/data/profile';
+import { getProfileByUserId } from "@/lib/data/profile";
 
-const profile = await getProfileByUserId('user-id');
+const profile = await getProfileByUserId("user-id");
 ```
 
 ### Media Data (`lib/data/media.ts`)
@@ -1026,9 +1016,9 @@ const profile = await getProfileByUserId('user-id');
 Get media item by ID.
 
 ```typescript
-import { getMediaById } from '@/lib/data/media';
+import { getMediaById } from "@/lib/data/media";
 
-const media = await getMediaById('media-id');
+const media = await getMediaById("media-id");
 ```
 
 #### `getMediaByProjectId(projectId: string)`
@@ -1036,9 +1026,9 @@ const media = await getMediaById('media-id');
 Get all media for a project.
 
 ```typescript
-import { getMediaByProjectId } from '@/lib/data/media';
+import { getMediaByProjectId } from "@/lib/data/media";
 
-const mediaList = await getMediaByProjectId('project-id');
+const mediaList = await getMediaByProjectId("project-id");
 ```
 
 ---
@@ -1078,17 +1068,26 @@ const signUpSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_-]+$/)
+  username: z
+    .string()
+    .min(3)
+    .max(20)
+    .regex(/^[a-zA-Z0-9_-]+$/),
 });
 
 // Project creation validation
 const createProjectSchema = z.object({
   title: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   about: z.string().max(1000).optional(),
   externalLink: z.string().url().optional().or(z.literal("")),
   imageIds: z.array(z.string()).optional(),
-  featuredImageId: z.string().optional()
+  featuredImageId: z.string().optional(),
 });
 
 // Profile update validation
@@ -1096,12 +1095,21 @@ const updateProfileSchema = z.object({
   name: z.string().min(1).optional(),
   title: z.string().max(100).optional(),
   bio: z.string().max(500).optional(),
-  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_-]+$/).optional(),
-  socialLinks: z.array(z.object({
-    platform: z.string().min(1),
-    url: z.string().url(),
-    displayOrder: z.number().int().min(0)
-  })).optional()
+  username: z
+    .string()
+    .min(3)
+    .max(20)
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .optional(),
+  socialLinks: z
+    .array(
+      z.object({
+        platform: z.string().min(1),
+        url: z.string().url(),
+        displayOrder: z.number().int().min(0),
+      })
+    )
+    .optional(),
 });
 ```
 
@@ -1198,6 +1206,7 @@ All server actions and API routes follow a consistent error handling pattern:
 ```
 
 Common error scenarios:
+
 - **Unauthorized**: User not authenticated
 - **Validation Error**: Invalid input data
 - **Not Found**: Resource doesn't exist
