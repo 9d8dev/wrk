@@ -1,5 +1,7 @@
 # Wrk.so - Modern Portfolio Platform for Creatives
 
+> Work in Progress 🚧
+
 Wrk.so is a Next.js 15 portfolio platform that enables creatives to build stunning online portfolios with custom domains, multiple grid layouts, and professional features.
 
 ## ✨ Key Features
