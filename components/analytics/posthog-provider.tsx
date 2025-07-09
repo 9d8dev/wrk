@@ -16,8 +16,8 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
     posthog.get_distinct_id();
   } catch {
     // Not initialized yet, so initialize it
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || `${window.location.origin}/ingest`,
+    posthog.init(POSTHOG_KEY, {
+      api_host: POSTHOG_HOST || `${window.location.origin}/ingest`,
       person_profiles: "identified_only", // Create profiles only for identified users
       capture_pageview: false, // We'll handle pageviews manually for better control
       capture_pageleave: true, // Track when users leave pages
@@ -25,7 +25,7 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
         // Enable debug mode in development
         if (process.env.NODE_ENV === "development") {
           posthog.debug();
-          console.log("PostHog initialized successfully with key:", process.env.NEXT_PUBLIC_POSTHOG_KEY?.slice(0, 10) + "...");
+          console.log("PostHog initialized successfully with key:", POSTHOG_KEY?.slice(0, 10) + "...");
         }
       },
       autocapture: {
@@ -55,7 +55,7 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
       },
     });
   }
-} else if (typeof window !== "undefined" && typeof process !== "undefined") {
+} else if (typeof window !== "undefined") {
   console.warn("PostHog not initialized: NEXT_PUBLIC_POSTHOG_KEY environment variable is missing");
 }
 
@@ -65,7 +65,7 @@ interface PostHogWrapperProps {
 
 export function PostHogWrapper({ children }: PostHogWrapperProps) {
   // Only render provider if PostHog is configured
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  if (!POSTHOG_KEY) {
     if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
       console.warn("PostHog is not configured. Add NEXT_PUBLIC_POSTHOG_KEY to your environment variables.");
     }
