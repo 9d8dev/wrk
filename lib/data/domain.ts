@@ -25,7 +25,19 @@ export const getUsernameByDomain = unstable_cache(
   },
   ["username-by-domain"],
   {
-    revalidate: 300, // 5 minutes
+    revalidate: 3600, // 1 hour (domains rarely change)
     tags: ["domain-lookup"],
   }
 );
+
+/**
+ * Pre-warm the domain cache for a specific domain
+ * Call this when a domain is verified to ensure fast first access
+ */
+export async function prewarmDomainCache(domain: string): Promise<void> {
+  try {
+    await getUsernameByDomain(domain);
+  } catch (error) {
+    console.error("Failed to prewarm domain cache:", error);
+  }
+}

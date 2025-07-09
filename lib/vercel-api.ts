@@ -109,13 +109,13 @@ export async function addDomainToVercel(
 
     if (!response.ok) {
       const error = await response.json();
-      
+
       // Domain already exists in some form - this is okay
       if (
         error.error?.code === "domain_already_exists" ||
         error.error?.code === "domain_taken" ||
-        (error.error?.message && 
-         error.error.message.includes("already in use")) ||
+        (error.error?.message &&
+          error.error.message.includes("already in use")) ||
         response.status === 409
       ) {
         return { success: true };

@@ -11,6 +11,7 @@ import {
   getDomainStatus,
   verifyDomainInVercel,
 } from "@/lib/vercel-api";
+import { prewarmDomainCache } from "@/lib/data/domain";
 import { auth } from "@/lib/auth";
 
 import { user } from "@/db/schema";
@@ -224,7 +225,7 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Check if domain already exists in Vercel, then add if needed
     const existsCheck = await checkDomainExists(domain);
-    
+
     if (!existsCheck.exists) {
       // Domain doesn't exist, add it
       const addResult = await addDomainToVercel(domain);
@@ -249,7 +250,9 @@ export async function POST(request: NextRequest) {
         });
       }
     } else {
-      console.log(`Domain ${domain} already exists in Vercel, skipping add step`);
+      console.log(
+        `Domain ${domain} already exists in Vercel, skipping add step`
+      );
     }
 
     // Step 4: Update status to vercel_pending while we wait for SSL
@@ -302,6 +305,9 @@ export async function POST(request: NextRequest) {
 
         // Revalidate domain lookup cache when domain becomes active
         revalidateTag("domain-lookup");
+
+        // Pre-warm the cache for immediate access
+        await prewarmDomainCache(domain);
 
         return NextResponse.json({
           success: true,

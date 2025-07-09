@@ -135,6 +135,15 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isCustomDomain(host)) {
+      // Skip database lookup for static assets
+      if (
+        pathname.startsWith("/_next/") ||
+        pathname.startsWith("/favicon") ||
+        pathname.includes(".")
+      ) {
+        return new NextResponse("Not found", { status: 404 });
+      }
+
       // Look up the username associated with this custom domain
       const username = await getUsernameByDomain(host);
 
