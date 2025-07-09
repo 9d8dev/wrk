@@ -55,23 +55,3 @@ export function ManageSubscriptionButton({
     </Button>
   );
 }
-
-interface ProPlanCardProps {
-  className?: string;
-}
-
-export function ProPlanCard({ className }: ProPlanCardProps) {
-  return (
-    <div
-      className={`bg-background space-y-1 rounded-md border p-2.5 ${className || ""}`}
-    >
-      <p className="flex items-center gap-2">
-        Pro Account <span className="text-xs">⭐</span>
-      </p>
-      <p className="text-muted-foreground text-xs">
-        Thank you for supporting Wrk.so!
-      </p>
-      <ManageSubscriptionButton className="mt-2 w-full" />
-    </div>
-  );
-}

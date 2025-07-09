@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/sidebar";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
-import { ProPlanCard } from "./manage-subscription-button";
 import { UpgradePlanCard } from "./upgrade-button";
 import { AdminNav } from "./admin-nav";
 import { Logo } from "../logo";
@@ -50,7 +49,6 @@ export function AdminSidebar({
           {!isPro && productInfo && (
             <UpgradePlanCard productInfo={productInfo} />
           )}
-          {isPro && <ProPlanCard />}
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="bg-muted/50 border-t border-dashed">
