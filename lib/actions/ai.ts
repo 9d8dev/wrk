@@ -17,11 +17,30 @@ export const generateDescription = async (imageUrl: string) => {
         content: [
           {
             type: "text",
-            text: "Describe this creative work objectively in 1-2 paragraphs. Focus on the visual elements, techniques, composition, and medium without speculation about meaning or intent. Don't invent titles or background information.",
+            text: "Describe this creative work as if you made it in 1 paragraph. Focus on the visual elements, techniques, composition, and medium without speculation about meaning or intent. Don't invent titles or background information.",
           },
           {
             type: "image",
             image: imageUrl,
+          },
+        ],
+      },
+    ],
+  });
+
+  return result.text;
+};
+
+export const improveWriting = async () => {
+  const result = await generateText({
+    model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: "Improve this writing while keeping about the same length. Focus on the writing style, grammar, and tone.",
           },
         ],
       },
