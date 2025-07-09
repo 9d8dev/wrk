@@ -576,7 +576,11 @@ export function QuickCreateProject() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        // Only trigger if the event target is the container itself (not an input/textarea)
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target === e.currentTarget
+        ) {
           e.preventDefault();
           fileInputRef.current?.click();
         }
