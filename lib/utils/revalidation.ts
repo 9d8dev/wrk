@@ -1,8 +1,12 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 /**
- * Modern revalidation using cache tags (preferred approach)
- * This is more efficient than path-based revalidation
+ * Revalidates cache entries and critical paths related to a user's profile.
+ *
+ * Performs tag-based and selective path-based revalidation for the specified user, ensuring that profile, user, and global profile caches are updated. If a user ID is provided, additional user- and project-specific tags are revalidated. Also refreshes the user's profile page and relevant admin pages.
+ *
+ * @param username - The username whose profile cache should be revalidated
+ * @param userId - Optional user ID for additional cache revalidation
  */
 export async function revalidateUserProfile(username: string, userId?: string) {
   try {
@@ -37,7 +41,13 @@ export async function forceRevalidateProfile(
 }
 
 /**
- * Handle username changes with optimized revalidation
+ * Revalidates cache tags and paths affected by a username change.
+ *
+ * Ensures that both old and new username references, user-specific data, global user caches, and critical admin pages are updated to reflect the change.
+ *
+ * @param oldUsername - The user's previous username
+ * @param newUsername - The user's new username
+ * @param userId - The unique identifier for the user
  */
 export async function revalidateUsernameChange(
   oldUsername: string,

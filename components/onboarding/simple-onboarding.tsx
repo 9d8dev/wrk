@@ -52,6 +52,14 @@ interface SimpleOnboardingProps {
   user: User;
 }
 
+/**
+ * Renders a user onboarding form for setting up or editing a profile, including username selection, profile image upload, and personal details with validation.
+ *
+ * Displays and validates fields for username, professional title, location, and bio, with real-time username availability checking and image size validation. On submission, creates or updates the user profile and navigates to the admin dashboard upon success.
+ *
+ * @param user - The user object for whom the onboarding form is rendered
+ * @returns The onboarding form React element
+ */
 export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);

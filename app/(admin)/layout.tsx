@@ -10,6 +10,13 @@ import { polarConfig } from "@/lib/config/polar";
 import { getSession } from "@/lib/actions/auth";
 import { getUserById } from "@/lib/data/user";
 
+/**
+ * Retrieves the current authenticated user's data, Pro subscription status, and product information for the admin layout.
+ *
+ * Redirects to the sign-in page if the user is not authenticated or user data cannot be fetched. Redirects to onboarding if the user lacks a username in the database. Returns an object containing fresh user data, Pro subscription status, product details, and user identifiers.
+ *
+ * @returns An object with user data, Pro subscription status, product info, and user identifiers for use in the admin layout.
+ */
 async function getAdminData() {
   const session = await getSession();
 
