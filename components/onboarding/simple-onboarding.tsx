@@ -170,7 +170,7 @@ export function SimpleOnboarding({ user }: SimpleOnboardingProps) {
 
       toast.success("Welcome to Wrk.so! 🎉");
       router.push("/admin");
-      router.refresh();
+      router.refresh(); // Refresh to ensure admin layout gets updated session data
     } catch (error) {
       console.error("Error creating profile:", error);
       toast.error("Failed to create profile. Please try again.");
