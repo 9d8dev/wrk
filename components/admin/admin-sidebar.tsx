@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/sidebar";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
-import { UpgradePlanCard } from "./upgrade-button";
-import { AdminNav } from "./admin-nav";
-import { Logo } from "../logo";
+import { AdminNav } from "@/components/admin/admin-nav";
+import { UpgradePlanCard } from "@/components/admin/upgrade-button";
+import { Logo } from "@/components/logo";
 
 export function AdminSidebar({
   name,
