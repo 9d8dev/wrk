@@ -40,7 +40,7 @@ export default async function SettingsPage() {
       <>
         <AdminHeader pageTitle="Settings" />
         <PageWrapper className="mx-auto max-w-2xl">
-          <div className="space-y-12">
+          <div className="mt-8 space-y-12">
             <SubscriptionSection subscriptionDetails={subscriptionDetails} />
             <DomainManagement />
             <DangerZone />
