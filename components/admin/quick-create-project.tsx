@@ -325,12 +325,14 @@ function ProjectFormFields({
   return (
     <>
       {/* Basic Fields */}
-      <div className="space-y-3">
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-xs">Project Title</p>
         <Input
           placeholder="Project Title"
           value={formData.title}
           onChange={(e) => onUpdateField("title", e.target.value)}
         />
+        <p className="text-muted-foreground text-xs">Project Slug</p>
         <Input
           placeholder="project-slug"
           value={formData.slug}
