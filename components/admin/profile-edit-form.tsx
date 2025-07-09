@@ -163,7 +163,7 @@ export default function ProfileEditForm({
                     {...field}
                   />
                 </FormControl>
-                <ImproveWriting value={field.value} field={field} />
+                <ImproveWriting value={field.value || ""} field={field} />
                 <FormMessage />
               </FormItem>
             )}
