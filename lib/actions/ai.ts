@@ -17,7 +17,7 @@ export const generateDescription = async (imageUrl: string) => {
         content: [
           {
             type: "text",
-            text: "Describe this creative work as if you made it in 1 paragraph. Focus on the visual elements, techniques, composition, and medium without speculation about meaning or intent. Don't invent titles or background information.",
+            text: "Describe this creative work as if you made it in a simple, short paragraph. Focus on the visual elements, techniques, composition, and medium without speculation about meaning or intent. Don't invent titles or background information.",
           },
           {
             type: "image",
