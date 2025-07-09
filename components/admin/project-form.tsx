@@ -889,64 +889,29 @@ function ProjectDetailsForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="externalLink"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base">External Link</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="https://example.com"
+                  type="url"
+                  className="text-base"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Add a link to the live project, GitHub repository, or related
+                resource.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
-    </div>
-  );
-}
-
-interface AdvancedOptionsSectionProps {
-  form: ReturnType<typeof useForm<ProjectFormValues>>;
-  showAdvanced: boolean;
-  onToggleAdvanced: () => void;
-}
-
-function AdvancedOptionsSection({
-  form,
-  showAdvanced,
-  onToggleAdvanced,
-}: AdvancedOptionsSectionProps) {
-  return (
-    <div className="space-y-4">
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={onToggleAdvanced}
-        className="flex h-auto items-center gap-2 p-0 text-base font-medium hover:bg-transparent"
-      >
-        {showAdvanced ? (
-          <ChevronUp className="h-5 w-5" />
-        ) : (
-          <ChevronDown className="h-5 w-5" />
-        )}
-        Advanced Options
-      </Button>
-
-      {showAdvanced && (
-        <div className="space-y-6 border-t pt-4">
-          <FormField
-            control={form.control}
-            name="externalLink"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base">External Link</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://example.com"
-                    type="url"
-                    className="text-base"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Add a link to the live project, GitHub repository, or related
-                  resource.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
     </div>
   );
 }
@@ -1149,12 +1114,6 @@ export const ProjectForm = ({
             form={form}
             isEditing={isEditing}
             images={images}
-          />
-
-          <AdvancedOptionsSection
-            form={form}
-            showAdvanced={showAdvanced}
-            onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
           />
 
           <FormActions
