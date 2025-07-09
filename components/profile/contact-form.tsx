@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 
 import { createLead } from "@/lib/actions/leads";
 
+// Schema and defaults outside component for clarity
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -30,58 +31,55 @@ const formSchema = z.object({
     .min(10, { message: "Message must be at least 10 characters" }),
 });
 
+const defaultValues = {
+  name: "",
+  email: "",
+  message: "",
+};
+
 type FormValues = z.infer<typeof formSchema>;
 
-export function ContactForm({
-  userId,
-  portfolioOwner,
-}: {
+type ContactFormProps = {
   userId: string;
   portfolioOwner?: string;
-}) {
+};
+
+export function ContactForm({ userId, portfolioOwner }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { trackContactFormSubmission } = usePostHogEvents();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: "",
-    },
+    defaultValues,
   });
 
-  async function onSubmit(data: FormValues) {
+  const handleReset = () => {
+    setSuccess(false);
+    form.reset();
+  };
+
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      const result = await createLead({
-        userId,
-        ...data,
-      });
-
+      const result = await createLead({ userId, ...data });
       if (result.success) {
-        setIsSuccess(true);
+        setSuccess(true);
         toast.success("Message sent successfully");
-        if (portfolioOwner) {
-          trackContactFormSubmission(portfolioOwner, true);
-        }
+        portfolioOwner && trackContactFormSubmission(portfolioOwner, true);
         form.reset();
       } else {
         toast.error("Failed to send message");
-        if (portfolioOwner) {
-          trackContactFormSubmission(portfolioOwner, false);
-        }
+        portfolioOwner && trackContactFormSubmission(portfolioOwner, false);
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred");
-      return error;
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
-  if (isSuccess) {
+  if (success) {
     return (
       <div className="bg-accent/50 space-y-4 rounded-sm border p-6">
         <CheckCircle className="text-green-500" />
@@ -89,13 +87,7 @@ export function ContactForm({
         <p className="text-muted-foreground">
           Thank you for reaching out. I&apos;ll respond as soon as possible.
         </p>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setIsSuccess(false);
-            form.reset();
-          }}
-        >
+        <Button variant="outline" onClick={handleReset}>
           Send Another
         </Button>
       </div>
@@ -106,16 +98,16 @@ export function ContactForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="bg-accent/50 space-y-4 rounded-sm border p-6"
+        className="bg-accent/30 space-y-4 rounded border p-4"
       >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel htmlFor="contact-name">Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input id="contact-name" placeholder="Your name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -126,9 +118,13 @@ export function ContactForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel htmlFor="contact-email">Email</FormLabel>
               <FormControl>
-                <Input placeholder="your.email@example.com" {...field} />
+                <Input
+                  id="contact-email"
+                  placeholder="your.email@example.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -139,9 +135,13 @@ export function ContactForm({
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Message</FormLabel>
+              <FormLabel htmlFor="contact-message">Message</FormLabel>
               <FormControl>
-                <Textarea placeholder="How can I help you?" {...field} />
+                <Textarea
+                  id="contact-message"
+                  placeholder="How can I help you?"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
