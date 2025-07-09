@@ -116,7 +116,7 @@ export default async function AdminPage() {
       </AdminHeader>
 
       <PageWrapper>
-        <div className="mx-auto max-w-3xl space-y-8">
+        <div className="mx-auto mt-8 max-w-3xl space-y-8">
           <QuickCreateProject />
           {projects.length > 0 ? (
             <ProjectList
