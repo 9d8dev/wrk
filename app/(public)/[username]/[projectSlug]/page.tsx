@@ -232,7 +232,7 @@ const FeaturedImage = ({
         )}
       </div>
       <Link
-        className="text-muted-foreground hover:text-foreground absolute top-6 left-6 flex items-center gap-1 text-sm transition-colors"
+        className="text-muted-foreground hover:text-foreground sr-only top-6 left-6 mt-4 flex items-center gap-1 text-sm transition-colors md:absolute md:block"
         href={`/${username}`}
       >
         <ArrowLeft size={12} />
