@@ -40,7 +40,7 @@ export const improveWriting = async (text: string) => {
         content: [
           {
             type: "text",
-            text: `Improve this writing while keeping about the same length. Focus on the writing style, grammar, and tone.\n\n${text}`,
+            text: `Please revise the following text to improve its clarity, flow, and professionalism, while preserving its original meaning and length as much as possible. Focus on enhancing grammar, style, and tone. Do not add or remove information. Return only the improved version, ready for publication.\n\nThe text is:\n\n${text}`,
           },
         ],
       },
