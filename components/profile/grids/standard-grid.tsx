@@ -30,9 +30,12 @@ export function StandardGrid({ projects, username }: StandardGridProps) {
             width={project.featuredImage?.width}
             height={project.featuredImage?.height}
           />
-          <h3 className="line-clamp-1 flex items-center justify-between gap-2 text-sm leading-0 opacity-0 transition-opacity group-hover:opacity-100">
+          <h3 className="text-muted-foreground group-hover:text-foreground line-clamp-1 flex items-center justify-between gap-2 text-sm leading-0 tracking-tight transition-all">
             {project.project.title}{" "}
-            <ArrowUpRight className="text-muted-foreground" size={16} />
+            <ArrowUpRight
+              className="text-muted-foreground group-hover:text-foreground transition-all"
+              size={14}
+            />
           </h3>
         </Link>
       ))}
