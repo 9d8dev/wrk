@@ -2,6 +2,7 @@ import type { Media, Project } from "@/db/schema";
 
 import Link from "next/link";
 
+import { ArrowUpRight } from "lucide-react";
 import { AsyncImage } from "@/components/ui/async-image";
 
 interface MasonryGridProps {
@@ -88,9 +89,10 @@ export function MasonryGrid({ projects, username }: MasonryGridProps) {
                       placeholder="shimmer"
                     />
 
-                    <div className="absolute bottom-0 left-0 flex aspect-square h-full w-full items-end bg-gradient-to-tr from-stone-900/40 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <h3 className="font-medium text-white">
+                    <div className="absolute bottom-0 left-0 flex aspect-square h-full w-full items-end bg-gradient-to-t from-stone-900/40 via-stone-900/10 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <h3 className="flex w-full items-center justify-between font-medium text-white">
                         {project.project.title}
+                        <ArrowUpRight className="transition-all" size={14} />
                       </h3>
                     </div>
                   </div>
