@@ -102,7 +102,7 @@ function ThemeOptionCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "hover:border-primary/50 relative rounded border-2 p-4 text-left transition-all",
+        "relative rounded p-4 text-left transition-all hover:border",
         isSelected
           ? "border-primary bg-primary/5"
           : "border-border hover:bg-muted/50"
