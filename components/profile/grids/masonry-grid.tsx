@@ -1,8 +1,8 @@
 import type { Media, Project } from "@/db/schema";
 
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
-import { ArrowUpRight } from "lucide-react";
 import { AsyncImage } from "@/components/ui/async-image";
 
 interface MasonryGridProps {

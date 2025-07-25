@@ -1,6 +1,6 @@
 import type { StaticImageData } from "next/image";
 
-import { YouTubeEmbed } from "@next/third-parties/google";
+// import { YouTubeEmbed } from "@next/third-parties/google";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -182,7 +182,8 @@ export default function Home() {
           </div>
         </Container>
 
-        <Container className="grid border-x !p-0 md:grid-cols-[auto_1fr]">
+        {/* TODO: add in after video is made */}
+        {/* <Container className="grid border-x !p-0 md:grid-cols-[auto_1fr]">
           <div className="bg-accent/50 space-y-3 p-6 md:max-w-lg">
             <h3 className="text-4xl font-bold text-balance uppercase">
               Watch a demo of the platform in action.
@@ -194,7 +195,7 @@ export default function Home() {
           <div className="border-l p-6">
             <YouTubeEmbed videoid="ogfYd705cRs" params="controls=0" />
           </div>
-        </Container>
+        </Container> */}
 
         <Container className="border-x !p-0">
           <div className="bg-border grid gap-px md:grid-cols-3">
