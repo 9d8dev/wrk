@@ -33,12 +33,13 @@ export const ProfileNav = ({ user, isPro }: { user: User; isPro: boolean }) => {
       </Link>
       {!isPro && (
         <>
-          |
+          <span className="sr-only sm:not-sr-only">|</span>
           <Link
             href="/"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
+              "sr-only sm:not-sr-only",
               "text-muted-foreground hover:text-foreground transition-all"
             )}
           >

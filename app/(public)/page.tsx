@@ -74,8 +74,8 @@ export default function Home() {
         </Container>
 
         <Container className="bg-grid space-y-6 border-x font-bold uppercase">
-          <h1 className="text-6xl leading-[0.9] text-balance md:text-9xl">
-            <span className="text-muted-foreground">Wrk.so ✏︎</span> Portfolios
+          <h1 className="text-5xl leading-[0.9] text-balance sm:text-6xl md:text-9xl">
+            <span className="text-muted-foreground">Wrk.so /</span> Portfolios
             for Creatives
           </h1>
           <h2 className="text-muted-foreground text-xl text-balance md:text-3xl">
