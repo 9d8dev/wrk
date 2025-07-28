@@ -25,9 +25,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    nodeMiddleware: true,
-  },
   async rewrites() {
     return [
       {
