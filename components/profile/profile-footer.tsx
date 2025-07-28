@@ -56,12 +56,12 @@ export const ProfileFooter = async ({ username }: { username: string }) => {
           </div>
           <SocialLinks profile={profile} />
         </Container>
-        <Container className="text-muted-foreground flex items-start justify-between gap-4 text-sm">
+        <Container className="text-muted-foreground flex w-full flex-col items-start justify-between gap-4 text-sm sm:flex-row">
           <p>
             {new Date().getFullYear()} © {user.name}, All rights reserved.
           </p>
           {!isPro && (
-            <div className="flex items-center gap-6">
+            <div className="flex w-full items-center justify-between gap-6 sm:w-auto">
               <p className="flex items-center gap-1">
                 ✏︎ <Link href="/">Create your Portfolio with Wrk.so</Link>
               </p>
