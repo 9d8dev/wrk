@@ -10,6 +10,8 @@ import { getUsernameByDomain } from "@/lib/data/domain";
 /* ------------------------------------------------------------------ */
 
 const CONFIG = {
+  runtime: "nodejs",
+
   mainDomain:
     process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, "") || "wrk.so",
 
