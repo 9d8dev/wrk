@@ -262,7 +262,7 @@ export default function Home() {
             <div className="flex items-center justify-between gap-4">
               <div className="text-muted-foreground space-y-1">
                 <p className="text-sm uppercase">
-                  Created by <a href="https://wiiip.com">WIP</a>
+                  Created by <a href="https://9d8.dev">9d8</a>
                 </p>
                 <div className="flex items-center gap-2 text-sm">
                   <Link href="/privacy">Privacy Policy</Link>
