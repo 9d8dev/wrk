@@ -345,14 +345,13 @@ export async function createProfile(
       updatedAt: new Date(),
     });
 
-    // Automatically create theme with masonry layout for new users
-    // Check if theme already exists (defensive check)
-    const existingTheme = await db
-      .select()
-      .from(theme)
-      .where(eq(theme.userId, userId))
-      .limit(1);
+    // Check theme and accounts in parallel
+    const [existingTheme, userAccounts] = await Promise.all([
+      db.select().from(theme).where(eq(theme.userId, userId)).limit(1),
+      db.select().from(account).where(eq(account.userId, userId)).limit(1),
+    ]);
 
+    // Automatically create theme with masonry layout for new users
     if (existingTheme.length === 0) {
       const themeId = nanoid();
       await db.insert(theme).values({
@@ -363,13 +362,6 @@ export async function createProfile(
         updatedAt: new Date(),
       });
     }
-
-    // Check if this is an OAuth user and send Discord notification
-    const userAccounts = await db
-      .select()
-      .from(account)
-      .where(eq(account.userId, userId))
-      .limit(1);
 
     // If user has OAuth accounts (GitHub, Google), send Discord notification
     if (
