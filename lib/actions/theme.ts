@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 import { revalidateUserTheme } from "@/lib/utils/revalidation";
 
-import { type gridTypes, theme } from "@/db/schema";
+import { type gridTypes, theme, user } from "@/db/schema";
 import { db } from "@/db/drizzle";
 
 type GridType = (typeof gridTypes)[number];
@@ -20,12 +20,15 @@ type UpdateThemeParams = {
 
 export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
   try {
-    // Check if user already has a theme
-    const existingTheme = await db
-      .select()
-      .from(theme)
-      .where(eq(theme.userId, userId))
-      .limit(1);
+    // Fetch existing theme and user info in parallel
+    const [existingTheme, userResult] = await Promise.all([
+      db.select().from(theme).where(eq(theme.userId, userId)).limit(1),
+      db
+        .select({ username: user.username })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1),
+    ]);
 
     let themeId: string;
 
@@ -52,14 +55,6 @@ export async function updateTheme({ userId, themeData }: UpdateThemeParams) {
         updatedAt: new Date(),
       });
     }
-
-    // Get user to revalidate their profile page
-    const { user } = await import("@/db/schema");
-    const userResult = await db
-      .select({ username: user.username })
-      .from(user)
-      .where(eq(user.id, userId))
-      .limit(1);
 
     if (userResult.length > 0 && userResult[0].username) {
       // Use aggressive revalidation for theme changes
@@ -89,22 +84,15 @@ export async function getThemeByUserId(userId: string) {
 
 export async function getThemeByUsername(username: string) {
   try {
-    // First get the user to get their ID
-    const { getUserByUsername } = await import("@/lib/data/user");
-    const userResult = await getUserByUsername(username);
-
-    if (!userResult.success || !userResult.data) {
-      return null;
-    }
-
-    // Then get their theme
-    const userTheme = await db
-      .select()
+    // Get theme directly with a join instead of two sequential queries
+    const result = await db
+      .select({ theme: theme })
       .from(theme)
-      .where(eq(theme.userId, userResult.data.id))
+      .innerJoin(user, eq(user.id, theme.userId))
+      .where(eq(user.username, username))
       .limit(1);
 
-    return userTheme.length > 0 ? userTheme[0] : null;
+    return result.length > 0 ? result[0].theme : null;
   } catch (error) {
     console.error("Error fetching theme by username:", error);
     return null;

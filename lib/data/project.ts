@@ -34,7 +34,7 @@ export interface ProjectWithRelations {
 }
 
 /**
- * Internal function for getting projects by username with pagination
+ * Internal function for getting projects by username with pagination (optimized)
  */
 const _getProjectsByUsername = async (
   username: string,
@@ -85,22 +85,22 @@ const _getProjectsByUsername = async (
 
     const userId = userData[0].id;
 
-    // Get total count
-    const countQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(project)
-      .where(eq(project.userId, userId));
+    // Fetch count and projects in parallel
+    const [countQuery, projects] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(project)
+        .where(eq(project.userId, userId)),
+      db
+        .select()
+        .from(project)
+        .where(eq(project.userId, userId))
+        .orderBy(asc(project.displayOrder))
+        .limit(limit)
+        .offset(offset),
+    ]);
 
     const total = countQuery[0].count;
-
-    // Get paginated projects
-    const projects = await db
-      .select()
-      .from(project)
-      .where(eq(project.userId, userId))
-      .orderBy(asc(project.displayOrder))
-      .limit(limit)
-      .offset(offset);
 
     return {
       items: projects,
@@ -189,7 +189,7 @@ export const getProjectByUsernameAndSlug = dedupe(
 );
 
 /**
- * Get all projects for a user with pagination
+ * Get all projects for a user with pagination (optimized - parallel queries)
  */
 export async function getAllProjects(
   userId: string,
@@ -221,22 +221,22 @@ export async function getAllProjects(
     const { page, limit } = paginationValidation.data;
     const offset = getPaginationOffset(page, limit);
 
-    // Get total count
-    const countQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(project)
-      .where(eq(project.userId, userId));
+    // Fetch count and projects in parallel
+    const [countQuery, projects] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(project)
+        .where(eq(project.userId, userId)),
+      db
+        .select()
+        .from(project)
+        .where(eq(project.userId, userId))
+        .orderBy(asc(project.displayOrder))
+        .limit(limit)
+        .offset(offset),
+    ]);
 
     const total = countQuery[0].count;
-
-    // Get paginated projects
-    const projects = await db
-      .select()
-      .from(project)
-      .where(eq(project.userId, userId))
-      .orderBy(asc(project.displayOrder))
-      .limit(limit)
-      .offset(offset);
 
     return {
       items: projects,
@@ -246,7 +246,7 @@ export async function getAllProjects(
 }
 
 /**
- * Get projects with their featured images
+ * Get projects with their featured images (optimized - parallel queries)
  */
 export async function getProjectsWithImages(
   userId: string,
@@ -285,26 +285,26 @@ export async function getProjectsWithImages(
     const { page, limit } = paginationValidation.data;
     const offset = getPaginationOffset(page, limit);
 
-    // Get total count
-    const countQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(project)
-      .where(eq(project.userId, userId));
+    // Fetch count and projects with images in parallel
+    const [countQuery, results] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(project)
+        .where(eq(project.userId, userId)),
+      db
+        .select({
+          project: project,
+          featuredImage: media,
+        })
+        .from(project)
+        .leftJoin(media, eq(media.id, project.featuredImageId))
+        .where(eq(project.userId, userId))
+        .orderBy(asc(project.displayOrder))
+        .limit(limit)
+        .offset(offset),
+    ]);
 
     const total = countQuery[0].count;
-
-    // Get projects with featured images
-    const results = await db
-      .select({
-        project: project,
-        featuredImage: media,
-      })
-      .from(project)
-      .leftJoin(media, eq(media.id, project.featuredImageId))
-      .where(eq(project.userId, userId))
-      .orderBy(asc(project.displayOrder))
-      .limit(limit)
-      .offset(offset);
 
     return {
       items: results,
@@ -314,7 +314,7 @@ export async function getProjectsWithImages(
 }
 
 /**
- * Get featured projects
+ * Get featured projects (optimized - single query for all images)
  */
 export async function getFeaturedProjects(
   limit = 6
@@ -334,27 +334,36 @@ export async function getFeaturedProjects(
       .orderBy(sql`RANDOM()`)
       .limit(limit);
 
-    // Get images for each project
-    const projectsWithImages = await Promise.all(
-      results.map(async (result) => {
-        let images: Media[] = [];
-        if (result.project.imageIds && result.project.imageIds.length > 0) {
-          images = await db
-            .select()
-            .from(media)
-            .where(inArray(media.id, result.project.imageIds));
-        }
+    if (results.length === 0) {
+      return [];
+    }
 
-        return {
-          project: result.project,
-          featuredImage: result.featuredImage,
-          images,
-          user: result.user,
-        };
-      })
-    );
+    // Collect all image IDs from all projects in a single pass
+    const allImageIds = results
+      .flatMap((r) => r.project.imageIds || [])
+      .filter((id, index, array) => array.indexOf(id) === index); // dedupe
 
-    return projectsWithImages;
+    // Fetch all images in a single query
+    let allImages: Media[] = [];
+    if (allImageIds.length > 0) {
+      allImages = await db
+        .select()
+        .from(media)
+        .where(inArray(media.id, allImageIds));
+    }
+
+    // Map projects with their images
+    return results.map((result) => {
+      const projectImageIds = result.project.imageIds || [];
+      const images = allImages.filter((img) => projectImageIds.includes(img.id));
+
+      return {
+        project: result.project,
+        featuredImage: result.featuredImage,
+        images,
+        user: result.user,
+      };
+    });
   }, "Failed to fetch featured projects");
 }
 
